@@ -77,5 +77,5 @@ To explore the code structure directly inside the editor, follow these steps:
 
 Here is the high-fidelity UI mockup illustrating how the gold accents (`#D4AF37`) integrate with the glassmorphic dark charcoal layout for a premium, secure presentation:
 
-![Gold Theme Portal Mockup](/Users/jeanfils/.gemini/antigravity/brain/4617c157-235a-40b2-bc54-6910a503c8fc/portal_gold_theme_mockup_1782333295901.png)
+![Gold Theme Portal Mockup](portal_gold_theme_mockup_1782333295901.png)
 
