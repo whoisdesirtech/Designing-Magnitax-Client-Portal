@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnitax Client Flyer — Secure, Professional Tax Preparation</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #0b0c10;
+      --bg-secondary: #121520;
+      --accent: #10b981; /* Emerald */
+      --gold: #d4af37; /* Gold */
+      --text-primary: #ffffff;
+      --text-secondary: #9ca3af;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --glass-bg: rgba(22, 26, 41, 0.65);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: #030406;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    /* Standard U.S. Letter Proportions (8.5" x 11") for print layout */
+    .flyer-container {
+      width: 816px;
+      height: 1056px;
+      background-color: var(--bg-primary);
+      background-image: radial-gradient(circle at 0% 0%, rgba(212, 175, 55, 0.08) 0%, rgba(16, 185, 129, 0.04) 50%, rgba(11, 12, 16, 1) 100%);
+      border: 3px double var(--gold);
+      border-radius: 12px;
+      padding: 50px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    /* Subtle watermark background */
+    .flyer-container::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.02) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    /* Header Design */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 25px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-box {
+      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .logo-box svg {
+      width: 24px;
+      height: 24px;
+      fill: #ffffff;
+    }
+
+    .logo-text {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .logo-text span {
+      color: var(--gold);
+    }
+
+    .tagline {
+      text-align: right;
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Main Headline */
+    .hero-section {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .hero-title {
+      font-size: 34px;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .hero-title span {
+      color: var(--gold);
+      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Core Problem/Solution Section */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 22px;
+    }
+
+    .glass-card.gold-border {
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .glass-card h3 {
+      font-size: 18px;
+      color: var(--gold);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .glass-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Portal Feature Highlights */
+    .features-section {
+      margin-bottom: 30px;
+    }
+
+    .features-title {
+      font-size: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+      color: #ffffff;
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .feature-item {
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+
+    .feature-icon {
+      background-color: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--accent);
+    }
+
+    .feature-content h4 {
+      font-size: 15px;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .feature-content p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Steps Section */
+    .steps-section {
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .step-card {
+      text-align: center;
+    }
+
+    .step-number {
+      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
+      color: #000000;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin: 0 auto 10px;
+      font-size: 14px;
+      box-shadow: 0 3px 10px rgba(212, 175, 55, 0.3);
+    }
+
+    .step-card h4 {
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: #ffffff;
+    }
+
+    .step-card p {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Call To Action & Write-in Section */
+    .cta-footer {
+      border-top: 2px solid var(--border-color);
+      padding-top: 25px;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .cta-message h3 {
+      font-size: 20px;
+      margin-bottom: 6px;
+      color: #ffffff;
+    }
+
+    .cta-message p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Custom stamp border for Licensee contact info */
+    .licensee-stamp {
+      border: 2px dashed var(--gold);
+      border-radius: 8px;
+      padding: 15px;
+      background-color: rgba(212, 175, 55, 0.03);
+      text-align: center;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .licensee-stamp span {
+      font-size: 11px;
+      color: var(--gold);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .licensee-stamp h4 {
+      font-size: 16px;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .licensee-stamp p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Responsive / Print overrides */
+    @media print {
+      body {
+        background-color: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .flyer-container {
+        box-shadow: none;
+        border-color: #000000;
+        background-image: none !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        width: 100%;
+        height: auto;
+        padding: 30px;
+      }
+      .logo-text, .logo-text span, .hero-title span, .glass-card h3, .step-number, .licensee-stamp span, .cta-message h3 {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        background: none !important;
+      }
+      .glass-card {
+        background-color: #f9fafb !important;
+        border-color: #e5e7eb !important;
+        color: #000000 !important;
+      }
+      .feature-content h4, .feature-content p, .step-card h4, .step-card p, .hero-subtitle, .glass-card p, .cta-message p, .licensee-stamp h4, .licensee-stamp p {
+        color: #374151 !important;
+      }
+      .step-number {
+        border: 2px solid #000000 !important;
+        box-shadow: none !important;
+      }
+      .feature-icon {
+        background-color: #f3f4f6 !important;
+        border-color: #d1d5db !important;
+        color: #000000 !important;
+      }
+      .licensee-stamp {
+        border-color: #000000 !important;
+        background-color: #f9fafb !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="flyer-container">
+    
+    <!-- HEADER -->
+    <div class="header">
+      <div class="logo-area">
+        <div class="logo-box">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="logo-text">MAGNI<span>TAX</span></div>
+      </div>
+      <div class="tagline">Secure Portal & Dedicated CPA</div>
+    </div>
+
+    <!-- HERO SECTION -->
+    <div class="hero-section">
+      <h1 class="hero-title">Stop Emailing Your <span>Tax Returns</span></h1>
+      <p class="hero-subtitle">
+        Protect your identity and financial history with Magnitax. Get professional tax preparation from a dedicated local CPA backed by bank-grade security technology.
+      </p>
+    </div>
+
+    <!-- COMPARISON CARDS -->
+    <div class="grid-2">
+      <div class="glass-card">
+        <h3 style="color: #f87171;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;">
+            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+          The Unsecured Risk
+        </h3>
+        <p>
+          Sending W-2s, 1099s, and SSNs over email or SMS exposes your most private data to hackers. Gig platforms pair you with a different anonymous freelancer every season—providing zero consistency, zero advisory relationship, and zero security audit trails.
+        </p>
+      </div>
+      <div class="glass-card gold-border">
+        <h3 style="color: var(--accent);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          The Magnitax Solution
+        </h3>
+        <p>
+          Everything in one protected space. Work directly with the same trusted tax advisor year after year. Securely upload, preview, and archive all tax records, summaries, and correspondence inside your own personal, encrypted document locker.
+        </p>
+      </div>
+    </div>
+
+    <!-- FEATURES LIST -->
+    <div class="features-section">
+      <h3 class="features-title">Enterprise-Grade Client Security</h3>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="feature-content">
+            <h4>Bank-Grade Document Vault</h4>
+            <p>Documents are encrypted using AES-256 standards. Access is strictly controlled via temporary pre-signed S3 links that expire in minutes.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="feature-content">
+            <h4>Dedicated Advisor Continuity</h4>
+            <p>Say goodbye to automated customer service. You are paired with a real, named CPA who manages your filing and strategy year-over-year.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="feature-content">
+            <h4>2FA Mobile Verification</h4>
+            <p>Every session login requires a secure SMS or email verification code, adding a solid layer of defense against identity theft.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="feature-content">
+            <h4>Full Audit Trail & GDPR Control</h4>
+            <p>Monitor your security live. View historical download stamps, export all account records, or wipe files instantly under data erasure laws.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THREE EASY STEPS -->
+    <div class="steps-section">
+      <h3 class="features-title" style="border: 0; margin-bottom: 12px; text-align: center;">How It Works</h3>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h4>Upload Records</h4>
+          <p>Scan and drag-and-drop W-2s, 1099s, and write-offs into the portal.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h4>CPA Strategic Review</h4>
+          <p>Your dedicated advisor reviews the tax files and optimizes your deductions.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h4>e-Sign & File</h4>
+          <p>Preview forms in the vault, digitally sign, and get your filing submitted.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER / CTA -->
+    <div class="cta-footer">
+      <div class="cta-message">
+        <h3>Ready to upgrade your tax experience?</h3>
+        <p>
+          Register for the Magnitax Client Portal today to claim your secure locker and begin onboarding with your dedicated tax advisor.
+        </p>
+      </div>
+      <div class="licensee-stamp">
+        <span>Your Local Representative</span>
+        <h4>Authorized Licensee</h4>
+        <p>Email: representative@magnitax.com</p>
+        <p>Phone: (555) 019-2834</p>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

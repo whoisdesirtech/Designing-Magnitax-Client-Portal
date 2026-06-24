@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnitax Pitch Deck — Secure, Scalable Tax Platform</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Reveal.js Stylesheets -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+
+  <style>
+    :root {
+      --bg-primary: #0b0c10;
+      --bg-secondary: #121520;
+      --accent: #10b981; /* Emerald */
+      --gold: #d4af37; /* Gold */
+      --gold-hover: #ffdf7a;
+      --text-primary: #ffffff;
+      --text-secondary: #a1a1aa;
+      --glass-bg: rgba(18, 21, 32, 0.8);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --font-headings: 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    /* Override Reveal defaults */
+    .reveal {
+      background-color: var(--bg-primary);
+      background-image: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, rgba(16, 185, 129, 0.03) 50%, rgba(11, 12, 16, 1) 100%);
+      font-family: var(--font-body);
+      color: var(--text-primary);
+    }
+
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+      font-family: var(--font-headings);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-transform: none;
+      color: var(--text-primary);
+      text-shadow: none;
+    }
+
+    .reveal h1 span, .reveal h2 span, .reveal h3 span {
+      color: var(--gold);
+      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .reveal p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Custom UI Components */
+    .slide-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .slide-header {
+      font-size: 2.2rem !important;
+      margin-bottom: 30px !important;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 15px;
+      width: 100%;
+      text-align: left;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      width: 100%;
+      align-items: center;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 100%;
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      text-align: left;
+      transition: all 0.3s ease;
+    }
+
+    .glass-card.gold-border {
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .glass-card.gold-border:hover {
+      border-color: var(--gold);
+      box-shadow: 0 10px 40px rgba(212, 175, 55, 0.15);
+    }
+
+    .glass-card h3 {
+      font-size: 1.5rem !important;
+      margin-bottom: 15px !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .glass-card ul {
+      margin: 0 !important;
+      padding-left: 20px !important;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .glass-card li {
+      margin-bottom: 10px;
+    }
+
+    /* Badges */
+    .badge {
+      background-color: rgba(212, 175, 55, 0.15);
+      color: var(--gold);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge.emerald {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Metric Display */
+    .metric-value {
+      font-size: 3.5rem !important;
+      font-weight: 800 !important;
+      font-family: var(--font-headings);
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 5px !important;
+    }
+
+    .metric-label {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Competitor Matrix */
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem !important;
+      background: var(--glass-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .matrix-table th, .matrix-table td {
+      padding: 15px 20px !important;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .matrix-table th {
+      background-color: rgba(255, 255, 255, 0.02);
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .matrix-table th:first-child, .matrix-table td:first-child {
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .matrix-table tr.highlight {
+      background-color: rgba(212, 175, 55, 0.05);
+    }
+
+    .matrix-table tr.highlight td:first-child {
+      color: var(--gold);
+    }
+
+    /* Live Demo Iframe Slide */
+    .demo-frame-container {
+      width: 100%;
+      height: 520px;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      background-color: var(--bg-primary);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    .demo-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Interactive logo */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .logo-icon-box {
+      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.25);
+    }
+
+    .logo-icon-svg {
+      width: 32px;
+      height: 32px;
+      fill: #ffffff;
+    }
+
+    .logo-text-deck {
+      font-size: 3.5rem !important;
+      font-family: var(--font-headings);
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .logo-text-deck span {
+      color: var(--gold);
+    }
+
+    /* Timeline Styles */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .timeline-item .time-badge {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-weight: 600;
+      color: var(--gold);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .timeline-item .time-content {
+      border-left: 2px solid var(--gold);
+      padding-left: 20px;
+    }
+
+    .timeline-item .time-content h4 {
+      margin-top: 0 !important;
+      margin-bottom: 5px !important;
+      font-size: 1.1rem !important;
+    }
+
+    /* Floating navigation hints */
+    .reveal .controls {
+      color: var(--gold) !important;
+    }
+
+    .reveal .progress span {
+      background: var(--gold) !important;
+    }
+
+    /* Alignment Helper */
+    .text-center {
+      text-align: center !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- SLIDE 1: Title Slide -->
+      <section data-transition="fade">
+        <div class="slide-container">
+          <div class="logo-container">
+            <div class="logo-icon-box">
+              <svg class="logo-icon-svg" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <div class="logo-text-deck">MAGNI<span>TAX</span></div>
+          </div>
+          <p style="font-size: 1.5rem; color: #ffffff; font-weight: 500; margin-bottom: 10px;">Secure. Personal. Scalable.</p>
+          <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin-bottom: 40px;">
+            The future of tax preparation and accounting services for modern businesses.
+          </p>
+          <div style="display: flex; gap: 15px;">
+            <span class="badge">Franchise Program</span>
+            <span class="badge">Licensing Platform</span>
+          </div>
+        </div>
+        <aside class="notes">
+          Welcome to the Magnitax Pitch. Today we are introducing a modern, secure, and highly scalable tax preparation and accounting platform built to bridge the gap between traditional relationships and next-gen convenience.
+        </aside>
+      </section>
+
+      <!-- SLIDE 2: The Problem -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">The Problem: <span>Tax Prep is Broken</span></h2>
+          <div class="grid-2">
+            <div class="glass-card">
+              <h3 style="color: #f87171;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #f87171;">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                For Clients
+              </h3>
+              <ul>
+                <li><strong>Security Risks:</strong> Sharing sensitive SSNs and W-2 documents over unencrypted email or SMS.</li>
+                <li><strong>Impersonal Service:</strong> Gig platforms assign a different anonymous freelancer every season.</li>
+                <li><strong>Access Gaps:</strong> No central vault to view, search, or download historical tax filings.</li>
+              </ul>
+            </div>
+            <div class="glass-card">
+              <h3 style="color: #f87171;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #f87171;">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                For Preparers & Firms
+              </h3>
+              <ul>
+                <li><strong>Seasonal Bottlenecks:</strong> Extreme crunch in Jan-Apr, with zero recurring year-round revenue.</li>
+                <li><strong>Outdated Workflows:</strong> Handling tax organizer documents via paper folders or clunky, legacy software.</li>
+                <li><strong>No Ownership Path:</strong> Freelancers do the work while platform corporations pocket the equity.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Tax preparation is painful for clients and inefficient for firms. Clients are forced to send highly confidential info over unencrypted channels, while firms drown in paper organizers and lack recurring income. Modern users want security and continuity, which legacy tax chains simply fail to deliver.
+        </aside>
+      </section>
+
+      <!-- SLIDE 3: The Solution -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">The Solution: <span>The Magnitax Platform</span></h2>
+          <div class="grid-3">
+            <div class="glass-card gold-border">
+              <div class="badge emerald" style="width: max-content; margin-bottom: 15px;">Pillar 1</div>
+              <h3>🔒 Secure Portal</h3>
+              <p style="font-size: 0.85rem;">Bank-grade AES-256 encrypted vault with 2FA protection, replacing unsecure emails and protecting customer records.</p>
+            </div>
+            <div class="glass-card gold-border">
+              <div class="badge emerald" style="width: max-content; margin-bottom: 15px;">Pillar 2</div>
+              <h3>🤝 CPA Continuity</h3>
+              <p style="font-size: 0.85rem;">Guaranteed dedicated tax advisor. Clients build trust and strategy year-over-year instead of being assigned a random gig-preparer.</p>
+            </div>
+            <div class="glass-card gold-border">
+              <div class="badge emerald" style="width: max-content; margin-bottom: 15px;">Pillar 3</div>
+              <h3>📈 Scale Engine</h3>
+              <p style="font-size: 0.85rem;">Turnkey franchise and licensing opportunities with complete territory protection and enterprise-grade cloud software.</p>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          We solve this with three pillars: First, a beautiful, secure MERN client portal. Second, a model based on dedicated advisor continuity. And third, a highly scalable franchise and licensing engine that gives local business owners top-tier technology.
+        </aside>
+      </section>
+
+      <!-- SLIDE 4: Live Demo -->
+      <section data-transition="zoom-in slide-out">
+        <div class="slide-container">
+          <h2 class="slide-header" style="margin-bottom: 15px !important;">Live Demo: <span>The Client Experience</span></h2>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px !important; text-align: left; width: 100%;">
+            Try it live: Login with <strong>jane.doe@example.com / password123</strong>, and enter <strong>123456</strong> for the 2FA code.
+          </p>
+          <div class="demo-frame-container">
+            <iframe class="demo-frame" src="index.html"></iframe>
+          </div>
+        </div>
+        <aside class="notes">
+          This is our proprietary frontend portal. Instead of just talking about it, let's look at the actual experience. A client logs in, enters a secure 2FA code, and is instantly presented with their personal dashboard containing stats, prep contacts, audit trails, and a documents library with tax year filters. They can click preview to see simulated forms like W-2s or 1099s safely in their browser.
+        </aside>
+      </section>
+
+      <!-- SLIDE 5: Traction -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">Proven Traction: <span>Organic Growth</span></h2>
+          <div class="grid-2">
+            <div class="glass-card gold-border" style="text-align: center; padding: 40px 20px;">
+              <div class="metric-value">100+</div>
+              <div class="metric-label">Active Portal Clients</div>
+              <p style="font-size: 0.8rem; margin-top: 15px; color: var(--text-secondary);">
+                Validated, organic client base successfully using our secure portal software.
+              </p>
+            </div>
+            <div class="glass-card" style="display: flex; flex-direction: column; gap: 20px;">
+              <div>
+                <h4 style="color: var(--gold); margin-bottom: 5px !important;">🌱 Zero Marketing Cost</h4>
+                <p style="font-size: 0.85rem; margin: 0;">100% of our client growth was generated organically through client referrals and local community reputation.</p>
+              </div>
+              <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0;">
+              <div>
+                <h4 style="color: var(--gold); margin-bottom: 5px !important;">📈 High Retention Rate</h4>
+                <p style="font-size: 0.85rem; margin: 0;">85%+ client retention rate driven by the convenience of the secure document vault and dedicated tax professional continuity.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          We have already proven the demand. We have over 100 active clients on our platform today. We achieved this with zero marketing expenditure. The system works, the users love it, and they return year after year because the portal makes it easy to keep all documents in one place.
+        </aside>
+      </section>
+
+      <!-- SLIDE 6: Market Opportunity -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">Market Opportunity: <span>The Perfect Tailwinds</span></h2>
+          <div class="grid-3" style="margin-bottom: 30px;">
+            <div class="glass-card" style="text-align: center;">
+              <div class="metric-value" style="font-size: 2.5rem !important;">$35B</div>
+              <div class="metric-label">U.S. Tax Market</div>
+            </div>
+            <div class="glass-card" style="text-align: center;">
+              <div class="metric-value" style="font-size: 2.5rem !important;">$13.9B</div>
+              <div class="metric-label">Tax Franchises (2026)</div>
+            </div>
+            <div class="glass-card" style="text-align: center;">
+              <div class="metric-value" style="font-size: 2.5rem !important;">8.0%</div>
+              <div class="metric-label">Projected CAGR</div>
+            </div>
+          </div>
+          <div class="glass-card" style="width: 100%;">
+            <h4 style="color: var(--gold); margin-bottom: 10px !important;">Key Growth Drivers:</h4>
+            <ul style="font-size: 0.8rem !important; columns: 2; margin-left: 20px !important;">
+              <li style="margin-bottom: 8px;"><strong>Increasing Complexity:</strong> New tax laws make filing returns harder, pushing users away from DIY tools.</li>
+              <li style="margin-bottom: 8px;"><strong>Gig Economy Rise:</strong> 1099 contractors have complex schedules requiring professional CPA advice.</li>
+              <li style="margin-bottom: 8px;"><strong>Modern Expectations:</strong> Digital onboarding is no longer a luxury; it is the baseline expectation of today's client.</li>
+              <li style="margin-bottom: 8px;"><strong>Shift to Advisory:</strong> High margins are in strategic financial planning rather than just data input.</li>
+            </ul>
+          </div>
+        </div>
+        <aside class="notes">
+          The tax preparation industry is massive—a $35 billion market. Franchised retail tax locations represent $13.9 billion. With tax code changes and the growth of freelancers and small businesses, more people than ever require human experts. However, they expect those experts to operate with modern, digital interfaces.
+        </aside>
+      </section>
+
+      <!-- SLIDE 7: Business Model -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">Business Model: <span>Scalable Revenue</span></h2>
+          <div class="grid-2">
+            <div class="glass-card gold-border">
+              <h3 style="color: var(--gold);">🏢 Magnitax HQ Streams</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px;">
+                We capture predictable revenue at the top:
+              </p>
+              <ul>
+                <li><strong>Initial Franchise Fee:</strong> Upfront fee for protected territory activation.</li>
+                <li><strong>Royalty Fees:</strong> Recurring percentage of gross client revenue from franchisees.</li>
+                <li><strong>SaaS Technology Fee:</strong> Monthly recurring fee for software licensing, maintenance, and hosting.</li>
+              </ul>
+            </div>
+            <div class="glass-card">
+              <h3 style="color: var(--gold);">🏪 Franchise Unit Model</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px;">
+                High-margin local operations:
+              </p>
+              <ul>
+                <li><strong>Core Tax Preparation:</strong> High-ticket individual and business returns.</li>
+                <li><strong>Year-Round Services:</strong> Bookkeeping, payroll, and corporate consulting retainers.</li>
+                <li><strong>Platform Retention:</strong> Secure client portal locks in clients, ensuring predictable year-over-year renewals.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Our business model is built on scalability. Magnitax HQ earns initial franchise fees, ongoing royalties, and platform technology licensing fees. At the local level, franchisees drive revenue from core tax preparation and year-round retainers like bookkeeping and payroll, maximizing client lifetime value.
+        </aside>
+      </section>
+
+      <!-- SLIDE 8: Projections -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">Unit Economics: <span>Franchise Projections</span></h2>
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>Franchise Location Metric</th>
+                <th>Year 1 (Pilot)</th>
+                <th>Year 2</th>
+                <th>Year 3</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Active Clients (Tax + Bookkeeping)</td>
+                <td>100</td>
+                <td>220</td>
+                <td>350</td>
+              </tr>
+              <tr>
+                <td>Average Revenue per Client</td>
+                <td>$350</td>
+                <td>$385</td>
+                <td>$420</td>
+              </tr>
+              <tr class="highlight">
+                <td>Gross Location Revenue</td>
+                <td>$35,000</td>
+                <td>$84,700</td>
+                <td>$147,000</td>
+              </tr>
+              <tr>
+                <td>Year-Round Retainer Services (Add-on)</td>
+                <td>$12,000</td>
+                <td>$28,000</td>
+                <td>$48,000</td>
+              </tr>
+              <tr class="highlight">
+                <td><strong>Total Location Gross Revenue</strong></td>
+                <td><strong>$47,000</strong></td>
+                <td><strong>$112,700</strong></td>
+                <td><strong>$195,000</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 15px; width: 100%; text-align: left;">
+            *Projections based on actual performance parameters from our initial 100-client pilot location. Year-round services include monthly corporate bookkeeping packages.
+          </p>
+        </div>
+        <aside class="notes">
+          Looking at the unit economics, our Year 1 pilot projections model 100 clients—matching our current active pilot—which generates $47k in revenue from a single preparer operation when combined with bookkeeping. As a franchise scales client count to 350 in Year 3, location revenues approach $195,000 with very low overhead.
+        </aside>
+      </section>
+
+      <!-- SLIDE 9: Competitor Matrix -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">Competitive Landscape: <span>Why We Win</span></h2>
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>Feature / Dimension</th>
+                <th style="color: var(--gold);">Magnitax</th>
+                <th>Taxfyle</th>
+                <th>H&R Block</th>
+                <th>TurboTax (DIY)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight">
+                <td>Secure Client Portal (2FA / Vault)</td>
+                <td><strong>✅ Yes</strong></td>
+                <td>✅ Yes</td>
+                <td>❌ Basic</td>
+                <td>❌ No human portal</td>
+              </tr>
+              <tr>
+                <td>Dedicated CPA Continuity</td>
+                <td><strong>✅ Yes</strong></td>
+                <td>❌ No (Random)</td>
+                <td>❌ Varied</td>
+                <td>❌ No</td>
+              </tr>
+              <tr class="highlight">
+                <td>Franchise & License Program</td>
+                <td><strong>✅ Yes</strong></td>
+                <td>❌ No (Centralized)</td>
+                <td>✅ Yes</td>
+                <td>❌ No</td>
+              </tr>
+              <tr>
+                <td>Year-Round Advisory Services</td>
+                <td><strong>✅ Yes</strong></td>
+                <td>❌ Rare</td>
+                <td>❌ Minimal</td>
+                <td>❌ No</td>
+              </tr>
+              <tr class="highlight">
+                <td>Territory Protection for Owners</td>
+                <td><strong>✅ Yes</strong></td>
+                <td>❌ No</td>
+                <td>✅ Yes</td>
+                <td>❌ No</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <aside class="notes">
+          Let's talk about the competition. Taxfyle has great software, but it operates like Uber—matching you with a different random contractor every time. Clients hate this because they want relationship continuity. H&R Block has retail locations, but legacy technology. TurboTax is purely DIY. Magnitax offers the best of both: the secure tech portal of Taxfyle, but with the dedicated, trusted CPA relationship and a lucrative local franchise ownership model.
+        </aside>
+      </section>
+
+      <!-- SLIDE 10: Tech Deep Dive -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">Technology Moat: <span>Platform Roadmap</span></h2>
+          <div class="grid-2">
+            <div class="glass-card gold-border">
+              <h4 style="color: var(--accent); margin-bottom: 12px !important;">🛡️ Already Built (Validated)</h4>
+              <ul style="font-size: 0.8rem; margin-left: 20px;">
+                <li style="margin-bottom: 6px;"><strong>Secure Client Dashboard:</strong> Modern, mobile-responsive client console interface.</li>
+                <li style="margin-bottom: 6px;"><strong>Encrypted Document Vault:</strong> AES-256 encryption with expiring pre-signed URLs.</li>
+                <li style="margin-bottom: 6px;"><strong>2FA & Audit Logs:</strong> Bank-grade verification and live activity trails.</li>
+                <li style="margin-bottom: 6px;"><strong>GDPR Compliance Tools:</strong> Built-in account data export & erasure request flows.</li>
+              </ul>
+            </div>
+            <div class="glass-card">
+              <h4 style="color: var(--gold); margin-bottom: 12px !important;">⚡ Next Releases (In Dev)</h4>
+              <ul style="font-size: 0.8rem; margin-left: 20px;">
+                <li style="margin-bottom: 6px;"><strong>Digital Client Intake Forms:</strong> Smarter questionnaires replacing paper organizers.</li>
+                <li style="margin-bottom: 6px;"><strong>E-Signature Integration:</strong> Built-in IRS Form 8879 and engagement letter signatures.</li>
+                <li style="margin-bottom: 6px;"><strong>Preparer Admin Dashboard:</strong> Workflow tracker for tracking multiple returns.</li>
+                <li style="margin-bottom: 6px;"><strong>Payment Gateway:</strong> In-app credit card and ACH filing fee processing.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          We aren't presenting a slide deck of ideas. Our technology is built. We have a working client dashboard, an encrypted document vault, 2FA, and GDPR compliance modules. Our roadmap includes integrating digital intake questionnaires, IRS-compliant e-signature tools, and in-app payment processing to completely streamline operations.
+        </aside>
+      </section>
+
+      <!-- SLIDE 11: Franchise vs License -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">Choose Your Path: <span>Franchise vs. License</span></h2>
+          <div class="grid-2">
+            <div class="glass-card gold-border">
+              <div class="badge" style="margin-bottom: 10px; width: max-content;">Magnitax Franchise</div>
+              <p style="font-size: 0.8rem; margin-bottom: 15px;">Become a local business owner running under our unified brand name.</p>
+              <ul style="font-size: 0.8rem; margin-left: 20px;">
+                <li>Full Magnitax Branding</li>
+                <li>Exclusive, Protected Territory</li>
+                <li>HQ Marketing & Operations Support</li>
+                <li>FDD Disclosure & Unified Compliance</li>
+              </ul>
+            </div>
+            <div class="glass-card">
+              <div class="badge" style="margin-bottom: 10px; width: max-content;">Platform Licensee</div>
+              <p style="font-size: 0.8rem; margin-bottom: 15px;">Run your existing independent tax practice using our software engine.</p>
+              <ul style="font-size: 0.8rem; margin-left: 20px;">
+                <li>Keep Your Own Brand</li>
+                <li>No Protected Territory Constraints</li>
+                <li>Flat SaaS License Fee</li>
+                <li>Instant Security Modernization</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          We offer two distinct business relationships. The Franchise model is for entrepreneurs who want to build a local branch under the Magnitax brand name with a protected territory. The License model allows existing CPAs and independent tax prep firms to white-label or utilize our software platform to modernize their operations without changing their business names.
+        </aside>
+      </section>
+
+      <!-- SLIDE 12: Roadmap -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">Go-to-Market: <span>The Road Ahead</span></h2>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="time-badge">Phase 1 (Current)</div>
+              <div class="time-content">
+                <h4>Validation & Tech Blueprint</h4>
+                <p style="font-size: 0.8rem; margin: 0;">100+ active clients using prototype assets. Platform architecture locked. First licensee onboarded ($150 pilot fee paid).</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="time-badge">Phase 2 (Q3-Q4)</div>
+              <div class="time-content">
+                <h4>Launch & Pilot Program</h4>
+                <p style="font-size: 0.8rem; margin: 0;">Complete production client intake forms, FDD filings, and onboard first 3-5 pilot franchise branches.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="time-badge">Phase 3 (Next Year)</div>
+              <div class="time-content">
+                <h4>National Expansion</h4>
+                <p style="font-size: 0.8rem; margin: 0;">National brand roll-out targeting independent CPAs, scaling to 25+ locations with recurring royalty flows.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Our roadmap is structured. We've validated the client side with 100+ users and secured our first paid licensee. In Phase 2, we will finalize our FDD documentation and launch our first 3-5 pilot franchise locations. In Phase 3, we scale nationally, targeting independent firms looking to upgrade their technology.
+        </aside>
+      </section>
+
+      <!-- SLIDE 13: Team -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">The Team: <span>Built on Trust</span></h2>
+          <div class="grid-2" style="width: 100%;">
+            <div style="text-align: left;">
+              <h3 style="color: var(--gold); margin-bottom: 10px !important;">Jean Fils</h3>
+              <p style="font-size: 1.1rem; color: #ffffff; font-weight: 600; margin-bottom: 20px;">Founder & CEO, Magnitax</p>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+                Experienced tax professional and technology strategist. Successfully built and scaled Magnitax's client base to 100+ active users. Directing the architectural implementation of the secure MERN-based portal and franchise model.
+              </p>
+              <div style="display: flex; gap: 10px;">
+                <span class="badge">Tax Expert</span>
+                <span class="badge">Tech Visionary</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: center; align-items: center;">
+              <!-- Visual placeholder for avatar/team graphic -->
+              <div style="width: 250px; height: 250px; border-radius: 50%; border: 3px solid var(--gold); background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, rgba(0,0,0,0.5) 100%); display: flex; align-items: center; justify-content: center;">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--gold);">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          I'm Jean Fils, the founder of Magnitax. Having served over 100 tax preparation clients, I experienced firsthand the security deficiencies of traditional processes. I created Magnitax to bridge the gap between human trust and modern, secure digital software.
+        </aside>
+      </section>
+
+      <!-- SLIDE 14: The Ask -->
+      <section data-transition="slide-in fade-out">
+        <div class="slide-container">
+          <h2 class="slide-header">The Opportunity: <span>Join Us</span></h2>
+          <div class="grid-3">
+            <div class="glass-card gold-border">
+              <h3 style="color: var(--gold); font-size: 1.2rem !important;">💼 Investors</h3>
+              <p style="font-size: 0.8rem; margin-bottom: 10px;">We are seeking investment to accelerate production engineering, complete our FDD documentation, and fund pilot branch marketing.</p>
+              <span class="badge" style="display: block; text-align: center; margin-top: 15px;">Fund Phase 2</span>
+            </div>
+            <div class="glass-card gold-border">
+              <h3 style="color: var(--gold); font-size: 1.2rem !important;">🏪 Franchisees</h3>
+              <p style="font-size: 0.8rem; margin-bottom: 10px;">Join our founding cohort. Claim your exclusive territory and leverage our brand, training, and complete portal system.</p>
+              <span class="badge" style="display: block; text-align: center; margin-top: 15px;">Secure Territory</span>
+            </div>
+            <div class="glass-card gold-border">
+              <h3 style="color: var(--gold); font-size: 1.2rem !important;">🔑 Licensees</h3>
+              <p style="font-size: 0.8rem; margin-bottom: 10px;">Modernize your firm today. License our secure platform software for a flat fee and scale your independent client practice.</p>
+              <span class="badge" style="display: block; text-align: center; margin-top: 15px;">License Platform</span>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Today, we are opening up opportunities. For investors, we are raising capital to accelerate our product engineering and FDD filings. For franchisees, we are accepting applications for founding territories. For licensees, we are offering platform access to modernize your existing practices immediately.
+        </aside>
+      </section>
+
+      <!-- SLIDE 15: Contact Slide -->
+      <section data-transition="fade">
+        <div class="slide-container text-center">
+          <h2 style="font-size: 3rem !important; margin-bottom: 20px !important;">MAGNI<span>TAX</span></h2>
+          <p style="font-size: 1.3rem; color: #ffffff; font-weight: 500; margin-bottom: 30px;">Let's build the future of tax together.</p>
+          
+          <div class="glass-card" style="display: inline-block; padding: 30px 50px; text-align: left; max-width: 500px;">
+            <p style="margin-bottom: 10px !important; color: #ffffff;"><strong>Email:</strong> team@magnitax.com</p>
+            <p style="margin-bottom: 10px !important; color: #ffffff;"><strong>Website:</strong> www.magnitax.com</p>
+            <p style="margin-bottom: 20px !important; color: #ffffff;"><strong>GitHub:</strong> whoisdesirtech/Designing-Magnitax-Client-Portal</p>
+            <div style="text-align: center; margin-top: 20px;">
+              <span class="badge emerald" style="font-size: 0.9rem;">Press 'S' for Speaker Notes</span>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Thank you for your time. Let's work together to redefine how tax clients and preparers interact. Open for questions.
+        </aside>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Reveal.js JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/notes/notes.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/zoom/zoom.min.js"></script>
+
+  <script>
+    // Initialize Reveal.js
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      controls: true,
+      progress: true,
+      mouseWheel: false,
+      transition: 'slide', // none/fade/slide/convex/concave/zoom
+      plugins: [ RevealNotes, RevealZoom ]
+    });
+  </script>
+</body>
+</html>
