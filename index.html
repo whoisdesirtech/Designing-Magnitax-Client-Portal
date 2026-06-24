@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Client Portal | Magnitax</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<!-- Initial view state is "login". Can be programmatically changed to "2fa" or "app" -->
+<body data-view="login">
+
+  <!-- ==========================================================================
+       1. SECURE ACCESS GATE: LOGIN PAGE
+       ========================================================================== -->
+  <div class="auth-container view-login">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">
+          <!-- Magnitax Chevron Shield SVG -->
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M12 8v8"/>
+            <path d="M9 11l3 3 3-3"/>
+          </svg>
+        </div>
+        <div class="logo-text">Magni<span>tax</span></div>
+      </div>
+      
+      <h2 class="auth-title">Client Portal Access</h2>
+      <p class="auth-subtitle">Log in to securely manage and download your tax documents.</p>
+      
+      <!-- Simulated Login Error Alert -->
+      <div class="auth-error" id="login-error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="login-error-text">Invalid email or password.</span>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </span>
+            <input type="email" id="login-email" class="form-input" placeholder="name@company.com" required value="jane.doe@example.com">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <input type="password" id="login-password" class="form-input" placeholder="••••••••••••" required value="password123">
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label class="checkbox-container">
+            <input type="checkbox" id="remember-me" checked>
+            <span>Remember this device</span>
+          </label>
+          <a href="#" class="forgot-password" id="forgot-password-trigger">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="btn">
+          <span>Authenticate Session</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       2. SECURE ACCESS GATE: TWO-FACTOR AUTHENTICATION (2FA)
+       ========================================================================== -->
+  <div class="auth-container view-2fa">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div class="logo-text">Magni<span>tax</span></div>
+      </div>
+      
+      <h2 class="auth-title">Two-Factor Authentication</h2>
+      <p class="auth-subtitle">For security, enter the 6-digit code sent to your registered authenticator or email.</p>
+      
+      <!-- Simulated 2FA Error Alert -->
+      <div class="auth-error" id="2fa-error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>Incorrect 2FA code. Please check and try again.</span>
+      </div>
+
+      <form id="2fa-form">
+        <div class="digits-container">
+          <input type="text" maxlength="1" class="digit-input" data-index="0" autofocus placeholder="-">
+          <input type="text" maxlength="1" class="digit-input" data-index="1" placeholder="-">
+          <input type="text" maxlength="1" class="digit-input" data-index="2" placeholder="-">
+          <input type="text" maxlength="1" class="digit-input" data-index="3" placeholder="-">
+          <input type="text" maxlength="1" class="digit-input" data-index="4" placeholder="-">
+          <input type="text" maxlength="1" class="digit-input" data-index="5" placeholder="-">
+        </div>
+        
+        <input type="hidden" id="full-2fa-code">
+
+        <button type="submit" class="btn">
+          <span>Verify & Unlock Account</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+        
+        <a href="#" class="back-to-login" id="back-login-btn">Back to Login</a>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       3. PORTAL CORE APPLICATION (DASHBOARD FRAME)
+       ========================================================================== -->
+  <div class="view-app">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar-menu">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="logo-text">Magni<span>tax</span></div>
+        <div class="sidebar-tag">Portal</div>
+      </div>
+      
+      <div class="menu-section">
+        <div class="menu-label">Main Console</div>
+        <ul class="menu-list">
+          <li class="menu-item active" data-target="dashboard">
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>
+              </svg>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="menu-item" data-target="documents">
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <span>Documents Center</span>
+            </a>
+          </li>
+          <li class="menu-item" data-target="settings">
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+              <span>Portal Settings</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="sidebar-footer">
+        <div class="user-profile-widget">
+          <div class="user-avatar" id="profile-avatar-letters">JD</div>
+          <div class="user-info">
+            <span class="user-name" id="profile-user-fullname">Jane Doe</span>
+            <span class="user-role">Client</span>
+          </div>
+        </div>
+        <button class="btn-logout" id="logout-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span>Secure Sign-Out</span>
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Main Scrollable Content Canvas -->
+    <div class="main-content">
+      
+      <!-- Content Top Header Navbar -->
+      <header class="content-header">
+        <div class="page-title-area">
+          <button class="mobile-menu-btn" id="mobile-sidebar-toggle">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <h2 id="header-page-title">Client Dashboard</h2>
+        </div>
+        
+        <div class="header-actions">
+          <!-- Notification Bell Dropdown -->
+          <div class="notif-bell-container">
+            <button class="notif-bell-btn" id="notif-bell-trigger">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              <div class="notif-badge" id="notification-badge-count">2</div>
+            </button>
+            
+            <div class="notif-dropdown" id="notification-dropdown-menu">
+              <div class="notif-header">
+                <span>Notifications</span>
+                <button class="notif-clear-btn" id="clear-notifications-action">Clear All</button>
+              </div>
+              <ul class="notif-list" id="notifications-list-container">
+                <!-- Injected via JavaScript -->
+              </ul>
+              <div class="notif-footer">
+                <a href="#" class="notif-footer-link" id="view-notif-settings-link">Manage Preferences</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Primary Core Dynamic Pages Container -->
+      <main id="portal-pages-viewport" data-page="dashboard">
+        
+        <!-- ==========================================================================
+             PAGE 3A: DASHBOARD VIEW
+             ========================================================================== -->
+        <section class="page-container page-dashboard">
+          <!-- Welcome Alert Box -->
+          <div class="welcome-banner">
+            <div class="welcome-text">
+              <h2>Welcome back, Jane</h2>
+              <p>Your comprehensive tax filings for 2025 have been uploaded and secured. Review your W-2s and 1099 form summaries below or view older filings in the Documents Center.</p>
+            </div>
+            <div class="banner-action-badge">Tax Year 2025 Active</div>
+          </div>
+          
+          <!-- Key Metrics / Document Statuses Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value" id="dash-stat-taxfiles">4 Files</span>
+                <span class="stat-label">Available Documents</span>
+              </div>
+            </div>
+            
+            <div class="stat-card alert">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value" id="dash-stat-pending">June 15, 2026</span>
+                <span class="stat-label">Next Estimated Deadline</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-value">2FA Secured</span>
+                <span class="stat-label">Access Defense Status</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Columns Section: Activity Log + Tax Preparer Card -->
+          <div class="dashboard-columns">
+            
+            <!-- Left Column: Activity Log -->
+            <div class="dashboard-panel">
+              <div class="panel-title-area">
+                <h3 class="panel-title">Audit Trail & Activity</h3>
+                <a href="#" class="panel-action-link" id="dash-clear-audit-btn">Clear logs</a>
+              </div>
+              <div class="activity-list" id="dashboard-audit-logs">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+            
+            <!-- Right Column: Tax Preparer Information -->
+            <div class="dashboard-panel">
+              <div class="panel-title-area">
+                <h3 class="panel-title">Your Tax Preparer</h3>
+              </div>
+              <div class="preparer-card">
+                <div class="preparer-photo">MK</div>
+                <h4 class="preparer-name">Marcus Kaelen, CPA</h4>
+                <p class="preparer-title">Senior Tax Strategist & Advisor</p>
+                
+                <div class="preparer-contact-info">
+                  <div class="preparer-info-row">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    <span>(800) 555-0199</span>
+                  </div>
+                  <div class="preparer-info-row">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    <span>m.kaelen@magnitax.com</span>
+                  </div>
+                </div>
+                
+                <button class="btn btn-secondary" style="font-size: 13px; padding: 10px;" id="message-preparer-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span>Send Secure Message</span>
+                </button>
+              </div>
+            </div>
+            
+          </div>
+        </section>
+
+        <!-- ==========================================================================
+             PAGE 3B: DOCUMENT CENTER VIEW (Gallery with Filters)
+             ========================================================================== -->
+        <section class="page-container page-documents">
+          <!-- Filter Controls Wrapper -->
+          <div class="filter-bar">
+            <div class="filter-row-top">
+              <div class="search-input-wrapper">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="doc-search" class="search-input" placeholder="Search files by name...">
+              </div>
+              
+              <select id="doc-year-filter" class="year-select-dropdown">
+                <option value="all">All Years</option>
+                <option value="2025" selected>Tax Year 2025</option>
+                <option value="2024">Tax Year 2024</option>
+                <option value="2023">Tax Year 2023</option>
+              </select>
+            </div>
+            
+            <div class="filter-row-tabs">
+              <button class="filter-tab active" data-type="all">All Forms</button>
+              <button class="filter-tab" data-type="w2">W-2 Forms</button>
+              <button class="filter-tab" data-type="1099">1099 Forms</button>
+              <button class="filter-tab" data-type="summary">Form Summaries</button>
+            </div>
+          </div>
+          
+          <!-- Document Grid Gallery -->
+          <div class="documents-gallery" id="documents-gallery-viewport">
+            <!-- Dynamic items injected here via app.js -->
+            
+            <!-- Empty Search State -->
+            <div class="empty-gallery" id="docs-empty-state">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <h3>No matching documents found</h3>
+              <p>Try refining your search terms or changing the year filter dropdown.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================================================
+             PAGE 3C: PORTAL SETTINGS
+             ========================================================================== -->
+        <section class="page-container page-settings">
+          <div class="settings-section">
+            <h3 class="settings-section-title">Notification Preferences</h3>
+            <p class="settings-section-desc">Manage how you receive alerts when tax forms or security changes occur.</p>
+            
+            <form id="settings-notifications-form">
+              <div class="toggle-group">
+                <!-- Toggle Row 1 -->
+                <div class="toggle-row">
+                  <div class="toggle-label-wrapper">
+                    <span class="toggle-title">Email Notifications</span>
+                    <span class="toggle-desc">Receive immediate email alerts when a tax professional uploads new W-2s, 1099s, or summaries.</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" id="pref-email" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <!-- Toggle Row 2 -->
+                <div class="toggle-row">
+                  <div class="toggle-label-wrapper">
+                    <span class="toggle-title">In-App Notifications</span>
+                    <span class="toggle-desc">Show notification flags inside the portal header area when fresh tax documents become accessible.</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" id="pref-inapp" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <!-- Toggle Row 3 -->
+                <div class="toggle-row">
+                  <div class="toggle-label-wrapper">
+                    <span class="toggle-title">Security Notifications</span>
+                    <span class="toggle-desc">Receive security alert emails for account logins, password modifications, or 2FA updates.</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" id="pref-security" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn" style="width: auto; padding: 10px 24px; margin-top: 24px;">
+                <span>Save Notification Settings</span>
+              </button>
+            </form>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-section-title">Security & Account Status</h3>
+            <p class="settings-section-desc">Review your credentials, security settings, and regulatory compliance status.</p>
+            
+            <div class="settings-grid">
+              <!-- Security Column 1: Multi-Factor Authentication Status -->
+              <div class="security-badge-card">
+                <div class="security-badge-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
+                <div class="security-badge-text">
+                  <h4>Two-Factor Authentication is Active</h4>
+                  <p>MFA is mandatory on your account. Authenticator logins are active for <strong>jane.doe@example.com</strong>.</p>
+                  <button class="btn btn-secondary" style="font-size: 12px; padding: 8px 12px; margin-top: 12px; width: auto;" id="reconfigure-2fa-btn">
+                    <span>Reconfigure 2FA App</span>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Security Column 2: GDPR & Privacy Rights -->
+              <div class="security-badge-card">
+                <div class="security-badge-icon" style="color: #60a5fa;">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                </div>
+                <div class="security-badge-text">
+                  <h4>GDPR & Privacy Compliance</h4>
+                  <p>Your portal access conforms to GDPR privacy standards. You possess the right to data portability and deletion.</p>
+                  <div style="display: flex; gap: 8px; margin-top: 12px;">
+                    <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 10px; width: auto;" id="gdpr-export-btn">
+                      <span>Export All Data</span>
+                    </button>
+                    <button class="btn btn-secondary" style="font-size: 11px; padding: 6px 10px; width: auto; color: #f87171; border-color: rgba(248, 113, 113, 0.15);" id="gdpr-delete-btn">
+                      <span>Request Erasure</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+      </main>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       4. SECURE INLINE DOCUMENT VIEWING PORT (MODAL BOX)
+       ========================================================================== -->
+  <div class="modal-overlay" id="preview-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title-area">
+          <div class="doc-badge-icon" id="modal-doc-icon" style="width: 36px; height: 36px;">
+            <!-- Dynamic SVG replacement -->
+          </div>
+          <div>
+            <h3 id="modal-doc-filename">document_name.pdf</h3>
+            <span style="font-size: 11px; color: var(--text-secondary);" id="modal-doc-meta">W-2 | 142 KB | Uploaded May 10, 2026</span>
+          </div>
+        </div>
+        
+        <button class="modal-close-btn" id="modal-close-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Inside PDF mock simulator -->
+      <div class="modal-body">
+        <div class="mock-pdf-canvas" id="mock-pdf-view-canvas">
+          <!-- Structured document content dynamically rendered by app.js -->
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" style="width: auto; padding: 10px 20px;" id="modal-print-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          <span>Print</span>
+        </button>
+        <button class="btn" style="width: auto; padding: 10px 20px;" id="modal-download-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Download Document</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       5. SYSTEM TOAST ALERT
+       ========================================================================== -->
+  <div class="toast-alert" id="system-toast">
+    <span class="toast-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+    </span>
+    <span class="toast-message" id="system-toast-text">Operation completed successfully.</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
