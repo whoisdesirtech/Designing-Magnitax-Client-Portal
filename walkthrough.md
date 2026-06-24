@@ -2,10 +2,16 @@
 
 I have completed the two primary deliverables for the secure client portal project for **Magnitax.com**:
 1. **[Product Brief](file:///Users/jeanfils/.gemini/antigravity/brain/4617c157-235a-40b2-bc54-6910a503c8fc/product_brief.md)**: A detailed development specification matching the RISEN framework.
-2. **Interactive UI/UX Prototype**: A premium, responsive, glassmorphic client portal demonstration built in the project directory:
-   - [index.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/index.html)
-   - [style.css](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/style.css)
-   - [app.js](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/app.js)
+2. **Interactive UI/UX Prototype**: A premium, responsive, glassmorphic client portal demonstration.
+3. **Interactive Pitch Deck**: A beautiful Reveal.js presentation with an embedded live portal iframe.
+4. **Client Flyer**: A print-ready U.S. Letter sized marketing one-pager flyer for distribution.
+
+Project Directory Files:
+- [index.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/index.html) (Client Portal View)
+- [pitch_deck.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/pitch_deck.html) (Interactive Slides)
+- [flyer.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/flyer.html) (Marketing One-Pager)
+- [style.css](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/style.css) (CSS Design Tokens)
+- [app.js](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/app.js) (Frontend Logic)
 
 ---
 
@@ -77,5 +83,5 @@ To explore the code structure directly inside the editor, follow these steps:
 
 Here is the high-fidelity UI mockup illustrating how the gold accents (`#D4AF37`) integrate with the glassmorphic dark charcoal layout for a premium, secure presentation:
 
-![Gold Theme Portal Mockup](portal_gold_theme_mockup_1782333295901.png)
+![Gold Theme Portal Mockup](/Users/jeanfils/.gemini/antigravity/brain/4617c157-235a-40b2-bc54-6910a503c8fc/portal_gold_theme_mockup_1782333295901.png)
 
