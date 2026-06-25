@@ -150,6 +150,22 @@
       border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
+    /* Interactive Hoverable Badges/Buttons */
+    .reveal .badge.hoverable-button {
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    .reveal .badge.hoverable-button:hover {
+      background-color: var(--gold);
+      color: #000000;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+      transform: translateY(-3px);
+      border-color: #ffffff;
+    }
+
     /* Metric Display */
     .metric-value {
       font-size: 3.5rem !important;
@@ -328,9 +344,9 @@
           <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin-bottom: 40px;">
             The future of tax preparation and accounting services for modern businesses.
           </p>
-          <div style="display: flex; gap: 15px;">
-            <span class="badge">Franchise Program</span>
-            <span class="badge">Licensing Platform</span>
+          <div style="display: flex; gap: 15px; margin-top: 20px;">
+            <a href="#/franchise-vs-license" class="badge hoverable-button">Franchise Program</a>
+            <a href="#/franchise-vs-license" class="badge hoverable-button">Licensing Platform</a>
           </div>
         </div>
         <aside class="notes">
@@ -660,7 +676,7 @@
       </section>
 
       <!-- SLIDE 11: Franchise vs License -->
-      <section data-transition="slide-in fade-out">
+      <section data-transition="slide-in fade-out" id="franchise-vs-license">
         <div class="slide-container">
           <h2 class="slide-header">Choose Your Path: <span>Franchise vs. License</span></h2>
           <div class="grid-2">
