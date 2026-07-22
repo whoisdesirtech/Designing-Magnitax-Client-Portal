@@ -6,12 +6,12 @@ I have completed the two primary deliverables for the secure client portal proje
 3. **Interactive Pitch Deck**: A beautiful Reveal.js presentation with an embedded live portal iframe.
 4. **Client Flyer**: A print-ready U.S. Letter sized marketing one-pager flyer for distribution.
 
-Project Directory Files:
-- [index.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/index.html) (Client Portal View)
-- [pitch_deck.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/pitch_deck.html) (Interactive Slides)
-- [flyer.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/flyer.html) (Marketing One-Pager)
-- [style.css](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/style.css) (CSS Design Tokens)
-- [app.js](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/app.js) (Frontend Logic)
+Project Directory Files (Moved to `/public` for Firebase Hosting):
+- [index.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/public/index.html) (Client Portal View)
+- [pitch_deck.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/public/pitch_deck.html) (Interactive Slides)
+- [flyer.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/public/flyer.html) (Marketing One-Pager)
+- [style.css](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/public/style.css) (CSS Design Tokens)
+- [app.js](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/public/app.js) (Frontend Logic)
 
 ---
 
@@ -31,7 +31,7 @@ The [product_brief.md](file:///Users/jeanfils/.gemini/antigravity/brain/4617c157
 The frontend prototype lets you click through the security login, dynamic document tables, and security controls:
 
 ### Secure Authentication & 2FA Flow
-1. Load [index.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/index.html) in any web browser.
+1. Load [index.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/public/index.html) in any web browser.
 2. The login screen is pre-loaded with simulated credentials (`jane.doe@example.com` / `password123`). Click **Authenticate Session**.
 3. You are presented with a secure **Two-Factor Authentication** prompt.
 4. Input the 2FA passcode: **`123456`** (or any 6 digits starting with `1`, `2`, or `3`). The inputs automatically advance focus as you type. Click **Verify & Unlock Account**.
@@ -67,13 +67,13 @@ To explore the code structure directly inside the editor, follow these steps:
    ```
    /Users/jeanfils/Desktop/vibe-coding/Vibe Coding Mastery/magnitax-portal-prototype
    ```
-2. Double-click the file [index.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/index.html) or run a simple local server to view the interface:
+2. Double-click the file [index.html](file:///Users/jeanfils/Desktop/vibe-coding/Vibe%20Coding%20Mastery/magnitax-portal-prototype/public/index.html) or run a simple local server to view the interface:
    ```bash
    # Option A: Open directly in macOS
-   open "/Users/jeanfils/Desktop/vibe-coding/Vibe Coding Mastery/magnitax-portal-prototype/index.html"
+   open "/Users/jeanfils/Desktop/vibe-coding/Vibe Coding Mastery/magnitax-portal-prototype/public/index.html"
    
    # Option B: Run a simple Python server to view via localhost
-   python3 -m http.server 8000 --directory "/Users/jeanfils/Desktop/vibe-coding/Vibe Coding Mastery/magnitax-portal-prototype/"
+   python3 -m http.server 8000 --directory "/Users/jeanfils/Desktop/vibe-coding/Vibe Coding Mastery/magnitax-portal-prototype/public/"
    # Open browser to: http://localhost:8000
    ```
 

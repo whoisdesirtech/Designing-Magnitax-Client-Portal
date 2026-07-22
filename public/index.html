@@ -551,6 +551,28 @@
     <span class="toast-message" id="system-toast-text">Operation completed successfully.</span>
   </div>
 
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <!-- Firebase Analytics (optional) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmd6E4ytLfG9XxCqWJpdDsYf4R8nPLE5k",
+      authDomain: "taxagentai062026.firebaseapp.com",
+      projectId: "taxagentai062026",
+      storageBucket: "taxagentai062026.firebasestorage.app",
+      messagingSenderId: "561347862205",
+      appId: "1:561347862205:web:051f37e5571d6a32fd61d4",
+      measurementId: "G-P0VWKE8V19"
+    };
+    // Initialize Firebase
+    const firebaseApp = firebase.initializeApp(firebaseConfig);
+    const firebaseAnalytics = firebase.analytics();
+    console.log("Firebase initialized successfully for Magnitax Client Portal:", firebaseApp.name);
+  </script>
+
   <script src="app.js"></script>
 </body>
 </html>
