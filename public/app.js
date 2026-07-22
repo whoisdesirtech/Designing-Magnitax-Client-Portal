@@ -1043,3 +1043,252 @@ logoutBtn.addEventListener('click', () => {
 window.addEventListener('DOMContentLoaded', () => {
   setView('login');
 });
+
+// ==========================================================================
+// 12. CLIENT INTAKE MODULE
+// ==========================================================================
+
+// ── State ────────────────────────────────────────────────────────────────
+let intakeCurrentStep = 1;
+let intakeUploadedFiles = [];
+
+// ── Extend navigatePage to support 'intake' ──────────────────────────────
+const _origNavigatePage = navigatePage;
+navigatePage = function(pageName) {
+  _origNavigatePage(pageName);
+
+  let displayTitle = "Client Dashboard";
+  if (pageName === 'documents') displayTitle = "Documents Center";
+  if (pageName === 'settings') displayTitle = "Portal Settings";
+  if (pageName === 'intake') {
+    displayTitle = "Client Intake";
+    headerPageTitle.textContent = displayTitle;
+    // Reset wizard to step 1 each time the page is visited fresh
+    goToIntakeStep(1);
+    intakeUploadedFiles = [];
+    renderUploadedFiles();
+  } else {
+    headerPageTitle.textContent = displayTitle;
+  }
+};
+
+// ── SSN auto-formatter: XXX-XX-XXXX ──────────────────────────────────────
+const ssnInput = document.getElementById('intake-ssn');
+if (ssnInput) {
+  ssnInput.addEventListener('input', (e) => {
+    let val = e.target.value.replace(/\D/g, '').slice(0, 9);
+    if (val.length > 5) val = val.slice(0,3) + '-' + val.slice(3,5) + '-' + val.slice(5);
+    else if (val.length > 3) val = val.slice(0,3) + '-' + val.slice(3);
+    e.target.value = val;
+  });
+}
+
+// ── Stepper renderer ──────────────────────────────────────────────────────
+function goToIntakeStep(step) {
+  intakeCurrentStep = step;
+
+  // Show/hide step panels
+  ['1','2','3','done'].forEach(s => {
+    const el = document.getElementById(`intake-step-${s}`);
+    if (el) el.classList.toggle('hidden', s !== String(step) && !(step === 'done' && s === 'done'));
+  });
+
+  // Update stepper circles
+  const stepperItems = document.querySelectorAll('.stepper-item');
+  const stepperLines = document.querySelectorAll('.stepper-line');
+
+  stepperItems.forEach((item, idx) => {
+    const itemStep = idx + 1;
+    item.classList.remove('active', 'completed');
+    if (typeof step === 'number') {
+      if (itemStep === step) item.classList.add('active');
+      if (itemStep < step) item.classList.add('completed');
+    }
+  });
+
+  stepperLines.forEach((line, idx) => {
+    const lineStep = idx + 1;
+    line.classList.toggle('filled', typeof step === 'number' && lineStep < step);
+  });
+
+  // Swap circle content for completed steps (checkmark)
+  stepperItems.forEach((item, idx) => {
+    const circle = item.querySelector('.stepper-circle');
+    if (item.classList.contains('completed')) {
+      circle.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    } else {
+      circle.textContent = idx + 1;
+    }
+  });
+}
+
+// ── Step 1 → Step 2 ───────────────────────────────────────────────────────
+const intakeFormStep1 = document.getElementById('intake-form-step1');
+if (intakeFormStep1) {
+  intakeFormStep1.addEventListener('submit', (e) => {
+    e.preventDefault();
+    goToIntakeStep(2);
+    showToast('Personal info saved. Now complete your tax profile.');
+  });
+}
+
+// ── Step 2 → Step 3 ───────────────────────────────────────────────────────
+const intakeFormStep2 = document.getElementById('intake-form-step2');
+if (intakeFormStep2) {
+  intakeFormStep2.addEventListener('submit', (e) => {
+    e.preventDefault();
+    goToIntakeStep(3);
+    showToast('Tax profile saved. Upload your source documents.');
+  });
+}
+
+const intakeStep2Back = document.getElementById('intake-step2-back');
+if (intakeStep2Back) {
+  intakeStep2Back.addEventListener('click', () => goToIntakeStep(1));
+}
+
+const intakeStep3Back = document.getElementById('intake-step3-back');
+if (intakeStep3Back) {
+  intakeStep3Back.addEventListener('click', () => goToIntakeStep(2));
+}
+
+// ── File upload logic ─────────────────────────────────────────────────────
+const uploadDropzone   = document.getElementById('upload-dropzone');
+const intakeFileInput  = document.getElementById('intake-file-input');
+const uploadBrowseBtn  = document.getElementById('upload-browse-btn');
+const uploadedFilesList = document.getElementById('uploaded-files-list');
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function renderUploadedFiles() {
+  if (!uploadedFilesList) return;
+  uploadedFilesList.innerHTML = '';
+  intakeUploadedFiles.forEach((file, idx) => {
+    const row = document.createElement('div');
+    row.className = 'uploaded-file-row';
+    row.innerHTML = `
+      <div class="uploaded-file-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <span class="uploaded-file-name" title="${file.name}">${file.name}</span>
+      <span class="uploaded-file-size">${formatBytes(file.size)}</span>
+      <button class="uploaded-file-remove" data-idx="${idx}" title="Remove">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    `;
+    row.querySelector('.uploaded-file-remove').addEventListener('click', (e) => {
+      const i = parseInt(e.currentTarget.getAttribute('data-idx'));
+      intakeUploadedFiles.splice(i, 1);
+      renderUploadedFiles();
+    });
+    uploadedFilesList.appendChild(row);
+  });
+}
+
+function addFiles(fileList) {
+  Array.from(fileList).forEach(f => {
+    if (!intakeUploadedFiles.find(ex => ex.name === f.name && ex.size === f.size)) {
+      intakeUploadedFiles.push(f);
+    }
+  });
+  renderUploadedFiles();
+  showToast(`${fileList.length} file${fileList.length > 1 ? 's' : ''} added.`);
+}
+
+if (uploadBrowseBtn && intakeFileInput) {
+  uploadBrowseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    intakeFileInput.click();
+  });
+  intakeFileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) addFiles(e.target.files);
+    e.target.value = '';
+  });
+}
+
+if (uploadDropzone) {
+  uploadDropzone.addEventListener('click', (e) => {
+    if (e.target !== uploadBrowseBtn && !uploadBrowseBtn.contains(e.target)) {
+      intakeFileInput && intakeFileInput.click();
+    }
+  });
+  uploadDropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadDropzone.classList.add('drag-over');
+  });
+  uploadDropzone.addEventListener('dragleave', () => {
+    uploadDropzone.classList.remove('drag-over');
+  });
+  uploadDropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadDropzone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+}
+
+// ── Final submission ──────────────────────────────────────────────────────
+const intakeSubmitBtn = document.getElementById('intake-submit-btn');
+if (intakeSubmitBtn) {
+  intakeSubmitBtn.addEventListener('click', () => {
+    const firstName = document.getElementById('intake-firstname')?.value || 'Client';
+    const refNum = `MTX-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    // Update confirmation screen
+    const confirmName = document.getElementById('intake-confirm-name');
+    const refNumber   = document.getElementById('intake-ref-number');
+    if (confirmName) confirmName.textContent = firstName;
+    if (refNumber)   refNumber.textContent   = refNum;
+
+    // Add to audit log
+    const now = new Date();
+    AUDIT_LOGS.unshift({
+      id: `log_intake_${now.getTime()}`,
+      action: 'INTAKE_SUBMITTED',
+      details: `Client intake package submitted. Reference: ${refNum}. Files: ${intakeUploadedFiles.length}.`,
+      time: 'Just now'
+    });
+    renderAuditLogs();
+
+    // Add notification
+    NOTIFICATIONS.unshift({
+      id: `notif_intake_${now.getTime()}`,
+      text: `New intake package received from ${firstName}. Ref: ${refNum}`,
+      time: 'Just now',
+      unread: true
+    });
+    renderNotifications();
+
+    // Show success state
+    ['1','2','3'].forEach(s => {
+      const el = document.getElementById(`intake-step-${s}`);
+      if (el) el.classList.add('hidden');
+    });
+    const donePanel = document.getElementById('intake-step-done');
+    if (donePanel) donePanel.classList.remove('hidden');
+
+    // Mark all stepper steps complete
+    document.querySelectorAll('.stepper-item').forEach(item => {
+      item.classList.remove('active');
+      item.classList.add('completed');
+      const circle = item.querySelector('.stepper-circle');
+      if (circle) circle.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    });
+    document.querySelectorAll('.stepper-line').forEach(l => l.classList.add('filled'));
+
+    showToast('Intake package submitted! Reference: ' + refNum);
+  });
+}
+
+// ── Done → Dashboard ──────────────────────────────────────────────────────
+const intakeDoneBtn = document.getElementById('intake-done-btn');
+if (intakeDoneBtn) {
+  intakeDoneBtn.addEventListener('click', () => {
+    navigatePage('dashboard');
+    intakeUploadedFiles = [];
+  });
+}
+

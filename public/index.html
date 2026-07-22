@@ -168,6 +168,15 @@
               <span>Documents Center</span>
             </a>
           </li>
+          <li class="menu-item" data-target="intake">
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+              </svg>
+              <span>Client Intake</span>
+              <span class="menu-badge-new">New</span>
+            </a>
+          </li>
           <li class="menu-item" data-target="settings">
             <a href="#">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -487,7 +496,350 @@
             </div>
           </div>
         </section>
-        
+
+        <!-- ==========================================================================
+             PAGE 3D: CLIENT INTAKE FORM (MULTI-STEP WIZARD)
+             ========================================================================== -->
+        <section class="page-container page-intake">
+
+          <!-- Step Progress Bar -->
+          <div class="intake-stepper">
+            <div class="stepper-item active" data-step="1">
+              <div class="stepper-circle">1</div>
+              <span class="stepper-label">Personal Info</span>
+            </div>
+            <div class="stepper-line"></div>
+            <div class="stepper-item" data-step="2">
+              <div class="stepper-circle">2</div>
+              <span class="stepper-label">Tax Profile</span>
+            </div>
+            <div class="stepper-line"></div>
+            <div class="stepper-item" data-step="3">
+              <div class="stepper-circle">3</div>
+              <span class="stepper-label">Documents</span>
+            </div>
+          </div>
+
+          <!-- Step 1: Personal Information -->
+          <div class="intake-step" id="intake-step-1">
+            <div class="intake-card">
+              <div class="intake-card-header">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <div>
+                  <h3>Personal Information</h3>
+                  <p>Tell us about yourself so we can prepare your return accurately.</p>
+                </div>
+              </div>
+              <form id="intake-form-step1">
+                <div class="intake-form-grid">
+                  <div class="form-group">
+                    <label class="form-label">Legal First Name</label>
+                    <div class="input-wrapper">
+                      <input type="text" class="form-input" id="intake-firstname" placeholder="Jane" value="Jane" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Legal Last Name</label>
+                    <div class="input-wrapper">
+                      <input type="text" class="form-input" id="intake-lastname" placeholder="Doe" value="Doe" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Social Security Number (SSN)</label>
+                    <div class="input-wrapper">
+                      <input type="text" class="form-input" id="intake-ssn" placeholder="XXX-XX-XXXX" maxlength="11" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Date of Birth</label>
+                    <div class="input-wrapper">
+                      <input type="date" class="form-input" id="intake-dob" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <div class="input-wrapper">
+                      <input type="tel" class="form-input" id="intake-phone" placeholder="(555) 000-0000" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-wrapper">
+                      <input type="email" class="form-input" id="intake-email" placeholder="name@company.com" value="jane.doe@example.com" required>
+                    </div>
+                  </div>
+                  <div class="form-group full-width">
+                    <label class="form-label">Home Address</label>
+                    <div class="input-wrapper">
+                      <input type="text" class="form-input" id="intake-address" placeholder="742 Evergreen Terrace, Los Angeles, CA 90001" value="742 Evergreen Terrace, Los Angeles, CA 90001" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Business / Company Name (optional)</label>
+                    <div class="input-wrapper">
+                      <input type="text" class="form-input" id="intake-company" placeholder="JD Designs LLC" value="JD Designs LLC">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Spouse / Co-Filer Name (if joint)</label>
+                    <div class="input-wrapper">
+                      <input type="text" class="form-input" id="intake-spouse" placeholder="Leave blank if not applicable">
+                    </div>
+                  </div>
+                </div>
+                <div class="intake-actions">
+                  <div></div>
+                  <button type="submit" class="btn" id="intake-step1-next">
+                    <span>Continue to Tax Profile</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Step 2: Tax Profile -->
+          <div class="intake-step hidden" id="intake-step-2">
+            <div class="intake-card">
+              <div class="intake-card-header">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="13" y2="16"/></svg>
+                <div>
+                  <h3>Tax Profile</h3>
+                  <p>Help us understand your income sources and filing situation.</p>
+                </div>
+              </div>
+              <form id="intake-form-step2">
+                <div class="intake-form-grid">
+                  <div class="form-group">
+                    <label class="form-label">Filing Status</label>
+                    <select class="form-input year-select-dropdown" id="intake-filing-status" required>
+                      <option value="">— Select —</option>
+                      <option value="single" selected>Single</option>
+                      <option value="married_joint">Married Filing Jointly</option>
+                      <option value="married_separate">Married Filing Separately</option>
+                      <option value="head_of_household">Head of Household</option>
+                      <option value="qualifying_widow">Qualifying Surviving Spouse</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Tax Year Being Filed</label>
+                    <select class="form-input year-select-dropdown" id="intake-tax-year" required>
+                      <option value="2025" selected>2025</option>
+                      <option value="2024">2024</option>
+                      <option value="2023">2023</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Primary State of Filing</label>
+                    <select class="form-input year-select-dropdown" id="intake-state">
+                      <option value="CA" selected>California (CA)</option>
+                      <option value="NY">New York (NY)</option>
+                      <option value="TX">Texas (TX)</option>
+                      <option value="FL">Florida (FL)</option>
+                      <option value="WA">Washington (WA)</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Prior Year Refund / Amount Owed</label>
+                    <div class="input-wrapper">
+                      <input type="text" class="form-input" id="intake-prior-refund" placeholder="e.g. Refund $4,341 or Owed $800">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Estimated Gross Income This Year</label>
+                    <div class="input-wrapper">
+                      <input type="text" class="form-input" id="intake-est-income" placeholder="e.g. $110,000" value="$109,800">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Dependents Count</label>
+                    <select class="form-input year-select-dropdown" id="intake-dependents">
+                      <option value="0" selected>0 — No dependents</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4+">4 or more</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="intake-checklist-section">
+                  <h4 class="intake-checklist-title">Income Sources — Check all that apply</h4>
+                  <div class="intake-checklist-grid">
+                    <label class="intake-check-item">
+                      <input type="checkbox" id="income-w2" checked>
+                      <span class="intake-check-box"></span>
+                      <div>
+                        <span class="check-item-title">W-2 Wages</span>
+                        <span class="check-item-desc">Traditional employment income</span>
+                      </div>
+                    </label>
+                    <label class="intake-check-item">
+                      <input type="checkbox" id="income-1099" checked>
+                      <span class="intake-check-box"></span>
+                      <div>
+                        <span class="check-item-title">1099 / Self-Employment</span>
+                        <span class="check-item-desc">Freelance, contract, gig income</span>
+                      </div>
+                    </label>
+                    <label class="intake-check-item">
+                      <input type="checkbox" id="income-investment">
+                      <span class="intake-check-box"></span>
+                      <div>
+                        <span class="check-item-title">Investment / Dividends</span>
+                        <span class="check-item-desc">Stocks, ETFs, dividends, crypto</span>
+                      </div>
+                    </label>
+                    <label class="intake-check-item">
+                      <input type="checkbox" id="income-rental">
+                      <span class="intake-check-box"></span>
+                      <div>
+                        <span class="check-item-title">Rental Property</span>
+                        <span class="check-item-desc">Real estate income</span>
+                      </div>
+                    </label>
+                    <label class="intake-check-item">
+                      <input type="checkbox" id="income-business">
+                      <span class="intake-check-box"></span>
+                      <div>
+                        <span class="check-item-title">Business Income (S-Corp/LLC)</span>
+                        <span class="check-item-desc">Pass-through entity income</span>
+                      </div>
+                    </label>
+                    <label class="intake-check-item">
+                      <input type="checkbox" id="income-foreign">
+                      <span class="intake-check-box"></span>
+                      <div>
+                        <span class="check-item-title">Foreign Income / FBAR</span>
+                        <span class="check-item-desc">International assets or income</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="intake-form-grid" style="margin-top:20px;">
+                  <div class="form-group full-width">
+                    <label class="form-label">Additional Notes for Your Preparer (optional)</label>
+                    <textarea class="form-input intake-textarea" id="intake-notes" rows="3" placeholder="Any life changes this year? Marriage, sale of home, major deductions, etc."></textarea>
+                  </div>
+                </div>
+
+                <div class="intake-actions">
+                  <button type="button" class="btn btn-secondary" id="intake-step2-back">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    <span>Back</span>
+                  </button>
+                  <button type="submit" class="btn" id="intake-step2-next">
+                    <span>Continue to Documents</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Step 3: Document Upload -->
+          <div class="intake-step hidden" id="intake-step-3">
+            <div class="intake-card">
+              <div class="intake-card-header">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <div>
+                  <h3>Source Document Upload</h3>
+                  <p>Securely submit your tax documents so we can begin preparation.</p>
+                </div>
+              </div>
+
+              <!-- Drag-and-drop upload zone -->
+              <div class="upload-zone" id="upload-dropzone">
+                <div class="upload-zone-icon">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <p class="upload-zone-title">Drag &amp; drop files here</p>
+                <p class="upload-zone-subtitle">or click to browse your device — PDF, JPG, PNG accepted</p>
+                <input type="file" id="intake-file-input" class="upload-hidden-input" multiple accept=".pdf,.jpg,.jpeg,.png">
+                <button type="button" class="btn btn-secondary" id="upload-browse-btn" style="width:auto;padding:10px 22px;margin-top:12px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4l2-3h4l2 3h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  <span>Browse Files</span>
+                </button>
+              </div>
+
+              <!-- Uploaded files list -->
+              <div class="uploaded-files-list" id="uploaded-files-list">
+                <!-- Injected by JS -->
+              </div>
+
+              <!-- Required document checklist -->
+              <div class="intake-checklist-section" style="margin-top:28px;">
+                <h4 class="intake-checklist-title">Document Submission Checklist</h4>
+                <div class="intake-checklist-grid">
+                  <label class="intake-check-item">
+                    <input type="checkbox" id="check-w2-upload" checked>
+                    <span class="intake-check-box"></span>
+                    <div><span class="check-item-title">W-2 Form(s)</span><span class="check-item-desc">From all employers</span></div>
+                  </label>
+                  <label class="intake-check-item">
+                    <input type="checkbox" id="check-1099-upload" checked>
+                    <span class="intake-check-box"></span>
+                    <div><span class="check-item-title">1099 Form(s)</span><span class="check-item-desc">NEC, DIV, INT, B, etc.</span></div>
+                  </label>
+                  <label class="intake-check-item">
+                    <input type="checkbox" id="check-lastreturn">
+                    <span class="intake-check-box"></span>
+                    <div><span class="check-item-title">Prior Year Return</span><span class="check-item-desc">Last filed 1040 copy</span></div>
+                  </label>
+                  <label class="intake-check-item">
+                    <input type="checkbox" id="check-id">
+                    <span class="intake-check-box"></span>
+                    <div><span class="check-item-title">Government-Issued ID</span><span class="check-item-desc">Driver's license or passport</span></div>
+                  </label>
+                  <label class="intake-check-item">
+                    <input type="checkbox" id="check-brokerage">
+                    <span class="intake-check-box"></span>
+                    <div><span class="check-item-title">Brokerage Statements</span><span class="check-item-desc">If applicable</span></div>
+                  </label>
+                  <label class="intake-check-item">
+                    <input type="checkbox" id="check-receipts">
+                    <span class="intake-check-box"></span>
+                    <div><span class="check-item-title">Business Receipts / Expenses</span><span class="check-item-desc">If self-employed</span></div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="intake-actions" style="margin-top:32px;">
+                <button type="button" class="btn btn-secondary" id="intake-step3-back">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                  <span>Back</span>
+                </button>
+                <button type="button" class="btn" id="intake-submit-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Submit Intake Package</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Confirmation -->
+          <div class="intake-step hidden" id="intake-step-done">
+            <div class="intake-card intake-success-card">
+              <div class="intake-success-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+              </div>
+              <h2 class="intake-success-title">Intake Package Submitted!</h2>
+              <p class="intake-success-msg">Thank you, <strong id="intake-confirm-name">Jane</strong>. Your information and documents have been securely received. Your assigned preparer <strong>Marcus Kaelen, CPA</strong> will review your submission and reach out within <strong>1–2 business days</strong> to confirm the next steps.</p>
+              <div class="intake-ref-block">
+                <span class="intake-ref-label">Reference Number</span>
+                <span class="intake-ref-value" id="intake-ref-number">MTX-2025-000001</span>
+              </div>
+              <button class="btn" id="intake-done-btn" style="width:auto;padding:12px 28px;margin-top:28px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                <span>Return to Dashboard</span>
+              </button>
+            </div>
+          </div>
+
+        </section>
+
       </main>
     </div>
   </div>
