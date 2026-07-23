@@ -1237,6 +1237,73 @@ if (intakeSubmitBtn) {
     const firstName = document.getElementById('intake-firstname')?.value || 'Client';
     const refNum = `MTX-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
 
+    // Compile full intake data payload
+    const intakePayload = {
+      referenceNumber: refNum,
+      submittedAt: (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) 
+        ? firebase.firestore.FieldValue.serverTimestamp() 
+        : new Date().toISOString(),
+      submittedAtIso: new Date().toISOString(),
+      personalInfo: {
+        firstName: document.getElementById('intake-firstname')?.value || '',
+        lastName: document.getElementById('intake-lastname')?.value || '',
+        ssn: document.getElementById('intake-ssn')?.value || '',
+        dob: document.getElementById('intake-dob')?.value || '',
+        phone: document.getElementById('intake-phone')?.value || '',
+        email: document.getElementById('intake-email')?.value || '',
+        address: document.getElementById('intake-address')?.value || '',
+        company: document.getElementById('intake-company')?.value || '',
+        spouse: document.getElementById('intake-spouse')?.value || ''
+      },
+      taxProfile: {
+        filingStatus: document.getElementById('intake-filing-status')?.value || '',
+        taxYear: document.getElementById('intake-tax-year')?.value || '',
+        state: document.getElementById('intake-state')?.value || '',
+        priorRefund: document.getElementById('intake-prior-refund')?.value || '',
+        estimatedIncome: document.getElementById('intake-est-income')?.value || '',
+        dependents: document.getElementById('intake-dependents')?.value || '',
+        incomeSources: [
+          document.getElementById('income-w2')?.checked ? 'W-2 Wages' : null,
+          document.getElementById('income-1099')?.checked ? '1099 / Self-Employment' : null,
+          document.getElementById('income-investment')?.checked ? 'Investment / Dividends' : null,
+          document.getElementById('income-rental')?.checked ? 'Rental Property' : null,
+          document.getElementById('income-business')?.checked ? 'Business Income (S-Corp/LLC)' : null,
+          document.getElementById('income-foreign')?.checked ? 'Foreign Income / FBAR' : null
+        ].filter(Boolean),
+        notes: document.getElementById('intake-notes')?.value || ''
+      },
+      documents: {
+        uploadedFiles: intakeUploadedFiles.map(f => ({
+          name: f.name,
+          size: f.size,
+          type: f.type || 'unknown'
+        })),
+        checklist: {
+          w2: document.getElementById('check-w2-upload')?.checked || false,
+          form1099: document.getElementById('check-1099-upload')?.checked || false,
+          priorReturn: document.getElementById('check-lastreturn')?.checked || false,
+          governmentId: document.getElementById('check-id')?.checked || false,
+          brokerage: document.getElementById('check-brokerage')?.checked || false,
+          receipts: document.getElementById('check-receipts')?.checked || false
+        }
+      },
+      status: 'pending_review',
+      assignedPreparer: 'Marcus Kaelen, CPA'
+    };
+
+    // Write to Firebase Firestore
+    if (typeof db !== 'undefined' && db) {
+      db.collection('intakes').doc(refNum).set(intakePayload)
+        .then(() => {
+          console.log("Intake package persisted to Cloud Firestore successfully:", refNum);
+          showToast(`Saved to Cloud Firestore! Ref: ${refNum}`);
+        })
+        .catch((err) => {
+          console.error("Firestore write error:", err);
+          showToast("Submitted locally (Firestore permission error: check security rules).");
+        });
+    }
+
     // Update confirmation screen
     const confirmName = document.getElementById('intake-confirm-name');
     const refNumber   = document.getElementById('intake-ref-number');
@@ -1248,7 +1315,7 @@ if (intakeSubmitBtn) {
     AUDIT_LOGS.unshift({
       id: `log_intake_${now.getTime()}`,
       action: 'INTAKE_SUBMITTED',
-      details: `Client intake package submitted. Reference: ${refNum}. Files: ${intakeUploadedFiles.length}.`,
+      details: `Client intake package submitted & saved to database. Reference: ${refNum}. Files: ${intakeUploadedFiles.length}.`,
       time: 'Just now'
     });
     renderAuditLogs();

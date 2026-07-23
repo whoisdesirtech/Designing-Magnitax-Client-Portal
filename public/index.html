@@ -905,6 +905,8 @@
 
   <!-- Firebase App (the core Firebase SDK) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <!-- Firebase Analytics (optional) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
 
@@ -922,6 +924,7 @@
     // Initialize Firebase
     const firebaseApp = firebase.initializeApp(firebaseConfig);
     const firebaseAnalytics = firebase.analytics();
+    const db = firebase.firestore();
     console.log("Firebase initialized successfully for Magnitax Client Portal:", firebaseApp.name);
   </script>
 
