@@ -188,6 +188,30 @@
           </li>
         </ul>
       </div>
+
+      <!-- Admin Console Section (Visible for Admin Users / Accessible via Switcher) -->
+      <div class="menu-section admin-only-section">
+        <div class="menu-label" style="color: var(--gold-accent, #f59e0b);">CPA Admin Console</div>
+        <ul class="menu-list">
+          <li class="menu-item" data-target="admin-intakes">
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>
+              </svg>
+              <span>Intakes Queue</span>
+              <span class="menu-badge-admin">Firestore</span>
+            </a>
+          </li>
+          <li class="menu-item" data-target="admin-vault">
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span>Client Vault Uploader</span>
+            </a>
+          </li>
+        </ul>
+      </div>
       
       <div class="sidebar-footer">
         <div class="user-profile-widget">
@@ -221,6 +245,17 @@
         </div>
         
         <div class="header-actions">
+          <!-- Role Switcher & Status Badge -->
+          <div class="role-switcher-container">
+            <span class="role-badge client-role-badge" id="role-header-badge">CLIENT ROLE</span>
+            <button class="btn btn-secondary role-switch-btn" id="role-switcher-btn" title="Click to toggle between Client and Admin view">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="8 21 3 21 3 16"/><line x1="20" y1="4" x2="3" y2="21"/>
+              </svg>
+              <span id="role-switch-text">Switch to Admin Mode</span>
+            </button>
+          </div>
+
           <!-- Notification Bell Dropdown -->
           <div class="notif-bell-container">
             <button class="notif-bell-btn" id="notif-bell-trigger">
@@ -838,9 +873,116 @@
             </div>
           </div>
 
+        <!-- ==========================================================================
+             PAGE 3E: ADMIN INTAKES QUEUE (FIRESTORE REAL-TIME MONITOR)
+             ========================================================================== -->
+        <section class="page-container page-admin-intakes">
+          <div class="welcome-banner admin-banner">
+            <div class="welcome-text">
+              <h2>CPA Admin Intakes Queue</h2>
+              <p>Monitor live client intake submissions synced from Cloud Firestore. Review personal information, tax profiles, and source documents, and update filing review statuses.</p>
+            </div>
+            <button class="btn btn-secondary" style="width: auto; font-size: 12px; padding: 8px 16px;" id="admin-refresh-intakes-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+              <span>Refresh Firestore</span>
+            </button>
+          </div>
+
+          <div class="intake-card full-width-card" style="max-width: 100%;">
+            <div class="admin-table-header">
+              <h3 style="font-size: 16px; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;">Submitted Intake Submissions</h3>
+              <div style="display: flex; gap: 10px;">
+                <select id="admin-intake-status-filter" class="year-select-dropdown" style="padding: 6px 12px; font-size: 12px;">
+                  <option value="all">All Statuses</option>
+                  <option value="pending_review" selected>Pending Review</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+              <table class="admin-intakes-table">
+                <thead>
+                  <tr>
+                    <th>Ref #</th>
+                    <th>Client Name</th>
+                    <th>Email / Phone</th>
+                    <th>Tax Year</th>
+                    <th>Filing Status</th>
+                    <th>Income Sources</th>
+                    <th>Files</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-intakes-tbody">
+                  <!-- Injected dynamically via JS from Firestore -->
+                </tbody>
+              </table>
+            </div>
+
+            <div id="admin-intakes-empty" class="empty-gallery" style="display: none; padding: 40px 0;">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <h3>No Intake Submissions Found</h3>
+              <p>When clients complete the 3-step intake wizard, their submissions will appear here in real-time.</p>
+            </div>
+          </div>
         </section>
 
-      </main>
+        <!-- ==========================================================================
+             PAGE 3F: ADMIN CLIENT VAULT UPLOADER
+             ========================================================================== -->
+        <section class="page-container page-admin-vault">
+          <div class="intake-card" style="max-width: 720px;">
+            <div class="intake-card-header">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="3"/></svg>
+              <div>
+                <h3>Upload Document to Client Vault</h3>
+                <p>As a CPA Preparer, upload final W-2s, 1099s, or Form 1040 summaries into a client's portal vault.</p>
+              </div>
+            </div>
+
+            <form id="admin-upload-form">
+              <div class="intake-form-grid">
+                <div class="form-group">
+                  <label class="form-label">Target Client Filer</label>
+                  <select class="form-input year-select-dropdown" id="admin-upload-client" required>
+                    <option value="usr_jane_doe_993" selected>Jane Doe (JD Designs LLC)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tax Year</label>
+                  <select class="form-input year-select-dropdown" id="admin-upload-year" required>
+                    <option value="2025" selected>2025</option>
+                    <option value="2024">2024</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Document Category</label>
+                  <select class="form-input year-select-dropdown" id="admin-upload-type" required>
+                    <option value="w2">W-2 Form</option>
+                    <option value="1099" selected>1099 Form</option>
+                    <option value="summary">Form 1040 Summary</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Document Title / File Name</label>
+                  <input type="text" class="form-input" id="admin-upload-filename" placeholder="2025_1099_K_Shopify.pdf" value="2025_1099_K_Shopify_Inc.pdf" required>
+                </div>
+                <div class="form-group full-width">
+                  <label class="form-label">Payer / Employer Details</label>
+                  <input type="text" class="form-input" id="admin-upload-payer" placeholder="Shopify Inc. (EIN: 99-8877665)" value="Shopify Commerce Inc.">
+                </div>
+              </div>
+
+              <button type="submit" class="btn" style="margin-top: 24px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Publish Document to Client Vault</span>
+              </button>
+            </form>
+          </div>
+        </section>
     </div>
   </div>
 
@@ -886,6 +1028,40 @@
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
           <span>Download Document</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       4B. ADMIN INTAKE DETAIL INSPECTOR MODAL
+       ========================================================================== -->
+  <div class="modal-overlay" id="admin-intake-detail-modal">
+    <div class="modal-content" style="max-width: 720px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="admin-modal-title">Intake Package Details</h3>
+          <span style="font-size: 11px; color: var(--text-secondary);" id="admin-modal-ref">MTX-2025-000000</span>
+        </div>
+        <button class="modal-close-btn" id="admin-modal-close-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding: 24px;">
+        <div id="admin-modal-body-content">
+          <!-- Dynamically filled by app.js -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <select id="admin-modal-status-select" class="year-select-dropdown" style="width: auto; padding: 8px 14px; font-size: 13px;">
+          <option value="pending_review">Pending Review</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed / Approved</option>
+        </select>
+        <button class="btn" style="width: auto; padding: 10px 20px;" id="admin-modal-save-status-btn">
+          <span>Update Status in Firestore</span>
         </button>
       </div>
     </div>

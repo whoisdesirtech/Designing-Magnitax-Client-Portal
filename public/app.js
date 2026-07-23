@@ -9,9 +9,24 @@ const CLIENT_USER = {
   firstName: "Jane",
   lastName: "Doe",
   companyName: "JD Designs LLC",
+  role: "client",
   wpLinked: true,
   twoFactorActive: true
 };
+
+const ADMIN_USER = {
+  id: "usr_marcus_kaelen_cpa",
+  email: "admin@magnitax.com",
+  firstName: "Marcus",
+  lastName: "Kaelen",
+  companyName: "Magnitax Consulting LLC",
+  role: "admin",
+  title: "Senior Tax Strategist & CPA",
+  wpLinked: true,
+  twoFactorActive: true
+};
+
+let activeUserRole = "client"; // 'client' or 'admin'
 
 const DOCUMENTS_DB = [
   {
@@ -295,21 +310,27 @@ twoFactorForm.addEventListener('submit', (e) => {
   if (code.length === 6 && (code === '123456' || code.startsWith('1') || code.startsWith('2') || code.startsWith('3'))) {
     twoFactorError.style.display = 'none';
     
-    // Set user profile text
-    profileUserFullname.textContent = `${CLIENT_USER.firstName} ${CLIENT_USER.lastName}`;
-    profileAvatarLetters.textContent = `${CLIENT_USER.firstName[0]}${CLIENT_USER.lastName[0]}`;
+    // Check if user authenticated as admin or client
+    const loginEmail = document.getElementById('login-email').value;
+    if (loginEmail.includes('admin') || loginEmail.includes('kaelen')) {
+      activeUserRole = 'admin';
+    } else {
+      activeUserRole = 'client';
+    }
+    
+    applyRoleUI();
     
     // Add success login to audit logs
     const now = new Date();
     AUDIT_LOGS.unshift({
       id: `log_login_${now.getTime()}`,
       action: "LOGIN_SUCCESS",
-      details: "Two-Factor passcode verified. Dashboard session unlocked.",
+      details: `Two-Factor passcode verified. ${activeUserRole === 'admin' ? 'CPA Admin' : 'Client'} session unlocked.`,
       time: "Just now"
     });
     
     setView('app');
-    showToast("Security authentication verified. Welcome back.");
+    showToast(`Security authentication verified. Welcome back, ${activeUserRole === 'admin' ? 'Marcus Kaelen, CPA' : 'Jane Doe'}.`);
   } else {
     twoFactorError.style.display = 'flex';
     digitInputs.forEach(input => input.value = '');
@@ -1358,4 +1379,307 @@ if (intakeDoneBtn) {
     intakeUploadedFiles = [];
   });
 }
+
+// ==========================================================================
+// 13. CPA ADMIN CONSOLE & ROLE SWITCHER SYSTEM
+// ==========================================================================
+
+function applyRoleUI() {
+  const roleBadge = document.getElementById('role-header-badge');
+  const roleSwitchText = document.getElementById('role-switch-text');
+  const profileName = document.getElementById('profile-user-fullname');
+  const profileAvatar = document.getElementById('profile-avatar-letters');
+
+  body.setAttribute('data-role', activeUserRole);
+
+  if (activeUserRole === 'admin') {
+    if (roleBadge) {
+      roleBadge.textContent = 'CPA ADMIN ROLE';
+      roleBadge.className = 'role-badge admin-role-badge';
+    }
+    if (roleSwitchText) roleSwitchText.textContent = 'Switch to Client Mode';
+    if (profileName) profileName.textContent = 'Marcus Kaelen, CPA';
+    if (profileAvatar) profileAvatar.textContent = 'MK';
+  } else {
+    if (roleBadge) {
+      roleBadge.textContent = 'CLIENT ROLE';
+      roleBadge.className = 'role-badge client-role-badge';
+    }
+    if (roleSwitchText) roleSwitchText.textContent = 'Switch to Admin Mode';
+    if (profileName) profileName.textContent = `${CLIENT_USER.firstName} ${CLIENT_USER.lastName}`;
+    if (profileAvatar) profileAvatar.textContent = `${CLIENT_USER.firstName[0]}${CLIENT_USER.lastName[0]}`;
+  }
+}
+
+// Role Switcher Button Listener
+const roleSwitcherBtn = document.getElementById('role-switcher-btn');
+if (roleSwitcherBtn) {
+  roleSwitcherBtn.addEventListener('click', () => {
+    activeUserRole = activeUserRole === 'client' ? 'admin' : 'client';
+    applyRoleUI();
+    
+    if (activeUserRole === 'admin') {
+      showToast("Switched context to CPA Admin Console.");
+      navigatePage('admin-intakes');
+    } else {
+      showToast("Switched context to Client Portal View.");
+      navigatePage('dashboard');
+    }
+  });
+}
+
+// Extend navigatePage to support Admin screens
+const _prevNavPage = navigatePage;
+navigatePage = function(pageName) {
+  _prevNavPage(pageName);
+
+  let displayTitle = "Client Dashboard";
+  if (pageName === 'documents') displayTitle = "Documents Center";
+  if (pageName === 'settings') displayTitle = "Portal Settings";
+  if (pageName === 'intake') displayTitle = "Client Intake";
+  if (pageName === 'admin-intakes') {
+    displayTitle = "CPA Admin Intakes Queue";
+    loadAdminIntakesQueue();
+  }
+  if (pageName === 'admin-vault') displayTitle = "Client Vault Uploader";
+
+  headerPageTitle.textContent = displayTitle;
+};
+
+// ── Admin Intakes Queue (Firestore Sync) ──────────────────────────────────
+let loadedIntakesData = [];
+let activeSelectedIntake = null;
+
+function loadAdminIntakesQueue() {
+  const tbody = document.getElementById('admin-intakes-tbody');
+  const emptyState = document.getElementById('admin-intakes-empty');
+  if (!tbody) return;
+
+  tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 24px; color: var(--text-muted);">Loading live intakes from Cloud Firestore...</td></tr>`;
+
+  if (typeof db !== 'undefined' && db) {
+    db.collection('intakes').get().then(snapshot => {
+      loadedIntakesData = [];
+      snapshot.forEach(doc => {
+        loadedIntakesData.push(doc.data());
+      });
+      renderAdminIntakesTable();
+    }).catch(err => {
+      console.error("Firestore read error:", err);
+      // Fallback demo row if Firestore empty or offline
+      if (loadedIntakesData.length === 0) {
+        loadedIntakesData = [{
+          referenceNumber: "MTX-2025-982410",
+          submittedAtIso: new Date().toISOString(),
+          personalInfo: { firstName: "Jane", lastName: "Doe", email: "jane.doe@example.com", phone: "(555) 000-0000" },
+          taxProfile: { taxYear: "2025", filingStatus: "Single", incomeSources: ["W-2 Wages", "1099 / Self-Employment"] },
+          documents: { uploadedFiles: [{ name: "2025_W2_JD_Designs.pdf", size: 145000 }] },
+          status: "pending_review"
+        }];
+      }
+      renderAdminIntakesTable();
+    });
+  } else {
+    renderAdminIntakesTable();
+  }
+}
+
+function renderAdminIntakesTable() {
+  const tbody = document.getElementById('admin-intakes-tbody');
+  const emptyState = document.getElementById('admin-intakes-empty');
+  const statusFilter = document.getElementById('admin-intake-status-filter')?.value || 'all';
+
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const filtered = loadedIntakesData.filter(item => {
+    if (statusFilter === 'all') return true;
+    return item.status === statusFilter;
+  });
+
+  if (filtered.length === 0) {
+    if (emptyState) emptyState.style.display = 'block';
+    return;
+  }
+  if (emptyState) emptyState.style.display = 'none';
+
+  filtered.forEach(item => {
+    const tr = document.createElement('tr');
+    const statusLabel = item.status === 'pending_review' ? 'Pending Review' : (item.status === 'in_progress' ? 'In Progress' : 'Completed');
+    
+    tr.innerHTML = `
+      <td><strong style="color: var(--accent);">${item.referenceNumber}</strong></td>
+      <td><strong>${item.personalInfo?.firstName || 'Client'} ${item.personalInfo?.lastName || ''}</strong></td>
+      <td>${item.personalInfo?.email || 'N/A'}<br><span style="font-size: 11px; color: var(--text-muted);">${item.personalInfo?.phone || ''}</span></td>
+      <td>${item.taxProfile?.taxYear || '2025'}</td>
+      <td>${item.taxProfile?.filingStatus || 'Single'}</td>
+      <td><span class="source-tag">${(item.taxProfile?.incomeSources || []).length} Sources</span></td>
+      <td>${(item.documents?.uploadedFiles || []).length} Files</td>
+      <td><span class="status-pill ${item.status}">${statusLabel}</span></td>
+      <td>
+        <button class="btn btn-secondary inspect-intake-btn" data-ref="${item.referenceNumber}" style="padding: 6px 12px; font-size: 11px;">
+          <span>Inspect</span>
+        </button>
+      </td>
+    `;
+
+    tr.querySelector('.inspect-intake-btn').addEventListener('click', () => {
+      openAdminIntakeModal(item);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+// Refresh button trigger
+const adminRefreshBtn = document.getElementById('admin-refresh-intakes-btn');
+if (adminRefreshBtn) {
+  adminRefreshBtn.addEventListener('click', () => {
+    loadAdminIntakesQueue();
+    showToast("Refreshed Firestore intakes queue.");
+  });
+}
+
+// Status filter select trigger
+const adminStatusFilterSelect = document.getElementById('admin-intake-status-filter');
+if (adminStatusFilterSelect) {
+  adminStatusFilterSelect.addEventListener('change', renderAdminIntakesTable);
+}
+
+// ── Admin Intake Inspector Modal ──────────────────────────────────────────
+function openAdminIntakeModal(item) {
+  activeSelectedIntake = item;
+  const modal = document.getElementById('admin-intake-detail-modal');
+  const title = document.getElementById('admin-modal-title');
+  const ref = document.getElementById('admin-modal-ref');
+  const bodyContent = document.getElementById('admin-modal-body-content');
+  const statusSelect = document.getElementById('admin-modal-status-select');
+
+  if (!modal || !bodyContent) return;
+
+  title.textContent = `Intake: ${item.personalInfo?.firstName || ''} ${item.personalInfo?.lastName || ''}`;
+  ref.textContent = `Ref: ${item.referenceNumber} • Submitted: ${item.submittedAtIso ? new Date(item.submittedAtIso).toLocaleString() : 'Recently'}`;
+  if (statusSelect) statusSelect.value = item.status || 'pending_review';
+
+  bodyContent.innerHTML = `
+    <div class="admin-detail-grid">
+      <div class="admin-detail-block">
+        <div class="admin-detail-label">Legal Name</div>
+        <div class="admin-detail-val">${item.personalInfo?.firstName || ''} ${item.personalInfo?.lastName || ''}</div>
+      </div>
+      <div class="admin-detail-block">
+        <div class="admin-detail-label">SSN &amp; DOB</div>
+        <div class="admin-detail-val">${item.personalInfo?.ssn || 'XXX-XX-XXXX'} | ${item.personalInfo?.dob || 'N/A'}</div>
+      </div>
+      <div class="admin-detail-block">
+        <div class="admin-detail-label">Contact Info</div>
+        <div class="admin-detail-val">${item.personalInfo?.email || ''}<br>${item.personalInfo?.phone || ''}</div>
+      </div>
+      <div class="admin-detail-block">
+        <div class="admin-detail-label">Home Address</div>
+        <div class="admin-detail-val">${item.personalInfo?.address || 'N/A'}</div>
+      </div>
+      <div class="admin-detail-block">
+        <div class="admin-detail-label">Tax Profile</div>
+        <div class="admin-detail-val">Year: ${item.taxProfile?.taxYear || ''} • Status: ${item.taxProfile?.filingStatus || ''} • State: ${item.taxProfile?.state || ''}</div>
+      </div>
+      <div class="admin-detail-block">
+        <div class="admin-detail-label">Financial Metrics</div>
+        <div class="admin-detail-val">Est Income: ${item.taxProfile?.estimatedIncome || 'N/A'} • Prior Refund: ${item.taxProfile?.priorRefund || 'N/A'}</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <div class="admin-detail-label">Income Sources Checked</div>
+      <div class="source-tag-list">
+        ${(item.taxProfile?.incomeSources || []).map(s => `<span class="source-tag">${s}</span>`).join('') || '<span style="font-size:12px;color:var(--text-muted);">None specified</span>'}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <div class="admin-detail-label">Uploaded Source Files (${(item.documents?.uploadedFiles || []).length})</div>
+      <ul style="list-style: none; margin-top: 6px;">
+        ${(item.documents?.uploadedFiles || []).map(f => `<li style="font-size: 13px; color: var(--text-primary); padding: 4px 0;">📄 <strong>${f.name}</strong> (${(f.size/1024).toFixed(1)} KB)</li>`).join('') || '<li style="font-size:12px;color:var(--text-muted);">No files attached</li>'}
+      </ul>
+    </div>
+
+    ${item.taxProfile?.notes ? `
+      <div>
+        <div class="admin-detail-label">Client Notes</div>
+        <p style="font-size: 13px; color: var(--text-secondary); background: var(--bg-tertiary); padding: 10px; border-radius: 8px; margin-top: 4px;">"${item.taxProfile.notes}"</p>
+      </div>
+    ` : ''}
+  `;
+
+  modal.classList.add('show');
+}
+
+const adminModalCloseBtn = document.getElementById('admin-modal-close-btn');
+if (adminModalCloseBtn) {
+  adminModalCloseBtn.addEventListener('click', () => {
+    document.getElementById('admin-intake-detail-modal')?.classList.remove('show');
+  });
+}
+
+const adminModalSaveStatusBtn = document.getElementById('admin-modal-save-status-btn');
+if (adminModalSaveStatusBtn) {
+  adminModalSaveStatusBtn.addEventListener('click', () => {
+    if (!activeSelectedIntake) return;
+    const newStatus = document.getElementById('admin-modal-status-select')?.value;
+    activeSelectedIntake.status = newStatus;
+
+    if (typeof db !== 'undefined' && db) {
+      db.collection('intakes').doc(activeSelectedIntake.referenceNumber).update({ status: newStatus })
+        .then(() => {
+          showToast(`Intake status updated to '${newStatus}' in Firestore.`);
+          document.getElementById('admin-intake-detail-modal')?.classList.remove('show');
+          renderAdminIntakesTable();
+        })
+        .catch(err => {
+          console.error("Firestore update error:", err);
+          showToast(`Status updated locally.`);
+          document.getElementById('admin-intake-detail-modal')?.classList.remove('show');
+          renderAdminIntakesTable();
+        });
+    } else {
+      document.getElementById('admin-intake-detail-modal')?.classList.remove('show');
+      renderAdminIntakesTable();
+    }
+  });
+}
+
+// ── Admin Client Vault Uploader Form ──────────────────────────────────────
+const adminUploadForm = document.getElementById('admin-upload-form');
+if (adminUploadForm) {
+  adminUploadForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const type = document.getElementById('admin-upload-type').value;
+    const year = parseInt(document.getElementById('admin-upload-year').value);
+    const fileName = document.getElementById('admin-upload-filename').value;
+    const payer = document.getElementById('admin-upload-payer').value;
+
+    const newDoc = {
+      id: `doc_${type}_${year}_${Date.now()}`,
+      fileName: fileName,
+      type: type,
+      taxYear: year,
+      fileSize: "185 KB",
+      dateUploaded: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      details: {
+        payer: payer,
+        ein: "99-8877665",
+        nonEmployeeComp: "$18,500.00",
+        fedTaxWithheld: "$0.00",
+        state: "CA"
+      }
+    };
+
+    DOCUMENTS_DB.unshift(newDoc);
+    renderDocumentsList();
+
+    showToast(`Published ${fileName} to Client Vault!`);
+    adminUploadForm.reset();
+  });
+}
+
 

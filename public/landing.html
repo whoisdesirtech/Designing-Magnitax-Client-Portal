@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnitax | Next-Gen Client Portal & Tax Intelligence Platform</title>
+  <meta name="description" content="Experience the premier glassmorphic client portal for modern tax and accounting firms. Secure intake, 2FA document vault, and direct CPA advisory.">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Landing Page Specific Styles */
+    .landing-body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+    
+    .landing-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(11, 12, 16, 0.85);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+    
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+    
+    .nav-link:hover {
+      color: var(--text-primary);
+    }
+    
+    .hero-section {
+      padding: 160px 24px 100px;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+    }
+    
+    .hero-glow {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, rgba(16, 185, 129, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--border-accent);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      color: #ffffff;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-title span {
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 720px;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-ctas .btn {
+      width: auto;
+      padding: 14px 32px;
+      font-size: 15px;
+    }
+    
+    .hero-preview-frame {
+      position: relative;
+      z-index: 1;
+      max-width: 1040px;
+      margin: 0 auto;
+      border-radius: 20px;
+      border: 1px solid var(--border-color-hover);
+      background: var(--bg-secondary);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      padding: 12px;
+    }
+    
+    .window-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px 12px 0 0;
+    }
+    
+    .window-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+    
+    .window-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: auto;
+      margin-right: auto;
+      font-family: monospace;
+    }
+    
+    .preview-image-container {
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-tertiary);
+      padding: 30px;
+      text-align: left;
+    }
+    
+    .mock-dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .mock-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .mock-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    /* Section Styling */
+    .landing-section {
+      padding: 90px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .section-tag {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 38px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+    
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: var(--glass-blur);
+      transition: transform var(--transition-normal), border-color var(--transition-normal);
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-accent);
+    }
+    
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Comparison Table */
+    .comparison-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 40px;
+      overflow-x: auto;
+    }
+    
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    
+    .comp-table th, .comp-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+    
+    .comp-table th {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .comp-highlight {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    
+    .check-yes {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    
+    .check-no {
+      color: #f87171;
+    }
+
+    /* ROI Calculator Card */
+    .roi-card {
+      background: linear-gradient(135deg, rgba(18, 21, 32, 0.9), rgba(26, 30, 46, 0.9));
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    
+    .roi-metric {
+      font-family: 'Outfit', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    
+    .roi-slider {
+      width: 100%;
+      margin: 16px 0;
+      accent-color: var(--accent);
+    }
+
+    /* Footer */
+    .landing-footer {
+      border-top: 1px solid var(--border-color);
+      padding: 60px 40px 30px;
+      background: var(--bg-secondary);
+    }
+    
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .footer-text {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 900px) {
+      .hero-title { font-size: 40px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .roi-card { grid-template-columns: 1fr; }
+      .mock-metrics-grid { grid-template-columns: 1fr; }
+      .landing-nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body class="landing-body">
+
+  <!-- Fixed Top Navigation -->
+  <nav class="landing-nav">
+    <div class="auth-logo" style="margin: 0;">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M12 8v8"/>
+          <path d="M9 11l3 3 3-3"/>
+        </svg>
+      </div>
+      <div class="logo-text">Magni<span>tax</span></div>
+    </div>
+    
+    <ul class="nav-links">
+      <li><a href="#features" class="nav-link">Features</a></li>
+      <li><a href="#comparison" class="nav-link">Why Magnitax</a></li>
+      <li><a href="#roi" class="nav-link">Firm ROI</a></li>
+      <li><a href="pitch_deck.html" class="nav-link">Investor Deck</a></li>
+    </ul>
+
+    <div style="display: flex; gap: 12px;">
+      <a href="index.html" class="btn btn-secondary" style="width: auto; padding: 9px 18px; font-size: 13px;">
+        <span>Client Sign In</span>
+      </a>
+      <a href="index.html" class="btn" style="width: auto; padding: 9px 20px; font-size: 13px;">
+        <span>Launch Portal</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-section">
+    <div class="hero-glow"></div>
+    
+    <div class="hero-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>SOC2 Type II &amp; 256-Bit Encrypted Client Vault</span>
+    </div>
+    
+    <h1 class="hero-title">
+      The Premium Client Portal for <span>Modern Tax &amp; Accounting Firms</span>
+    </h1>
+    
+    <p class="hero-subtitle">
+      Elevate your client experience with branded 2FA document vaults, guided 3-step digital intake, and real-time CPA audit trails. Built for firm-owners who value security and brand equity over gig-marketplaces.
+    </p>
+    
+    <div class="hero-ctas">
+      <a href="index.html" class="btn">
+        <span>Experience Client Portal Demo</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="#demo-form" class="btn btn-secondary">
+        <span>Request Firm Onboarding</span>
+      </a>
+    </div>
+    
+    <!-- Glassmorphic Portal Mockup Preview Frame -->
+    <div class="hero-preview-frame">
+      <div class="window-bar">
+        <div class="window-dot dot-red"></div>
+        <div class="window-dot dot-yellow"></div>
+        <div class="window-dot dot-green"></div>
+        <div class="window-title">https://taxagentai062026.web.app</div>
+      </div>
+      <div class="preview-image-container">
+        <div class="mock-dashboard-header">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #fff;">Magnitax Secure Portal • Client Console</h3>
+            <span style="font-size: 12px; color: var(--text-secondary);">Logged in as Jane Doe (JD Designs LLC)</span>
+          </div>
+          <span class="hero-badge" style="margin: 0;">Active Session (2FA Verified)</span>
+        </div>
+        
+        <div class="mock-metrics-grid">
+          <div class="mock-card">
+            <span style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">AVAILABLE DOCUMENTS</span>
+            <strong style="font-size: 20px; color: #fff;">4 Encrypted PDFs</strong>
+          </div>
+          <div class="mock-card">
+            <span style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">ESTIMATED DEADLINE</span>
+            <strong style="font-size: 20px; color: #f59e0b;">June 15, 2026</strong>
+          </div>
+          <div class="mock-card">
+            <span style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">ASSIGNED CPA PREPARER</span>
+            <strong style="font-size: 20px; color: var(--accent);">Marcus Kaelen, CPA</strong>
+          </div>
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.06); border: 1px dashed var(--border-accent); padding: 14px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; color: var(--text-primary);">📥 <strong>New Feature Live:</strong> 3-Step Guided Client Intake Wizard with Cloud Firestore Sync</span>
+          <a href="index.html" class="btn" style="width: auto; padding: 6px 14px; font-size: 11px;">Try Intake Wizard</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Core Features Section -->
+  <section class="landing-section" id="features">
+    <div class="section-header">
+      <div class="section-tag">Enterprise Capabilities</div>
+      <h2 class="section-title">Designed for Trust, Built for Scale</h2>
+      <p class="section-subtitle">Everything your clients need to submit tax documents, track filings, and communicate securely with your firm.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- Card 1 -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>Mandatory 2FA Defense</h3>
+        <p>Protect sensitive W-2s, 1099s, and Tax Return Summaries behind TOTP 6-digit authenticator verification and encrypted session locks.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        </div>
+        <h3>Guided 3-Step Client Intake</h3>
+        <p>Streamline tax gathering with an intelligent multi-step wizard covering personal info, tax profile checkboxes, and drag-and-drop document uploads.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+        </div>
+        <h3>IRS Form Layout Viewer</h3>
+        <p>Clients can preview structured, high-fidelity IRS Form W-2, 1099-NEC, 1099-DIV, and Form 1040 summaries directly inside a secure modal canvas.</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <h3>Audit Trail &amp; Compliance</h3>
+        <p>Every login, document preview, download, and intake submission logs to an immutable audit trail with GDPR data export and erasure controls.</p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Direct CPA Advisory Messaging</h3>
+        <p>Connect clients directly with their designated CPA preparer via end-to-end encrypted messaging right within the portal console.</p>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h3>Real-Time Cloud Firestore Sync</h3>
+        <p>Client intake packets write instantly to Cloud Firestore with assigned reference numbers (`MTX-2025-XXXXXX`) for real-time firm preparer oversight.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Firm Brand vs Gig Marketplace Section -->
+  <section class="landing-section" id="comparison">
+    <div class="section-header">
+      <div class="section-tag">Brand Sovereignty</div>
+      <h2 class="section-title">Magnitax vs. Gig Marketplaces</h2>
+      <p class="section-subtitle">Why leading tax professionals choose a dedicated branded portal over gig-network platforms like Taxfyle.</p>
+    </div>
+
+    <div class="comparison-wrapper">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Platform Feature</th>
+            <th class="comp-highlight">Magnitax Client Portal</th>
+            <th style="color: var(--text-muted);">Gig Marketplaces (Taxfyle)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Client Relationship Ownership</strong></td>
+            <td class="check-yes">✓ 100% Owned by Your Firm</td>
+            <td class="check-no">✗ Platform Owns Filer Data</td>
+          </tr>
+          <tr>
+            <td><strong>Custom Brand &amp; Glassmorphic Theme</strong></td>
+            <td class="check-yes">✓ Custom Firm Branding</td>
+            <td class="check-no">✗ Generic Third-Party App</td>
+          </tr>
+          <tr>
+            <td><strong>Guided 3-Step Intake Wizard</strong></td>
+            <td class="check-yes">✓ Included (Firestore Sync)</td>
+            <td class="check-no">✗ Rigid Pre-Set Formats</td>
+          </tr>
+          <tr>
+            <td><strong>Dedicated CPA Advisor Assignment</strong></td>
+            <td class="check-yes">✓ Direct CPA Relationship</td>
+            <td class="check-no">✗ Anonymous Gig Contractors</td>
+          </tr>
+          <tr>
+            <td><strong>2FA Security &amp; Audit Trail</strong></td>
+            <td class="check-yes">✓ TOTP + GDPR Controls</td>
+            <td class="check-no">✓ Basic SMS Security</td>
+          </tr>
+          <tr>
+            <td><strong>Firm Revenue Retention</strong></td>
+            <td class="check-yes">✓ 100% Margin Retention</td>
+            <td class="check-no">✗ High Platform Take-Rates (25-40%)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Firm ROI Calculator -->
+  <section class="landing-section" id="roi">
+    <div class="section-header">
+      <div class="section-tag">Quantifiable Efficiency</div>
+      <h2 class="section-title">Calculate Your Tax Season Time Savings</h2>
+      <p class="section-subtitle">See how automated intake and instant document access reduce administrative overhead.</p>
+    </div>
+
+    <div class="roi-card">
+      <div>
+        <h3 style="font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 12px;">Active Annual Clients</h3>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">Adjust the slider to match your tax practice client count:</p>
+        
+        <input type="range" min="25" max="500" value="150" class="roi-slider" id="client-count-slider" oninput="updateRoiCalc(this.value)">
+        <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted);">
+          <span>25 Clients</span>
+          <span id="slider-client-display" style="color: var(--accent); font-weight: 700; font-size: 16px;">150 Clients</span>
+          <span>500 Clients</span>
+        </div>
+      </div>
+
+      <div style="background: rgba(0,0,0,0.3); padding: 30px; border-radius: 16px; border: 1px solid var(--border-color); text-align: center;">
+        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 8px;">ESTIMATED HOURS SAVED / TAX SEASON</span>
+        <div class="roi-metric" id="roi-hours-saved">375 Hours</div>
+        <span style="font-size: 13px; color: var(--text-secondary);">Equivalent to <strong id="roi-cost-saved" style="color: #fff;">$37,500</strong> in billable CPA time recovered.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lead Capture / Demo Request Form -->
+  <section class="landing-section" id="demo-form">
+    <div class="intake-card" style="max-width: 640px; text-align: center;">
+      <div class="section-tag">Get Started</div>
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 10px;">Request Firm Onboarding &amp; Demo</h2>
+      <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 28px;">Connect with our solutions team to deploy Magnitax Client Portal for your practice.</p>
+
+      <form id="landing-lead-form" onsubmit="handleLeadSubmit(event)">
+        <div class="intake-form-grid" style="text-align: left;">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" placeholder="Marcus Kaelen" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Firm Name</label>
+            <input type="text" class="form-input" placeholder="Kaelen &amp; Associates CPA" required>
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Work Email</label>
+            <input type="email" class="form-input" placeholder="m.kaelen@firm.com" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" style="margin-top: 24px;">
+          <span>Submit Onboarding Request</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="footer-container">
+      <div class="auth-logo" style="margin: 0;">
+        <div class="logo-icon" style="width: 28px; height: 28px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="logo-text" style="font-size: 16px;">Magni<span>tax</span></div>
+      </div>
+
+      <div class="footer-text">
+        © 2026 Magnitax Consulting LLC. All rights reserved. SOC2 Type II Certified &amp; GDPR Compliant.
+      </div>
+
+      <div style="display: flex; gap: 16px;">
+        <a href="index.html" class="nav-link" style="font-size: 12px;">Client Portal</a>
+        <a href="pitch_deck.html" class="nav-link" style="font-size: 12px;">Investor Deck</a>
+        <a href="flyer.html" class="nav-link" style="font-size: 12px;">Print Flyer</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function updateRoiCalc(val) {
+      document.getElementById('slider-client-display').textContent = val + ' Clients';
+      const hours = val * 2.5;
+      const dollars = hours * 100;
+      document.getElementById('roi-hours-saved').textContent = hours + ' Hours';
+      document.getElementById('roi-cost-saved').textContent = '$' + dollars.toLocaleString();
+    }
+
+    function handleLeadSubmit(e) {
+      e.preventDefault();
+      alert("Thank you! Your firm onboarding request has been submitted. A Magnitax specialist will contact you shortly.");
+      e.target.reset();
+    }
+  </script>
+
+</body>
+</html>
