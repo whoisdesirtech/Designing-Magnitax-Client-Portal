@@ -12,12 +12,18 @@
     :root {
       --bg-primary: #0b0c10;
       --bg-secondary: #121520;
-      --accent: #10b981; /* Emerald */
-      --gold: #d4af37; /* Gold */
+      --bg-tertiary: #1a1e2e;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      --border-accent: rgba(16, 185, 129, 0.4);
       --text-primary: #ffffff;
       --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
       --border-color: rgba(255, 255, 255, 0.08);
       --glass-bg: rgba(22, 26, 41, 0.65);
+      --glass-blur: blur(14px);
+      --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * {
@@ -29,7 +35,8 @@
     }
 
     body {
-      background-color: #030406;
+      background-color: var(--bg-primary);
+      background-image: radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.06) 0%, rgba(11, 12, 16, 1) 70%);
       color: var(--text-primary);
       min-height: 100vh;
       display: flex;
@@ -43,19 +50,19 @@
       width: 816px;
       height: 1056px;
       background-color: var(--bg-primary);
-      background-image: radial-gradient(circle at 0% 0%, rgba(212, 175, 55, 0.08) 0%, rgba(16, 185, 129, 0.04) 50%, rgba(11, 12, 16, 1) 100%);
-      border: 3px double var(--gold);
-      border-radius: 12px;
+      background-image: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 50%, rgba(11, 12, 16, 1) 100%);
+      border: 1px solid var(--border-accent);
+      border-radius: 16px;
       padding: 50px;
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 60px rgba(16, 185, 129, 0.05);
       overflow: hidden;
     }
 
-    /* Subtle watermark background */
+    /* Emerald glow watermark */
     .flyer-container::before {
       content: "";
       position: absolute;
@@ -63,7 +70,7 @@
       left: 50%;
       width: 600px;
       height: 600px;
-      background: radial-gradient(circle, rgba(212, 175, 55, 0.02) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.04) 0%, transparent 70%);
       transform: translate(-50%, -50%);
       pointer-events: none;
     }
@@ -79,7 +86,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
       padding-bottom: 25px;
     }
 
@@ -90,14 +97,14 @@
     }
 
     .logo-box {
-      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
       width: 42px;
       height: 42px;
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
     }
 
     .logo-box svg {
@@ -113,12 +120,14 @@
     }
 
     .logo-text span {
-      color: var(--gold);
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .tagline {
       text-align: right;
-      color: var(--gold);
+      color: var(--accent);
       font-weight: 600;
       font-size: 14px;
       text-transform: uppercase;
@@ -138,8 +147,7 @@
     }
 
     .hero-title span {
-      color: var(--gold);
-      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -162,20 +170,22 @@
 
     .glass-card {
       background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--border-color);
       border-radius: 16px;
       padding: 22px;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
     }
 
     .glass-card.gold-border {
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      border: 1px solid var(--border-accent);
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
     }
 
     .glass-card h3 {
       font-size: 18px;
-      color: var(--gold);
+      color: var(--accent);
       margin-bottom: 12px;
       display: flex;
       align-items: center;
@@ -194,7 +204,6 @@
     }
 
     .features-title {
-      font-size: 20px;
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 8px;
       margin-bottom: 15px;
@@ -218,7 +227,7 @@
 
     .feature-icon {
       background-color: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.25);
       width: 36px;
       height: 36px;
       border-radius: 8px;
@@ -244,7 +253,7 @@
     /* Steps Section */
     .steps-section {
       margin-bottom: 30px;
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(16, 185, 129, 0.03);
       border-radius: 12px;
       padding: 20px;
       border: 1px solid var(--border-color);
@@ -261,8 +270,8 @@
     }
 
     .step-number {
-      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
-      color: #000000;
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      color: #ffffff;
       width: 28px;
       height: 28px;
       border-radius: 50%;
@@ -272,7 +281,7 @@
       font-weight: 700;
       margin: 0 auto 10px;
       font-size: 14px;
-      box-shadow: 0 3px 10px rgba(212, 175, 55, 0.3);
+      box-shadow: 0 3px 12px rgba(16, 185, 129, 0.4);
     }
 
     .step-card h4 {
@@ -289,7 +298,7 @@
 
     /* Call To Action & Write-in Section */
     .cta-footer {
-      border-top: 2px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
       padding-top: 25px;
       display: grid;
       grid-template-columns: 1.3fr 1fr;
@@ -309,12 +318,12 @@
       line-height: 1.5;
     }
 
-    /* Custom stamp border for Licensee contact info */
+    /* Contact stamp */
     .licensee-stamp {
-      border: 2px dashed var(--gold);
-      border-radius: 8px;
+      border: 1px dashed var(--border-accent);
+      border-radius: 12px;
       padding: 15px;
-      background-color: rgba(212, 175, 55, 0.03);
+      background: rgba(16, 185, 129, 0.04);
       text-align: center;
       min-height: 110px;
       display: flex;
@@ -325,7 +334,7 @@
 
     .licensee-stamp span {
       font-size: 11px;
-      color: var(--gold);
+      color: var(--accent);
       text-transform: uppercase;
       font-weight: 700;
       letter-spacing: 0.05em;
@@ -351,7 +360,7 @@
       }
       .flyer-container {
         box-shadow: none;
-        border-color: #000000;
+        border-color: #10b981;
         background-image: none !important;
         background-color: #ffffff !important;
         color: #000000 !important;
@@ -373,8 +382,10 @@
         color: #374151 !important;
       }
       .step-number {
-        border: 2px solid #000000 !important;
+        border: 2px solid #10b981 !important;
         box-shadow: none !important;
+        background: none !important;
+        color: #10b981 !important;
       }
       .feature-icon {
         background-color: #f3f4f6 !important;
@@ -382,7 +393,7 @@
         color: #000000 !important;
       }
       .licensee-stamp {
-        border-color: #000000 !important;
+        border-color: #10b981 !important;
         background-color: #f9fafb !important;
       }
     }
