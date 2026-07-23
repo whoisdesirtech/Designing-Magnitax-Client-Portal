@@ -16,9 +16,10 @@
     :root {
       --bg-primary: #0b0c10;
       --bg-secondary: #121520;
-      --accent: #10b981; /* Emerald */
-      --gold: #d4af37; /* Gold */
-      --gold-hover: #ffdf7a;
+      --accent: #10b981; /* Magnitax Emerald */
+      --accent-hover: #059669;
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      --border-accent: rgba(16, 185, 129, 0.4);
       --text-primary: #ffffff;
       --text-secondary: #a1a1aa;
       --glass-bg: rgba(18, 21, 32, 0.8);
@@ -30,7 +31,7 @@
     /* Override Reveal defaults */
     .reveal {
       background-color: var(--bg-primary);
-      background-image: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, rgba(16, 185, 129, 0.03) 50%, rgba(11, 12, 16, 1) 100%);
+      background-image: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 50%, rgba(11, 12, 16, 1) 100%);
       font-family: var(--font-body);
       color: var(--text-primary);
     }
@@ -45,8 +46,8 @@
     }
 
     .reveal h1 span, .reveal h2 span, .reveal h3 span {
-      color: var(--gold);
-      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
+      color: var(--accent);
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -103,13 +104,15 @@
       transition: all 0.3s ease;
     }
 
-    .glass-card.gold-border {
-      border: 1px solid rgba(212, 175, 55, 0.3);
+    .glass-card.emerald-border,
+    .glass-card.accent-border {
+      border: 1px solid var(--border-accent);
     }
 
-    .glass-card.gold-border:hover {
-      border-color: var(--gold);
-      box-shadow: 0 10px 40px rgba(212, 175, 55, 0.15);
+    .glass-card.emerald-border:hover,
+    .glass-card.accent-border:hover {
+      border-color: var(--accent);
+      box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
     }
 
     .glass-card h3 {
@@ -133,9 +136,9 @@
 
     /* Badges */
     .badge {
-      background-color: rgba(212, 175, 55, 0.15);
-      color: var(--gold);
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      background-color: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid var(--border-accent);
       padding: 5px 12px;
       border-radius: 20px;
       font-size: 0.8rem;
@@ -147,7 +150,7 @@
     .badge.emerald {
       background-color: rgba(16, 185, 129, 0.15);
       color: var(--accent);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      border: 1px solid rgba(16, 185, 129, 0.4);
     }
 
     /* Interactive Hoverable Badges/Buttons */
@@ -159,9 +162,9 @@
     }
 
     .reveal .badge.hoverable-button:hover {
-      background-color: var(--gold);
-      color: #000000;
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+      background-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
       transform: translateY(-3px);
       border-color: #ffffff;
     }
@@ -171,7 +174,7 @@
       font-size: 3.5rem !important;
       font-weight: 800 !important;
       font-family: var(--font-headings);
-      color: var(--gold);
+      color: var(--accent);
       line-height: 1;
       margin-bottom: 5px !important;
     }
@@ -211,11 +214,11 @@
     }
 
     .matrix-table tr.highlight {
-      background-color: rgba(212, 175, 55, 0.05);
+      background-color: rgba(16, 185, 129, 0.06);
     }
 
     .matrix-table tr.highlight td:first-child {
-      color: var(--gold);
+      color: var(--accent);
     }
 
     /* Live Demo Iframe Slide */
@@ -244,14 +247,14 @@
     }
 
     .logo-icon-box {
-      background: linear-gradient(135deg, var(--gold) 0%, #ffdf7a 100%);
+      background: linear-gradient(135deg, var(--accent) 0%, #059669 100%);
       width: 60px;
       height: 60px;
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.25);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
     }
 
     .logo-icon-svg {
@@ -268,7 +271,7 @@
     }
 
     .logo-text-deck span {
-      color: var(--gold);
+      color: var(--accent);
     }
 
     /* Timeline Styles */
@@ -288,18 +291,18 @@
     }
 
     .timeline-item .time-badge {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-color);
+      background: var(--accent-glow);
+      border: 1px solid var(--border-accent);
       border-radius: 8px;
       padding: 6px 12px;
       font-weight: 600;
-      color: var(--gold);
+      color: var(--accent);
       text-align: center;
       font-size: 0.9rem;
     }
 
     .timeline-item .time-content {
-      border-left: 2px solid var(--gold);
+      border-left: 2px solid var(--accent);
       padding-left: 20px;
     }
 
@@ -311,11 +314,11 @@
 
     /* Floating navigation hints */
     .reveal .controls {
-      color: var(--gold) !important;
+      color: var(--accent) !important;
     }
 
     .reveal .progress span {
-      background: var(--gold) !important;
+      background: var(--accent) !important;
     }
 
     /* Alignment Helper */
@@ -397,17 +400,17 @@
         <div class="slide-container">
           <h2 class="slide-header">The Solution: <span>The Magnitax Platform</span></h2>
           <div class="grid-3">
-            <div class="glass-card gold-border">
+            <div class="glass-card emerald-border">
               <div class="badge emerald" style="width: max-content; margin-bottom: 15px;">Pillar 1</div>
               <h3>🔒 Secure Portal</h3>
               <p style="font-size: 0.85rem;">Bank-grade AES-256 encrypted vault with 2FA protection, replacing unsecure emails and protecting customer records.</p>
             </div>
-            <div class="glass-card gold-border">
+            <div class="glass-card emerald-border">
               <div class="badge emerald" style="width: max-content; margin-bottom: 15px;">Pillar 2</div>
               <h3>🤝 CPA Continuity</h3>
               <p style="font-size: 0.85rem;">Guaranteed dedicated tax advisor. Clients build trust and strategy year-over-year instead of being assigned a random gig-preparer.</p>
             </div>
-            <div class="glass-card gold-border">
+            <div class="glass-card emerald-border">
               <div class="badge emerald" style="width: max-content; margin-bottom: 15px;">Pillar 3</div>
               <h3>📈 Scale Engine</h3>
               <p style="font-size: 0.85rem;">Turnkey franchise and licensing opportunities with complete territory protection and enterprise-grade cloud software.</p>
@@ -440,7 +443,7 @@
         <div class="slide-container">
           <h2 class="slide-header">Proven Traction: <span>Organic Growth</span></h2>
           <div class="grid-2">
-            <div class="glass-card gold-border" style="text-align: center; padding: 40px 20px;">
+            <div class="glass-card emerald-border" style="text-align: center; padding: 40px 20px;">
               <div class="metric-value">100+</div>
               <div class="metric-label">Active Portal Clients</div>
               <p style="font-size: 0.8rem; margin-top: 15px; color: var(--text-secondary);">
@@ -449,12 +452,12 @@
             </div>
             <div class="glass-card" style="display: flex; flex-direction: column; gap: 20px;">
               <div>
-                <h4 style="color: var(--gold); margin-bottom: 5px !important;">🌱 Zero Marketing Cost</h4>
+                <h4 style="color: var(--accent); margin-bottom: 5px !important;">🌱 Zero Marketing Cost</h4>
                 <p style="font-size: 0.85rem; margin: 0;">100% of our client growth was generated organically through client referrals and local community reputation.</p>
               </div>
               <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 0;">
               <div>
-                <h4 style="color: var(--gold); margin-bottom: 5px !important;">📈 High Retention Rate</h4>
+                <h4 style="color: var(--accent); margin-bottom: 5px !important;">📈 High Retention Rate</h4>
                 <p style="font-size: 0.85rem; margin: 0;">85%+ client retention rate driven by the convenience of the secure document vault and dedicated tax professional continuity.</p>
               </div>
             </div>
@@ -484,7 +487,7 @@
             </div>
           </div>
           <div class="glass-card" style="width: 100%;">
-            <h4 style="color: var(--gold); margin-bottom: 10px !important;">Key Growth Drivers:</h4>
+            <h4 style="color: var(--accent); margin-bottom: 10px !important;">Key Growth Drivers:</h4>
             <ul style="font-size: 0.8rem !important; columns: 2; margin-left: 20px !important;">
               <li style="margin-bottom: 8px;"><strong>Increasing Complexity:</strong> New tax laws make filing returns harder, pushing users away from DIY tools.</li>
               <li style="margin-bottom: 8px;"><strong>Gig Economy Rise:</strong> 1099 contractors have complex schedules requiring professional CPA advice.</li>
@@ -503,8 +506,8 @@
         <div class="slide-container">
           <h2 class="slide-header">Business Model: <span>Scalable Revenue</span></h2>
           <div class="grid-2">
-            <div class="glass-card gold-border">
-              <h3 style="color: var(--gold);">🏢 Magnitax HQ Streams</h3>
+            <div class="glass-card emerald-border">
+              <h3 style="color: var(--accent);">🏢 Magnitax HQ Streams</h3>
               <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px;">
                 We capture predictable revenue at the top:
               </p>
@@ -515,7 +518,7 @@
               </ul>
             </div>
             <div class="glass-card">
-              <h3 style="color: var(--gold);">🏪 Franchise Unit Model</h3>
+              <h3 style="color: var(--accent);">🏪 Franchise Unit Model</h3>
               <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px;">
                 High-margin local operations:
               </p>
@@ -595,7 +598,7 @@
             <thead>
               <tr>
                 <th>Feature / Dimension</th>
-                <th style="color: var(--gold);">Magnitax</th>
+                <th style="color: var(--accent);">Magnitax</th>
                 <th>Taxfyle</th>
                 <th>H&R Block</th>
                 <th>TurboTax (DIY)</th>
@@ -650,7 +653,7 @@
         <div class="slide-container">
           <h2 class="slide-header">Technology Moat: <span>Platform Roadmap</span></h2>
           <div class="grid-2">
-            <div class="glass-card gold-border">
+            <div class="glass-card emerald-border">
               <h4 style="color: var(--accent); margin-bottom: 12px !important;">🛡️ Already Built (Validated)</h4>
               <ul style="font-size: 0.8rem; margin-left: 20px;">
                 <li style="margin-bottom: 6px;"><strong>Secure Client Dashboard:</strong> Modern, mobile-responsive client console interface.</li>
@@ -660,7 +663,7 @@
               </ul>
             </div>
             <div class="glass-card">
-              <h4 style="color: var(--gold); margin-bottom: 12px !important;">⚡ Next Releases (In Dev)</h4>
+              <h4 style="color: var(--accent); margin-bottom: 12px !important;">⚡ Next Releases (In Dev)</h4>
               <ul style="font-size: 0.8rem; margin-left: 20px;">
                 <li style="margin-bottom: 6px;"><strong>Digital Client Intake Forms:</strong> Smarter questionnaires replacing paper organizers.</li>
                 <li style="margin-bottom: 6px;"><strong>E-Signature Integration:</strong> Built-in IRS Form 8879 and engagement letter signatures.</li>
@@ -680,7 +683,7 @@
         <div class="slide-container">
           <h2 class="slide-header">Choose Your Path: <span>Franchise vs. License</span></h2>
           <div class="grid-2">
-            <div class="glass-card gold-border">
+            <div class="glass-card emerald-border">
               <div class="badge" style="margin-bottom: 10px; width: max-content;">Magnitax Franchise</div>
               <p style="font-size: 0.8rem; margin-bottom: 15px;">Become a local business owner running under our unified brand name.</p>
               <ul style="font-size: 0.8rem; margin-left: 20px;">
@@ -746,7 +749,7 @@
           <h2 class="slide-header">The Team: <span>Built on Trust</span></h2>
           <div class="grid-2" style="width: 100%;">
             <div style="text-align: left;">
-              <h3 style="color: var(--gold); margin-bottom: 10px !important;">Jean Fils</h3>
+              <h3 style="color: var(--accent); margin-bottom: 10px !important;">Jean Fils</h3>
               <p style="font-size: 1.1rem; color: #ffffff; font-weight: 600; margin-bottom: 20px;">Founder & CEO, Magnitax</p>
               <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
                 Experienced tax professional and technology strategist. Successfully built and scaled Magnitax's client base to 100+ active users. Directing the architectural implementation of the secure MERN-based portal and franchise model.
@@ -758,8 +761,8 @@
             </div>
             <div style="display: flex; justify-content: center; align-items: center;">
               <!-- Visual placeholder for avatar/team graphic -->
-              <div style="width: 250px; height: 250px; border-radius: 50%; border: 3px solid var(--gold); background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, rgba(0,0,0,0.5) 100%); display: flex; align-items: center; justify-content: center;">
-                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--gold);">
+              <div style="width: 250px; height: 250px; border-radius: 50%; border: 3px solid var(--accent); background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, rgba(0,0,0,0.5) 100%); display: flex; align-items: center; justify-content: center;">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--accent);">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                 </svg>
               </div>
@@ -776,18 +779,18 @@
         <div class="slide-container">
           <h2 class="slide-header">The Opportunity: <span>Join Us</span></h2>
           <div class="grid-3">
-            <div class="glass-card gold-border">
-              <h3 style="color: var(--gold); font-size: 1.2rem !important;">💼 Investors</h3>
+            <div class="glass-card emerald-border">
+              <h3 style="color: var(--accent); font-size: 1.2rem !important;">💼 Investors</h3>
               <p style="font-size: 0.8rem; margin-bottom: 10px;">We are seeking investment to accelerate production engineering, complete our FDD documentation, and fund pilot branch marketing.</p>
               <span class="badge" style="display: block; text-align: center; margin-top: 15px;">Fund Phase 2</span>
             </div>
-            <div class="glass-card gold-border">
-              <h3 style="color: var(--gold); font-size: 1.2rem !important;">🏪 Franchisees</h3>
+            <div class="glass-card emerald-border">
+              <h3 style="color: var(--accent); font-size: 1.2rem !important;">🏪 Franchisees</h3>
               <p style="font-size: 0.8rem; margin-bottom: 10px;">Join our founding cohort. Claim your exclusive territory and leverage our brand, training, and complete portal system.</p>
               <span class="badge" style="display: block; text-align: center; margin-top: 15px;">Secure Territory</span>
             </div>
-            <div class="glass-card gold-border">
-              <h3 style="color: var(--gold); font-size: 1.2rem !important;">🔑 Licensees</h3>
+            <div class="glass-card emerald-border">
+              <h3 style="color: var(--accent); font-size: 1.2rem !important;">🔑 Licensees</h3>
               <p style="font-size: 0.8rem; margin-bottom: 10px;">Modernize your firm today. License our secure platform software for a flat fee and scale your independent client practice.</p>
               <span class="badge" style="display: block; text-align: center; margin-top: 15px;">License Platform</span>
             </div>
