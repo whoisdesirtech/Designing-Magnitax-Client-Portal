@@ -255,27 +255,124 @@ function navigatePage(pageName) {
 }
 
 // 4. AUTHENTICATION & LOGIN STATE MACHINE
-loginForm.addEventListener('submit', (e) => {
+
+// ── Phase A: Real Firebase Authentication ─────────────────────────────────
+// Holds the authenticated Firebase user and their Firestore profile
+let currentFirebaseUser = null;
+let currentUserProfile = null; // { role, firstName, lastName, email }
+
+// Real login: Firebase Auth email/password
+loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  
-  const email = document.getElementById('login-email').value;
-  const pass = document.getElementById('login-password').value;
-  
-  // Mock check (allowing simple email formats and password)
-  if (email.includes('@') && pass.length >= 6) {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+  loginError.style.display = 'none';
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Authenticating…';
+
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    // onAuthStateChanged will fire next and handle role + view transition
     loginError.style.display = 'none';
-    showToast("Credentials accepted. Awaiting Two-Factor verification.");
-    
-    // Jump to 2FA layout, trigger focus on first slot
-    setView('2fa');
-    setTimeout(() => {
-      digitInputs[0].focus();
-    }, 200);
-  } else {
-    loginErrorText.textContent = "Invalid email formatting or password length (must be at least 6 characters).";
+  } catch (err) {
+    let msg = 'Authentication failed. Please check your credentials.';
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      msg = 'Invalid email or password. Please try again.';
+    } else if (err.code === 'auth/too-many-requests') {
+      msg = 'Too many failed attempts. Please wait a moment and try again.';
+    } else if (err.code === 'auth/invalid-email') {
+      msg = 'Please enter a valid email address.';
+    }
+    loginErrorText.textContent = msg;
     loginError.style.display = 'flex';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Authenticate Session';
   }
 });
+
+// Firebase Auth state listener — the single source of truth for sessions
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    currentFirebaseUser = user;
+
+    // Read role + profile from Firestore users/{uid}
+    try {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        currentUserProfile = userDoc.data();
+        activeUserRole = currentUserProfile.role || 'client';
+      } else {
+        // No Firestore profile yet — default to client, create stub
+        currentUserProfile = {
+          role: 'client',
+          firstName: user.displayName ? user.displayName.split(' ')[0] : 'User',
+          lastName: user.displayName ? (user.displayName.split(' ')[1] || '') : '',
+          email: user.email
+        };
+        activeUserRole = 'client';
+        // Write stub so future reads work
+        await db.collection('users').doc(user.uid).set({
+          ...currentUserProfile,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      }
+    } catch (err) {
+      console.warn('Could not read user profile from Firestore:', err);
+      currentUserProfile = { role: 'client', firstName: 'User', lastName: '', email: user.email };
+      activeUserRole = 'client';
+    }
+
+    // Update profile display
+    const firstName = currentUserProfile.firstName || '';
+    const lastName  = currentUserProfile.lastName  || '';
+    const fullName  = `${firstName} ${lastName}`.trim();
+    if (profileUserFullname)  profileUserFullname.textContent  = fullName || user.email;
+    if (profileAvatarLetters) profileAvatarLetters.textContent = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'U';
+
+    applyRoleUI();
+
+    // Log success in Firestore audit log
+    const loginEmail = document.getElementById('login-email').value;
+    if (loginEmail) {
+      AUDIT_LOGS.unshift({
+        id: `log_login_${Date.now()}`,
+        action: 'LOGIN_SUCCESS',
+        details: `Authenticated as ${activeUserRole === 'admin' ? 'CPA Admin' : 'Client'}. Session established.`,
+        time: 'Just now'
+      });
+    }
+
+    // Show 2FA gate (UI only — real 2FA would require Firebase Phone Auth / Blaze plan)
+    // For now, show the 2FA screen as an intermediate confirmation step
+    if (document.body.getAttribute('data-view') === 'login') {
+      setView('2fa');
+      setTimeout(() => { digitInputs[0] && digitInputs[0].focus(); }, 200);
+      showToast('Credentials verified. Complete the security check to continue.');
+    } else if (document.body.getAttribute('data-view') !== 'app') {
+      // Returning from a reload / already passed 2FA
+      enterApp();
+    }
+  } else {
+    // User signed out
+    currentFirebaseUser = null;
+    currentUserProfile = null;
+    activeUserRole = 'client';
+    setView('login');
+  }
+});
+
+// Called when the user passes the 2FA screen and enters the app
+function enterApp() {
+  setView('app');
+  loadClientDocuments();
+  if (activeUserRole === 'admin') {
+    loadAdminClientDropdown();
+  }
+  showToast(`Welcome back, ${currentUserProfile ? currentUserProfile.firstName : 'User'}. Session secured.`);
+}
 
 // Automatic tab movement for 2FA digit slots
 digitInputs.forEach((input, index) => {
@@ -286,7 +383,7 @@ digitInputs.forEach((input, index) => {
     }
     collectFull2faCode();
   });
-  
+
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
       digitInputs[index - 1].focus();
@@ -296,50 +393,33 @@ digitInputs.forEach((input, index) => {
 
 function collectFull2faCode() {
   let code = '';
-  digitInputs.forEach(input => {
-    code += input.value;
-  });
+  digitInputs.forEach(input => { code += input.value; });
   document.getElementById('full-2fa-code').value = code;
 }
 
+// 2FA gate — any 6 digits accepted (UI placeholder; real SMS 2FA needs Blaze plan)
 twoFactorForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const code = document.getElementById('full-2fa-code').value;
-  
-  // Mock validation: accept code "123456" or any 6 digits starting with '1' or '2' for demo
-  if (code.length === 6 && (code === '123456' || code.startsWith('1') || code.startsWith('2') || code.startsWith('3'))) {
+  if (code.length === 6) {
     twoFactorError.style.display = 'none';
-    
-    // Check if user authenticated as admin or client
-    const loginEmail = document.getElementById('login-email').value;
-    if (loginEmail.includes('admin') || loginEmail.includes('kaelen')) {
-      activeUserRole = 'admin';
-    } else {
-      activeUserRole = 'client';
-    }
-    
-    applyRoleUI();
-    
-    // Add success login to audit logs
-    const now = new Date();
     AUDIT_LOGS.unshift({
-      id: `log_login_${now.getTime()}`,
-      action: "LOGIN_SUCCESS",
-      details: `Two-Factor passcode verified. ${activeUserRole === 'admin' ? 'CPA Admin' : 'Client'} session unlocked.`,
-      time: "Just now"
+      id: `log_2fa_${Date.now()}`,
+      action: '2FA_VERIFIED',
+      details: `Two-Factor passcode confirmed. ${activeUserRole === 'admin' ? 'CPA Admin' : 'Client'} session unlocked.`,
+      time: 'Just now'
     });
-    
-    setView('app');
-    showToast(`Security authentication verified. Welcome back, ${activeUserRole === 'admin' ? 'Marcus Kaelen, CPA' : 'Jane Doe'}.`);
+    enterApp();
   } else {
     twoFactorError.style.display = 'flex';
-    digitInputs.forEach(input => input.value = '');
-    digitInputs[0].focus();
+    digitInputs.forEach(input => (input.value = ''));
+    digitInputs[0] && digitInputs[0].focus();
   }
 });
 
 backLoginBtn.addEventListener('click', (e) => {
   e.preventDefault();
+  auth.signOut();
   setView('login');
 });
 
@@ -463,74 +543,96 @@ viewNotifSettingsLink.addEventListener('click', (e) => {
   navigatePage('settings');
 });
 
-// 7. DOCUMENTS CATALOG LOGIC (SEARCH & FILTER)
+// 7. DOCUMENTS CATALOG LOGIC — Phase C: Live Firestore query
 let activeTypeFilter = 'all';
+
+// Load documents from Firestore for the authenticated user (client sees own, admin sees all for a client)
+async function loadClientDocuments() {
+  if (!currentFirebaseUser) return;
+  documentsGalleryViewport.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:20px;">Loading your documents…</p>';
+
+  try {
+    let query = db.collection('documents');
+
+    if (activeUserRole === 'client') {
+      // Client only sees their own documents
+      query = query.where('clientUid', '==', currentFirebaseUser.uid);
+    }
+    // Admin sees all documents (no filter) on their own page
+
+    const snapshot = await query.orderBy('uploadedAt', 'desc').get();
+
+    // Replace in-memory DOCUMENTS_DB with live Firestore data
+    DOCUMENTS_DB = [];
+    snapshot.forEach(docSnap => {
+      const d = docSnap.data();
+      DOCUMENTS_DB.push({
+        id: docSnap.id,
+        fileName: d.fileName || 'Untitled Document',
+        type: d.type || 'other',
+        taxYear: d.taxYear || new Date().getFullYear(),
+        fileSize: d.fileSize || 'Unknown',
+        dateUploaded: d.uploadedAt ? d.uploadedAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown',
+        storagePath: d.storagePath || null,
+        downloadURL: d.downloadURL || null,
+        details: d.details || {}
+      });
+    });
+
+    renderDocumentsList();
+  } catch (err) {
+    console.error('Failed to load documents from Firestore:', err);
+    documentsGalleryViewport.innerHTML = '<p style="color:#f87171;font-size:13px;padding:20px;">Could not load documents. Please refresh and try again.</p>';
+  }
+}
 
 function renderDocumentsList() {
   documentsGalleryViewport.innerHTML = '';
-  
+
   const searchVal = docSearchInput.value.toLowerCase();
-  const yearVal = docYearFilter.value;
-  
+  const yearVal   = docYearFilter.value;
+
   const filtered = DOCUMENTS_DB.filter(doc => {
-    // Search filter
     const matchesSearch = doc.fileName.toLowerCase().includes(searchVal);
-    
-    // Year filter
-    const matchesYear = (yearVal === 'all') || (doc.taxYear.toString() === yearVal);
-    
-    // Type filter
-    const matchesType = (activeTypeFilter === 'all') || (doc.type === activeTypeFilter);
-    
+    const matchesYear   = (yearVal === 'all') || (doc.taxYear.toString() === yearVal);
+    const matchesType   = (activeTypeFilter === 'all') || (doc.type === activeTypeFilter);
     return matchesSearch && matchesYear && matchesType;
   });
-  
-  // Render Stats on Dashboard dynamically
+
+  // Dashboard stat
   const userFilesCount = DOCUMENTS_DB.length;
-  document.getElementById('dash-stat-taxfiles').textContent = `${userFilesCount} File${userFilesCount !== 1 ? 's' : ''}`;
+  const statEl = document.getElementById('dash-stat-taxfiles');
+  if (statEl) statEl.textContent = `${userFilesCount} File${userFilesCount !== 1 ? 's' : ''}`;
 
   if (filtered.length === 0) {
     documentsGalleryViewport.appendChild(docsEmptyState);
     docsEmptyState.style.display = 'flex';
     return;
   }
-  
+
   docsEmptyState.style.display = 'none';
-  
+
   filtered.forEach(doc => {
     const docCard = document.createElement('div');
     docCard.className = `doc-card ${doc.type}`;
-    
-    // SVG icons based on category
+
     let typeIcon = '';
     let categoryText = '';
-    
+
     if (doc.type === 'w2') {
       categoryText = 'W-2 Form';
-      typeIcon = `
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
-          <line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="13" y2="16"/>
-        </svg>
-      `;
+      typeIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="13" y2="16"/></svg>`;
     } else if (doc.type === '1099') {
       categoryText = '1099 Form';
-      typeIcon = `
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-        </svg>
-      `;
-    } else {
+      typeIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+    } else if (doc.type === 'summary') {
       categoryText = 'Form Summary';
-      typeIcon = `
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-        </svg>
-      `;
+      typeIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
+    } else {
+      categoryText = 'Document';
+      typeIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
     }
-    
+
     docCard.innerHTML = `
       <div class="doc-card-header">
         <div class="doc-badge-icon">${typeIcon}</div>
@@ -538,34 +640,24 @@ function renderDocumentsList() {
       </div>
       <h4 class="doc-title" title="${doc.fileName}">${doc.fileName}</h4>
       <div class="doc-meta">
-        <div class="doc-meta-item">
-          <span>${categoryText}</span>
-        </div>
-        <div class="doc-meta-item">
-          <span>•</span>
-          <span>${doc.fileSize}</span>
-        </div>
+        <div class="doc-meta-item"><span>${categoryText}</span></div>
+        <div class="doc-meta-item"><span>•</span><span>${doc.fileSize}</span></div>
       </div>
       <div class="doc-card-actions">
         <button class="btn-doc-action preview" data-id="${doc.id}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-          </svg>
-          <span>Preview</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>${doc.storagePath ? 'Open File' : 'Preview'}</span>
         </button>
         <button class="btn-doc-action download" data-id="${doc.id}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           <span>Download</span>
         </button>
       </div>
     `;
-    
-    // Bind click events
+
     docCard.querySelector('.preview').addEventListener('click', () => openPreviewModal(doc.id));
     docCard.querySelector('.download').addEventListener('click', () => triggerDocDownload(doc.id));
-    
+
     documentsGalleryViewport.appendChild(docCard);
   });
 }
@@ -894,46 +986,52 @@ previewModal.addEventListener('click', (e) => {
 });
 
 // 9. SIMULATED DOWNLOAD TRIGGERS (BLOB CREATOR)
-function triggerDocDownload(docId) {
+async function triggerDocDownload(docId) {
   const doc = DOCUMENTS_DB.find(d => d.id === docId);
   if (!doc) return;
-  
-  // Create simulated binary document data to download
-  const mockContent = `
-    =========================================
-    MAGNITAX SECURE DOCUMENT SERVER
-    =========================================
-    File: ${doc.fileName}
-    Category: ${doc.type.toUpperCase()}
-    Tax Year: ${doc.taxYear}
-    Security Token: SHA256-${Math.random().toString(36).substring(2, 15)}
-    
-    This is a cryptographically secured mockup representing the tax document.
-    Full PDF contents reside in secure S3 storage.
-  `;
-  
-  const blob = new Blob([mockContent], { type: 'text/plain' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = doc.fileName.replace('.pdf', '_secured.pdf');
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  window.URL.revokeObjectURL(url);
-  
-  // Log download action to audit log
-  const now = new Date();
-  AUDIT_LOGS.unshift({
-    id: `log_down_${now.getTime()}`,
-    action: "DOCUMENT_DOWNLOADED",
-    details: `Successfully downloaded ${doc.fileName} via secure endpoint redirect.`,
-    time: "Just now"
-  });
-  renderAuditLogs();
-  
-  showToast(`Initiating download for ${doc.fileName}`);
+
+  showToast(`Preparing secure download for ${doc.fileName}…`);
+
+  try {
+    let url = null;
+
+    if (doc.downloadURL) {
+      // Use cached download URL from Firestore
+      url = doc.downloadURL;
+    } else if (doc.storagePath) {
+      // Fetch a fresh download URL from Firebase Storage
+      url = await storage.ref(doc.storagePath).getDownloadURL();
+    }
+
+    if (url) {
+      // Open in new tab (Firebase Storage URLs are pre-signed, browser will download or preview)
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.download = doc.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else {
+      showToast('No file available for download. This is a demo document.');
+      return;
+    }
+
+    // Log download to audit log
+    AUDIT_LOGS.unshift({
+      id: `log_down_${Date.now()}`,
+      action: 'DOCUMENT_DOWNLOADED',
+      details: `Downloaded ${doc.fileName} via Firebase Storage secure link.`,
+      time: 'Just now'
+    });
+    renderAuditLogs();
+    showToast(`✓ Download started for ${doc.fileName}`);
+  } catch (err) {
+    console.error('Download failed:', err);
+    showToast('Download failed. The file may have been removed or access was denied.');
+  }
 }
+
 
 // Bind modal footer buttons
 modalDownloadBtn.addEventListener('click', () => {
@@ -1048,22 +1146,6 @@ document.querySelector('.main-content').addEventListener('click', () => {
   sidebarMenu.classList.remove('mobile-open');
 });
 
-// Secure Sign-Out Trigger
-logoutBtn.addEventListener('click', () => {
-  const confirmLogout = confirm("Confirm secure session termination?");
-  if (confirmLogout) {
-    setView('login');
-    // Clear forms
-    digitInputs.forEach(i => i.value = '');
-    document.getElementById('full-2fa-code').value = '';
-    showToast("Session disconnected. Cookies destroyed.");
-  }
-});
-
-// Initialize on page load (starts with Login gate)
-window.addEventListener('DOMContentLoaded', () => {
-  setView('login');
-});
 
 // ==========================================================================
 // 12. CLIENT INTAKE MODULE
@@ -1648,38 +1730,163 @@ if (adminModalSaveStatusBtn) {
   });
 }
 
-// ── Admin Client Vault Uploader Form ──────────────────────────────────────
-const adminUploadForm = document.getElementById('admin-upload-form');
-if (adminUploadForm) {
-  adminUploadForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const type = document.getElementById('admin-upload-type').value;
-    const year = parseInt(document.getElementById('admin-upload-year').value);
-    const fileName = document.getElementById('admin-upload-filename').value;
-    const payer = document.getElementById('admin-upload-payer').value;
+// ── Phase B: Real Admin Document Upload (Firebase Storage + Firestore) ─────
 
-    const newDoc = {
-      id: `doc_${type}_${year}_${Date.now()}`,
-      fileName: fileName,
-      type: type,
-      taxYear: year,
-      fileSize: "185 KB",
-      dateUploaded: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      details: {
-        payer: payer,
-        ein: "99-8877665",
-        nonEmployeeComp: "$18,500.00",
-        fedTaxWithheld: "$0.00",
-        state: "CA"
-      }
-    };
+// Populate the client dropdown from Firestore users collection
+async function loadAdminClientDropdown() {
+  const select = document.getElementById('admin-upload-client');
+  if (!select) return;
+  try {
+    const snapshot = await db.collection('users').where('role', '==', 'client').get();
+    select.innerHTML = '<option value="" disabled selected>Select a client…</option>';
+    if (snapshot.empty) {
+      select.innerHTML = '<option value="" disabled selected>No clients found — create one in Firebase Console</option>';
+      return;
+    }
+    snapshot.forEach(doc => {
+      const u = doc.data();
+      const opt = document.createElement('option');
+      opt.value = doc.id; // Firebase UID
+      opt.textContent = `${u.firstName || ''} ${u.lastName || ''}`.trim() + (u.email ? ` (${u.email})` : '');
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('Could not load clients:', err);
+    select.innerHTML = '<option value="" disabled selected>Error loading clients</option>';
+  }
+}
 
-    DOCUMENTS_DB.unshift(newDoc);
-    renderDocumentsList();
-
-    showToast(`Published ${fileName} to Client Vault!`);
-    adminUploadForm.reset();
+// Show selected filename in the drop zone label
+const fileInput = document.getElementById('admin-upload-file-input');
+const fileLabel = document.getElementById('admin-file-label');
+if (fileInput) {
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files[0]) {
+      const f = fileInput.files[0];
+      if (fileLabel) fileLabel.textContent = `✓ ${f.name} (${(f.size / 1024).toFixed(1)} KB)`;
+      // Auto-fill filename field if empty
+      const fnInput = document.getElementById('admin-upload-filename');
+      if (fnInput && !fnInput.value) fnInput.value = f.name;
+    }
   });
 }
 
+const adminUploadForm = document.getElementById('admin-upload-form');
+if (adminUploadForm) {
+  adminUploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
+    if (!currentFirebaseUser) {
+      showToast('Error: You must be logged in to upload documents.');
+      return;
+    }
+
+    const clientUid  = document.getElementById('admin-upload-client').value;
+    const type       = document.getElementById('admin-upload-type').value;
+    const year       = parseInt(document.getElementById('admin-upload-year').value);
+    const fileName   = document.getElementById('admin-upload-filename').value.trim();
+    const payer      = document.getElementById('admin-upload-payer').value.trim();
+    const file       = fileInput ? fileInput.files[0] : null;
+    const submitBtn  = document.getElementById('admin-upload-submit-btn');
+    const progressWrapper = document.getElementById('admin-upload-progress-wrapper');
+    const progressBar     = document.getElementById('admin-upload-progress-bar');
+    const progressLabel   = document.getElementById('admin-upload-progress-label');
+
+    if (!clientUid) { showToast('Please select a target client.'); return; }
+    if (!file)      { showToast('Please select a file to upload.'); return; }
+    if (!fileName)  { showToast('Please enter a document title.'); return; }
+
+    // Max 25 MB
+    if (file.size > 25 * 1024 * 1024) {
+      showToast('File exceeds 25 MB limit. Please choose a smaller file.');
+      return;
+    }
+
+    // Disable form during upload
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.querySelector('span').textContent = 'Uploading…'; }
+    if (progressWrapper) progressWrapper.style.display = 'block';
+
+    const storagePath = `documents/${clientUid}/${year}/${type}/${Date.now()}_${fileName}`;
+    const storageRef  = storage.ref(storagePath);
+    const uploadTask  = storageRef.put(file);
+
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        if (progressBar)   progressBar.style.width   = `${pct}%`;
+        if (progressLabel) progressLabel.textContent = `Uploading… ${pct}%`;
+      },
+      (err) => {
+        console.error('Upload failed:', err);
+        showToast(`Upload failed: ${err.message}`);
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.querySelector('span').textContent = 'Upload & Publish to Client Vault'; }
+        if (progressWrapper) progressWrapper.style.display = 'none';
+      },
+      async () => {
+        // Upload complete — get download URL and write metadata to Firestore
+        try {
+          const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+          const fileSizeKB  = (file.size / 1024).toFixed(1) + ' KB';
+
+          await db.collection('documents').add({
+            clientUid:   clientUid,
+            fileName:    fileName,
+            type:        type,
+            taxYear:     year,
+            storagePath: storagePath,
+            downloadURL: downloadURL,
+            fileSize:    fileSizeKB,
+            payer:       payer,
+            uploadedBy:  currentFirebaseUser.uid,
+            uploadedAt:  firebase.firestore.FieldValue.serverTimestamp(),
+            status:      'ready'
+          });
+
+          if (progressLabel) progressLabel.textContent = '✓ Upload complete!';
+          if (progressBar)   progressBar.style.background = 'linear-gradient(90deg,#10b981,#34d399)';
+          showToast(`✓ ${fileName} published to client vault successfully!`);
+          adminUploadForm.reset();
+          if (fileLabel) fileLabel.textContent = 'Click to choose a file, or drag & drop here';
+          setTimeout(() => {
+            if (progressWrapper) progressWrapper.style.display = 'none';
+            if (progressBar)   progressBar.style.width = '0%';
+          }, 2500);
+
+          // Refresh the documents list so admin can see it
+          await loadClientDocuments();
+        } catch (err) {
+          console.error('Firestore write failed after upload:', err);
+          showToast('File uploaded but metadata save failed. Check Firestore rules.');
+        } finally {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.querySelector('span').textContent = 'Upload & Publish to Client Vault'; }
+        }
+      }
+    );
+  });
+}
+
+// ── Real Logout ────────────────────────────────────────────────────────────
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await auth.signOut();
+      // onAuthStateChanged will handle redirecting to login
+      showToast('You have been securely logged out.');
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  });
+}
+
+// ── Real Download: Firebase Storage URL ───────────────────────────────────
+function getDocDownloadURL(doc) {
+  if (doc.downloadURL) return Promise.resolve(doc.downloadURL);
+  if (doc.storagePath) return storage.ref(doc.storagePath).getDownloadURL();
+  return Promise.resolve(null);
+}
+
+// ── Initialize app on page load ───────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // onAuthStateChanged fires automatically — no need to call setView('login') here
+  // It will detect no user and call setView('login') for us
+});

@@ -936,10 +936,10 @@
         <section class="page-container page-admin-vault">
           <div class="intake-card" style="max-width: 720px;">
             <div class="intake-card-header">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="3"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               <div>
                 <h3>Upload Document to Client Vault</h3>
-                <p>As a CPA Preparer, upload final W-2s, 1099s, or Form 1040 summaries into a client's portal vault.</p>
+                <p>As a CPA Preparer, upload final W-2s, 1099s, or Form 1040 summaries directly to Firebase Storage and the client's portal vault.</p>
               </div>
             </div>
 
@@ -948,14 +948,16 @@
                 <div class="form-group">
                   <label class="form-label">Target Client Filer</label>
                   <select class="form-input year-select-dropdown" id="admin-upload-client" required>
-                    <option value="usr_jane_doe_993" selected>Jane Doe (JD Designs LLC)</option>
+                    <option value="" disabled selected>Loading clients…</option>
                   </select>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Tax Year</label>
                   <select class="form-input year-select-dropdown" id="admin-upload-year" required>
+                    <option value="2026">2026</option>
                     <option value="2025" selected>2025</option>
                     <option value="2024">2024</option>
+                    <option value="2023">2023</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -964,27 +966,53 @@
                     <option value="w2">W-2 Form</option>
                     <option value="1099" selected>1099 Form</option>
                     <option value="summary">Form 1040 Summary</option>
+                    <option value="other">Other Document</option>
                   </select>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Document Title / File Name</label>
-                  <input type="text" class="form-input" id="admin-upload-filename" placeholder="2025_1099_K_Shopify.pdf" value="2025_1099_K_Shopify_Inc.pdf" required>
+                  <input type="text" class="form-input" id="admin-upload-filename" placeholder="2025_1099_Shopify.pdf" required>
                 </div>
                 <div class="form-group full-width">
-                  <label class="form-label">Payer / Employer Details</label>
-                  <input type="text" class="form-input" id="admin-upload-payer" placeholder="Shopify Inc. (EIN: 99-8877665)" value="Shopify Commerce Inc.">
+                  <label class="form-label">Payer / Employer Details <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label>
+                  <input type="text" class="form-input" id="admin-upload-payer" placeholder="Shopify Inc. (EIN: 99-8877665)">
+                </div>
+
+                <!-- ── Real File Picker ─────────────────────────────── -->
+                <div class="form-group full-width">
+                  <label class="form-label">Select File to Upload</label>
+                  <label for="admin-upload-file-input" id="admin-file-drop-zone" style="
+                    display: flex; flex-direction: column; align-items: center; justify-content: center;
+                    gap: 10px; padding: 32px 20px; border: 2px dashed var(--border-accent);
+                    border-radius: 12px; cursor: pointer; background: rgba(16,185,129,0.03);
+                    transition: background 0.2s, border-color 0.2s; color: var(--text-secondary);
+                    font-size: 14px; text-align: center;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span id="admin-file-label">Click to choose a file, or drag &amp; drop here</span>
+                    <span style="font-size:12px; color:var(--text-muted);">PDF, DOC, DOCX — max 25 MB</span>
+                  </label>
+                  <input type="file" id="admin-upload-file-input" accept=".pdf,.doc,.docx,.xlsx,.csv,.png,.jpg" style="display:none;" required>
+                </div>
+
+                <!-- ── Upload Progress ─────────────────────────────── -->
+                <div class="form-group full-width" id="admin-upload-progress-wrapper" style="display:none;">
+                  <label class="form-label" id="admin-upload-progress-label">Uploading… 0%</label>
+                  <div style="height:6px; background:var(--bg-tertiary); border-radius:99px; overflow:hidden;">
+                    <div id="admin-upload-progress-bar" style="height:100%; width:0%; background:linear-gradient(90deg,#10b981,#34d399); border-radius:99px; transition:width 0.3s;"></div>
+                  </div>
                 </div>
               </div>
 
-              <button type="submit" class="btn" style="margin-top: 24px;">
+              <button type="submit" class="btn" id="admin-upload-submit-btn" style="margin-top: 24px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <span>Publish Document to Client Vault</span>
+                <span>Upload &amp; Publish to Client Vault</span>
               </button>
             </form>
           </div>
         </section>
     </div>
   </div>
+
 
   <!-- ==========================================================================
        4. SECURE INLINE DOCUMENT VIEWING PORT (MODAL BOX)
@@ -1081,8 +1109,12 @@
 
   <!-- Firebase App (the core Firebase SDK) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <!-- Firebase Authentication -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <!-- Firebase Firestore -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase Storage -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
   <!-- Firebase Analytics (optional) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
 
@@ -1101,9 +1133,12 @@
     const firebaseApp = firebase.initializeApp(firebaseConfig);
     const firebaseAnalytics = firebase.analytics();
     const db = firebase.firestore();
-    console.log("Firebase initialized successfully for Magnitax Client Portal:", firebaseApp.name);
+    const auth = firebase.auth();
+    const storage = firebase.storage();
+    console.log("Firebase initialized — Auth, Firestore, and Storage ready:", firebaseApp.name);
   </script>
 
   <script src="app.js"></script>
 </body>
 </html>
+
