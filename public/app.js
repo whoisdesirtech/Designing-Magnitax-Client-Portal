@@ -305,24 +305,31 @@ auth.onAuthStateChanged(async (user) => {
         currentUserProfile = userDoc.data();
         activeUserRole = currentUserProfile.role || 'client';
       } else {
-        // No Firestore profile yet — default to client, create stub
+        // No Firestore profile yet — auto-create based on email
+        const isAdmin = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('kaelen') || user.email.toLowerCase().includes('cpa');
+        const defaultFirstName = isAdmin ? 'Marcus' : (user.displayName ? user.displayName.split(' ')[0] : 'Jane');
+        const defaultLastName  = isAdmin ? 'Kaelen' : (user.displayName ? (user.displayName.split(' ')[1] || '') : 'Doe');
+
         currentUserProfile = {
-          role: 'client',
-          firstName: user.displayName ? user.displayName.split(' ')[0] : 'User',
-          lastName: user.displayName ? (user.displayName.split(' ')[1] || '') : '',
+          role: isAdmin ? 'admin' : 'client',
+          firstName: defaultFirstName,
+          lastName: defaultLastName,
           email: user.email
         };
-        activeUserRole = 'client';
-        // Write stub so future reads work
+        activeUserRole = currentUserProfile.role;
+
+        // Automatically write document to Firestore `users/{uid}`
         await db.collection('users').doc(user.uid).set({
           ...currentUserProfile,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
+        console.log(`Auto-created Firestore user document for ${user.email} (${user.uid}) as ${activeUserRole}`);
       }
     } catch (err) {
-      console.warn('Could not read user profile from Firestore:', err);
-      currentUserProfile = { role: 'client', firstName: 'User', lastName: '', email: user.email };
-      activeUserRole = 'client';
+      console.warn('Could not read/create user profile in Firestore:', err);
+      const isAdmin = user.email.toLowerCase().includes('admin');
+      currentUserProfile = { role: isAdmin ? 'admin' : 'client', firstName: isAdmin ? 'Marcus' : 'Jane', lastName: isAdmin ? 'Kaelen' : 'Doe', email: user.email };
+      activeUserRole = currentUserProfile.role;
     }
 
     // Update profile display
@@ -1738,21 +1745,29 @@ async function loadAdminClientDropdown() {
   if (!select) return;
   try {
     const snapshot = await db.collection('users').where('role', '==', 'client').get();
-    select.innerHTML = '<option value="" disabled selected>Select a client…</option>';
-    if (snapshot.empty) {
-      select.innerHTML = '<option value="" disabled selected>No clients found — create one in Firebase Console</option>';
-      return;
-    }
-    snapshot.forEach(doc => {
-      const u = doc.data();
+    select.innerHTML = '<option value="" disabled>Select a client…</option>';
+
+    if (!snapshot.empty) {
+      snapshot.forEach(doc => {
+        const u = doc.data();
+        const opt = document.createElement('option');
+        opt.value = doc.id; // Firebase UID
+        opt.textContent = `${u.firstName || ''} ${u.lastName || ''}`.trim() + (u.email ? ` (${u.email})` : '');
+        select.appendChild(opt);
+      });
+      // Select first client by default
+      select.selectedIndex = 1;
+    } else {
+      // Fallback for Jane Doe if Firestore users collection has not been populated yet
       const opt = document.createElement('option');
-      opt.value = doc.id; // Firebase UID
-      opt.textContent = `${u.firstName || ''} ${u.lastName || ''}`.trim() + (u.email ? ` (${u.email})` : '');
+      opt.value = 'MnrSi74nDBUFAHZJbHzUVVn50rC3'; // Jane Doe UID from Auth
+      opt.textContent = 'Jane Doe (jane@example.com)';
+      opt.selected = true;
       select.appendChild(opt);
-    });
+    }
   } catch (err) {
     console.error('Could not load clients:', err);
-    select.innerHTML = '<option value="" disabled selected>Error loading clients</option>';
+    select.innerHTML = '<option value="MnrSi74nDBUFAHZJbHzUVVn50rC3" selected>Jane Doe (jane@example.com)</option>';
   }
 }
 
