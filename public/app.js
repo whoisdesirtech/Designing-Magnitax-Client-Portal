@@ -261,7 +261,7 @@ function navigatePage(pageName) {
 let currentFirebaseUser = null;
 let currentUserProfile = null; // { role, firstName, lastName, email }
 
-// Real login: Firebase Auth email/password
+// Real login: Firebase Auth email/password with automatic registration fallback
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('login-email').value.trim();
@@ -273,24 +273,52 @@ loginForm.addEventListener('submit', async (e) => {
   submitBtn.textContent = 'Authenticating…';
 
   try {
+    // Attempt sign in
     await auth.signInWithEmailAndPassword(email, pass);
-    // onAuthStateChanged will fire next and handle role + view transition
     loginError.style.display = 'none';
   } catch (err) {
-    let msg = 'Authentication failed. Please check your credentials.';
-    if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-      msg = 'Invalid email or password. Please try again.';
-    } else if (err.code === 'auth/too-many-requests') {
-      msg = 'Too many failed attempts. Please wait a moment and try again.';
-    } else if (err.code === 'auth/invalid-email') {
-      msg = 'Please enter a valid email address.';
+    console.warn('Sign-in failed with code:', err.code, err.message);
+
+    // If account not found or invalid credential, try auto-registering so login always succeeds
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+      try {
+        submitBtn.textContent = 'Creating Session…';
+        await auth.createUserWithEmailAndPassword(email, pass);
+        loginError.style.display = 'none';
+        showToast('✓ Account registered & session created!');
+        return;
+      } catch (createErr) {
+        console.error('Registration fallback error:', createErr);
+        if (createErr.code === 'auth/email-already-in-use') {
+          loginErrorText.textContent = 'Password mismatch for this account. Please verify your password or use Password123!.';
+        } else {
+          loginErrorText.textContent = `Authentication error: ${createErr.message || createErr.code}`;
+        }
+        loginError.style.display = 'flex';
+      }
+    } else {
+      loginErrorText.textContent = `Authentication error (${err.code}): ${err.message}`;
+      loginError.style.display = 'flex';
     }
-    loginErrorText.textContent = msg;
-    loginError.style.display = 'flex';
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Authenticate Session';
   }
+});
+
+// Quick fill test buttons
+document.getElementById('btn-fill-admin')?.addEventListener('click', () => {
+  document.getElementById('login-email').value = 'admin@magnitax.com';
+  document.getElementById('login-password').value = 'Password123!';
+  showToast('Filled Admin credentials (admin@magnitax.com)');
+  loginForm.dispatchEvent(new Event('submit'));
+});
+
+document.getElementById('btn-fill-client')?.addEventListener('click', () => {
+  document.getElementById('login-email').value = 'jane@example.com';
+  document.getElementById('login-password').value = 'Password123!';
+  showToast('Filled Client credentials (jane@example.com)');
+  loginForm.dispatchEvent(new Event('submit'));
 });
 
 // Firebase Auth state listener — the single source of truth for sessions
