@@ -1558,6 +1558,10 @@ navigatePage = function(pageName) {
     displayTitle = "CPA Admin Intakes Queue";
     loadAdminIntakesQueue();
   }
+  if (pageName === 'admin-leads') {
+    displayTitle = "Leads Pipeline & Conversion";
+    loadAdminLeads();
+  }
   if (pageName === 'admin-vault') displayTitle = "Client Vault Uploader";
 
   headerPageTitle.textContent = displayTitle;
@@ -1764,6 +1768,194 @@ if (adminModalSaveStatusBtn) {
     }
   });
 }
+
+// ── Admin Leads Pipeline (Corner Cup Coffee Magnet Sync) ─────────────────
+let loadedLeadsData = [];
+
+function loadAdminLeads() {
+  const tbody = document.getElementById('admin-leads-tbody');
+  const emptyState = document.getElementById('admin-leads-empty');
+  if (!tbody) return;
+
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">Loading event leads from Cloud Firestore...</td></tr>`;
+
+  if (typeof db !== 'undefined' && db) {
+    db.collection('leads').get().then(snapshot => {
+      loadedLeadsData = [];
+      snapshot.forEach(doc => {
+        loadedLeadsData.push({ id: doc.id, ...doc.data() });
+      });
+
+      // Sort newest first
+      loadedLeadsData.sort((a, b) => {
+        const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+        const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+        return timeB - timeA;
+      });
+
+      renderAdminLeadsTable();
+    }).catch(err => {
+      console.error("Firestore leads read error:", err);
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--accent-red,#ef4444);">Could not load leads: ${err.message}</td></tr>`;
+    });
+  } else {
+    renderAdminLeadsTable();
+  }
+}
+
+function renderAdminLeadsTable() {
+  const tbody = document.getElementById('admin-leads-tbody');
+  const emptyState = document.getElementById('admin-leads-empty');
+  const totalStat = document.getElementById('leads-stat-total');
+  const newStat = document.getElementById('leads-stat-new');
+  const convertedStat = document.getElementById('leads-stat-converted');
+
+  if (!tbody) return;
+
+  const totalCount = loadedLeadsData.length;
+  const newCount = loadedLeadsData.filter(l => (l.status || 'new') === 'new').length;
+  const convertedCount = loadedLeadsData.filter(l => l.status === 'converted').length;
+
+  if (totalStat) totalStat.textContent = totalCount;
+  if (newStat) newStat.textContent = newCount;
+  if (convertedStat) convertedStat.textContent = convertedCount;
+
+  if (totalCount === 0) {
+    tbody.innerHTML = '';
+    if (emptyState) emptyState.style.display = 'block';
+    return;
+  }
+
+  if (emptyState) emptyState.style.display = 'none';
+
+  tbody.innerHTML = loadedLeadsData.map(lead => {
+    const leadId = lead.id;
+    const name = lead.fullName || 'Anonymous Lead';
+    const company = lead.businessName ? `<div style="font-size: 11px; color: var(--text-muted);">${lead.businessName} • ${lead.industry || 'General'}</div>` : '';
+    const email = lead.email || 'N/A';
+    const help = lead.helpNeeded || 'General Inquiry';
+    const bottleneck = lead.bottleneck ? `<div style="font-size: 11px; color: var(--text-muted); font-style: italic;">"${lead.bottleneck.substring(0, 45)}${lead.bottleneck.length > 45 ? '…' : ''}"</div>` : '';
+    const budget = lead.budget || 'N/A';
+    const timeline = lead.timeline || 'ASAP';
+    const status = lead.status || 'new';
+
+    const isConverted = status === 'converted';
+
+    return `
+      <tr>
+        <td>
+          <div style="font-weight: 600; color: var(--text-primary);">${name}</div>
+          ${company}
+        </td>
+        <td>
+          <a href="mailto:${email}" style="color: var(--accent); text-decoration: none;">${email}</a>
+        </td>
+        <td>
+          <div style="font-weight: 500;">${help}</div>
+          ${bottleneck}
+        </td>
+        <td>
+          <div style="font-size: 12px;">${budget}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">${timeline}</div>
+        </td>
+        <td>
+          <select onchange="updateLeadStatus('${leadId}', this.value)" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-primary); border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer;">
+            <option value="new" ${status === 'new' ? 'selected' : ''}>🟢 New Lead</option>
+            <option value="contacted" ${status === 'contacted' ? 'selected' : ''}>🔵 Contacted</option>
+            <option value="proposal_sent" ${status === 'proposal_sent' ? 'selected' : ''}>🟡 Proposal Sent</option>
+            <option value="converted" ${status === 'converted' ? 'selected' : ''}>✅ Converted</option>
+          </select>
+        </td>
+        <td>
+          ${isConverted ? `
+            <span style="font-size: 12px; color: #10b981; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+              ✓ Client Portal User
+            </span>
+          ` : `
+            <button onclick="convertLeadToClient('${leadId}', '${email}', '${name.replace(/'/g, "\\'")}')" class="btn-secondary" style="padding: 6px 12px; font-size: 11px; border-radius: 6px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: var(--accent); cursor: pointer; font-weight: 600;">
+              ✨ Convert to Client
+            </button>
+          `}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function updateLeadStatus(leadId, newStatus) {
+  if (typeof db !== 'undefined' && db) {
+    db.collection('leads').doc(leadId).update({ status: newStatus })
+      .then(() => {
+        showToast(`Lead status updated to '${newStatus}'.`);
+        const target = loadedLeadsData.find(l => l.id === leadId);
+        if (target) target.status = newStatus;
+        renderAdminLeadsTable();
+      })
+      .catch(err => {
+        console.error("Lead status update error:", err);
+        showToast(`Error updating lead status.`);
+      });
+  }
+}
+
+async function convertLeadToClient(leadId, email, fullName) {
+  if (!confirm(`Convert ${fullName} (${email}) into a Magnitax Client Portal user?`)) return;
+
+  const parts = fullName.split(' ');
+  const firstName = parts[0] || 'Client';
+  const lastName = parts.slice(1).join(' ') || '';
+
+  showToast(`Creating client profile for ${fullName}…`);
+
+  try {
+    // 1. Create client record in Firestore users collection
+    const userSnapshot = await db.collection('users').where('email', '==', email).get();
+
+    let targetUid = null;
+    if (!userSnapshot.empty) {
+      targetUid = userSnapshot.docs[0].id;
+      await db.collection('users').doc(targetUid).update({ role: 'client', firstName, lastName });
+    } else {
+      // Create new Firestore profile document
+      const newRef = db.collection('users').doc();
+      targetUid = newRef.id;
+      await newRef.set({
+        email: email,
+        role: 'client',
+        firstName: firstName,
+        lastName: lastName,
+        convertedFromLead: leadId,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    // 2. Mark lead as converted in Firestore leads collection
+    await db.collection('leads').doc(leadId).update({
+      status: 'converted',
+      convertedUid: targetUid,
+      convertedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    const targetLead = loadedLeadsData.find(l => l.id === leadId);
+    if (targetLead) targetLead.status = 'converted';
+
+    showToast(`✓ ${fullName} converted to Client! Profile created in Firestore.`);
+    renderAdminLeadsTable();
+
+    // Reload admin upload client dropdown so they show up immediately
+    if (typeof loadAdminClientDropdown === 'function') loadAdminClientDropdown();
+
+  } catch (err) {
+    console.error("Lead conversion error:", err);
+    showToast(`Conversion error: ${err.message}`);
+  }
+}
+
+// Refresh button event listener
+document.getElementById('refresh-leads-btn')?.addEventListener('click', () => {
+  showToast('Refreshing event leads pipeline…');
+  loadAdminLeads();
+});
 
 // ── Phase B: Real Admin Document Upload (Firebase Storage + Firestore) ─────
 
