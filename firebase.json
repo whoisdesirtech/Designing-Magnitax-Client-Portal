@@ -7,7 +7,16 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "cleanUrls": true,
-    "trailingSlash": false
+    "cleanUrls": false,
+    "rewrites": [
+      { "source": "/coffee", "destination": "/coffee.html" },
+      { "source": "/coffee.html", "destination": "/coffee.html" },
+      { "source": "/landing", "destination": "/landing.html" },
+      { "source": "/landing.html", "destination": "/landing.html" },
+      { "source": "/flyer", "destination": "/flyer.html" },
+      { "source": "/flyer.html", "destination": "/flyer.html" },
+      { "source": "/pitch_deck", "destination": "/pitch_deck.html" },
+      { "source": "/pitch_deck.html", "destination": "/pitch_deck.html" }
+    ]
   }
 }
