@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "taxagentai062026",
     "public": "public",
     "ignore": [
       "firebase.json",
