@@ -34,7 +34,7 @@ jobs:
           SERVER_PID=$!
           sleep 3
           for p in index.html training.html developer-training.html github-training.html; do
-            code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000/$p")
+            code=$(curl -sL -o /dev/null -w "%{http_code}" "http://localhost:3000/$p")
             echo "$p -> $code"
             [ "$code" = "200" ] || exit 1
           done
