@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Magnitax Portal | Developer Onboarding — Getting Started Guide</title>
-  <meta name="description" content="Magnitax Consulting LLC developer onboarding: everything a developer needs to set up, work on, and safely deploy the Magnitax Secure Client Portal.">
+  <meta name="description" content="Magnitax Consulting LLC developer onboarding: everything a developer needs to set up, reopen, work on, and safely deploy the Magnitax Secure Client Portal.">
   <style>
     :root {
       --bg-primary: #090d16;
@@ -370,6 +370,48 @@
 
     tbody tr:hover td { background: rgba(255, 255, 255, 0.02); }
 
+    /* ============ FLOW DIAGRAM ============ */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      margin: 14px 0;
+      font-size: 13px;
+    }
+
+    .flow .node {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+
+    .flow .node .dot {
+      flex: 0 0 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .flow .node .dot.gold { background: var(--gold-accent); box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+    .flow .node .dot.blue { background: var(--info); box-shadow: 0 0 8px rgba(96, 165, 250, 0.4); }
+    .flow .node .dot.red { background: var(--danger); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+
+    .flow .node b { color: var(--text-primary); }
+    .flow .node .note { color: var(--text-muted); font-size: 12px; margin-left: auto; }
+
+    .flow .connector {
+      width: 2px;
+      height: 18px;
+      background: linear-gradient(to bottom, var(--border-accent), var(--border-color));
+      margin-left: 24px;
+    }
+
     /* ============ INLINE ============ */
     .inline-code {
       background: rgba(16, 185, 129, 0.12);
@@ -454,10 +496,10 @@
     <div class="nav-links">
       <a href="#overview">Overview</a>
       <a href="#setup">Setup</a>
-      <a href="#codebase">Codebase</a>
+      <a href="#reopen">Reopen</a>
       <a href="#workflow">Workflow</a>
-      <a href="#deploy">Deploy</a>
       <a href="#rules">Rules</a>
+      <a href="#source-of-truth">Source of Truth</a>
     </div>
   </nav>
 
@@ -468,14 +510,21 @@
         <li><a href="#overview">1. Welcome &amp; Orientation</a></li>
         <li><a href="#access">2. What You Get (Access)</a></li>
         <li><a href="#setup">3. Environment Setup</a></li>
-        <li><a href="#clone">4. Clone &amp; Run Locally</a></li>
-        <li><a href="#firebase">5. Firebase CLI &amp; Login</a></li>
-        <li><a href="#codebase">6. Codebase Map</a></li>
-        <li><a href="#workflow">7. Your Daily Workflow</a></li>
-        <li><a href="#deploy">8. Deploying to Production</a></li>
-        <li><a href="#rules">9. Rules &amp; Security</a></li>
-        <li><a href="#troubleshooting">10. Troubleshooting &amp; FAQ</a></li>
-        <li><a href="#checklist">11. First-Day Checklist</a></li>
+        <li><a href="#first-time">4. First-Time Setup — Clone Once</a></li>
+        <li><a href="#reopen">5. Reopening the Project (Every Session)</a></li>
+        <li><a href="#sync">6. Sync With GitHub Before Starting</a></li>
+        <li><a href="#run">7. Run the Portal Locally</a></li>
+        <li><a href="#firebase">8. Firebase CLI &amp; Login</a></li>
+        <li><a href="#codebase">9. Codebase Map</a></li>
+        <li><a href="#workflow">10. Your Daily Workflow</a></li>
+        <li><a href="#agent">11. Working With the Antigravity Agent</a></li>
+        <li><a href="#stop">12. Stopping Work for the Day</a></li>
+        <li><a href="#inspect">13. If Something Looks Different</a></li>
+        <li><a href="#deploy">14. Deploying to Production</a></li>
+        <li><a href="#rules">15. Rules &amp; Security</a></li>
+        <li><a href="#troubleshooting">16. Troubleshooting &amp; FAQ</a></li>
+        <li><a href="#source-of-truth">17. Source of Truth</a></li>
+        <li><a href="#checklist">18. First-Day Checklist</a></li>
       </ul>
     </aside>
 
@@ -484,18 +533,22 @@
       <div class="hero">
         <div class="eyebrow">Welcome aboard · Developer Onboarding</div>
         <h1>Developing the Magnitax Secure Client Portal</h1>
-        <p>This guide gets you set up and productive on the Magnitax Portal — a single-page web app for tax clients and CPA admins, built with vanilla HTML/CSS/JS on Firebase Hosting, Firestore, Storage, and Auth. Read it once, and you'll be able to run the project, make changes safely, and ship.</p>
+        <p>This guide gets you set up and productive on the Magnitax Portal — a single-page web app for tax clients and CPA admins, built with vanilla HTML/CSS/JS on Firebase Hosting, Firestore, Storage, and Auth. You do all of your work inside <strong>Antigravity</strong> by reopening the same project folder every session — never by re-cloning it.</p>
         <div class="meta">
           <span>Repo: Designing-Magnitax-Client-Portal</span>
           <span>Live: taxagentai062026.web.app</span>
           <span>Audience: Developers</span>
-          <span>Version 1.0</span>
+          <span>Version 2.0 — Antigravity workflow</span>
         </div>
       </div>
 
       <div class="callout info" style="margin-bottom: 34px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
         <p style="margin: 0;"><strong>For admins:</strong> this guide pairs with the admin training that covers granting GitHub and Firebase access.</p>
         <a href="training.html" style="flex-shrink: 0; color: var(--accent); font-weight: 700; text-decoration: none; border: 1px solid var(--border-accent); padding: 8px 16px; border-radius: 8px; background: rgba(16,185,129,0.1);">Open Admin Training →</a>
+      </div>
+
+      <div class="callout danger" style="margin-bottom: 34px;">
+        <p><strong>Rule #1 — DO NOT re-clone the repository.</strong> You clone <em>once</em> on day one. Every time you open Antigravity after that, you <strong>reopen the existing project folder</strong> that is already on your machine. Re-cloning creates duplicates, which causes you to edit the wrong copy, lose your work, and create conflicting pull requests. If you think you need to re-clone, stop and read Section 5 first.</p>
       </div>
 
       <!-- ============ 1. OVERVIEW ============ -->
@@ -600,6 +653,7 @@
           <ul>
             <li><strong>Node.js v18 or newer</strong> and <strong>npm</strong>.</li>
             <li><strong>Git</strong>, with your identity configured.</li>
+            <li><strong>Antigravity</strong> installed (your IDE for this project).</li>
             <li>A <strong>Google account</strong> added to the Firebase project by an admin.</li>
           </ul>
         </div>
@@ -628,34 +682,154 @@ git config --global user.email you@example.com">Copy</button></div>
         </div>
       </section>
 
-      <!-- ============ 4. CLONE ============ -->
-      <section class="step" id="clone">
+      <!-- ============ 4. FIRST-TIME SETUP ============ -->
+      <section class="step" id="first-time">
         <div class="section-head">
           <div class="section-num">4</div>
           <div>
-            <h2>Clone &amp; Run Locally</h2>
-            <div class="section-desc">Get the code and launch the portal on your machine</div>
+            <h2>First-Time Setup — Clone Once</h2>
+            <div class="section-desc">You do this one time, on day one, then never again</div>
           </div>
         </div>
         <div class="card">
           <p>The repo is <span class="inline-code">github.com/whoisdesirtech/Designing-Magnitax-Client-Portal</span>. The deployable app lives in the <span class="inline-code">public/</span> folder.</p>
           <div class="code-block">
-            <div class="code-head"><span>Terminal</span><button class="copy-btn" data-copy="git clone https://github.com/whoisdesirtech/Designing-Magnitax-Client-Portal.git
-cd Designing-Magnitax-Client-Portal/public
-npx serve .">Copy</button></div>
+            <div class="code-head"><span>Terminal — clone ONE time</span><button class="copy-btn" data-copy="git clone https://github.com/whoisdesirtech/Designing-Magnitax-Client-Portal.git
+cd Designing-Magnitax-Client-Portal">Copy</button></div>
             <pre><code><span class="cmd">git clone</span> https://github.com/whoisdesirtech/Designing-Magnitax-Client-Portal.git
-<span class="cmd">cd</span> Designing-Magnitax-Client-Portal/public
+<span class="cmd">cd</span> Designing-Magnitax-Client-Portal</code></pre>
+          </div>
+          <p><strong>Remember the exact path</strong> of the folder you cloned into. This is your one and only working copy of the project — from now on you <em>reopen</em> it, you don't re-clone it.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Add the Project to Antigravity (First Time Only)</h3>
+          <p>Open the <strong>Magnitax Client Portal project</strong> in Antigravity so it appears on your home screen and can be reopened with one click next session:</p>
+          <div class="flow">
+            <div class="node"><span class="dot"></span><span>Open <b>Antigravity</b></span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot"></span><span>Choose <b>“Add to Antigravity”</b> (or open folder directly)</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot blue"></span><span>Select the folder you cloned: <b>Designing-Magnitax-Client-Portal</b></span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot blue"></span><span>Confirm it opens in <b>Local Mode</b> (never Agent Mode for this step)</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot gold"></span><span>The project now appears on your <b>home screen</b> — you'll reopen it there from now on</span></div>
+          </div>
+          <div class="callout success"><p><strong>“Local Checkout”</strong> means the project is running from the files on your machine (the folder you cloned), not from the cloud. Every Antigravity project should be a <em>local Git checkout</em> so your edits land on real files you can commit and push.</p></div>
+          <div class="callout warn"><p><strong>One working copy only.</strong> You must have exactly <em>one</em> Magnitax project folder on your machine. Two copies = confusion, editing the wrong file, and duplicate pull requests. If you accidentally created a second copy, delete the extra one and keep the folder you've been working in.</p></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">What to Do vs. What Never to Do</h3>
+          <table>
+            <thead>
+              <tr><th>ALWAYS</th><th>NEVER</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Reopen the existing project folder in Antigravity each session</td>
+                <td>Run <span class="inline-code">git clone</span> again unless told to by the admin</td>
+              </tr>
+              <tr>
+                <td>Work in Local Mode on your one working copy</td>
+                <td>Create duplicate folders of the project</td>
+              </tr>
+              <tr>
+                <td>Open the terminal inside that same project</td>
+                <td>Point an agent at a different or “fresh” copy</td>
+              </tr>
+              <tr>
+                <td>Pull the latest from GitHub before starting work</td>
+                <td>Start work on an outdated copy and then push over it</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ 5. REOPENING ============ -->
+      <section class="step" id="reopen">
+        <div class="section-head">
+          <div class="section-num">5</div>
+          <div>
+            <h2>Reopening the Project (Every Session)</h2>
+            <div class="section-desc">The exact steps you follow every time you start working</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>When you open Antigravity — whether it's the first time today, or after closing it last night — <strong>do not start from scratch</strong>. You do not re-clone, you do not rebuild, you do not create a new project. You reopen the project that already exists:</p>
+          <div class="flow">
+            <div class="node"><span class="dot gold"></span><span>Open <b>Antigravity</b></span><span class="note">Your saved projects appear on the home screen</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot"></span><span>Click <b>“Open Magnitax Client Portal Project”</b></span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot"></span><span>Confirm you're in the <b>same folder</b> you cloned on day one</span><span class="note">Check the path</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot blue"></span><span>Confirm <b>Local Mode</b></span><span class="note">Working on your local checkout</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot"></span><span>Open the <b>Terminal</b> inside the project</span><span class="note">Antigravity → Terminal</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot red"></span><span><b>Sync first</b> — Section 6 before any edits</span></div>
+          </div>
+          <div class="callout info"><p><strong>Reopening is exactly that — reopening.</strong> All of your work, files, and history are still there. The project reopens in the state you left it. You only need to refresh it from GitHub (pull) and start the local server (Section 7).</p></div>
+          <div class="callout danger"><p><strong>Stop if you're about to re-clone.</strong> If you find yourself typing <span class="inline-code">git clone</span>, or creating a “new project” in Antigravity, that's the mistake this guide exists to prevent. Close that window and reopen your existing project instead.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 6. SYNC ============ -->
+      <section class="step" id="sync">
+        <div class="section-head">
+          <div class="section-num">6</div>
+          <div>
+            <h2>Sync With GitHub Before Starting</h2>
+            <div class="section-desc">Always start from the latest code</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>Before you write any code, make sure your reopened copy is up to date with the remote repository. Other developers may have merged work while you were away:</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — inside the project folder</span><button class="copy-btn" data-copy="git status
+git pull origin main">Copy</button></div>
+            <pre><code><span class="cmd">git status</span>
+<span class="cmt"># You should see: On branch main, nothing to commit, working tree clean</span>
+<span class="cmd">git pull</span> origin main
+<span class="out"># Pulls the latest code from GitHub into your local copy</span></code></pre>
+          </div>
+          <ul>
+            <li><strong>If <span class="inline-code">git status</span> shows uncommitted changes</strong> you don't remember making, stop — see Section 13 (If Something Looks Different) before pulling.</li>
+            <li><strong>If the pull says “already up to date”</strong>, great — you're on the latest code.</li>
+            <li><strong>If the pull shows merge conflicts</strong>, don't force anything. Tell the admin — do not overwrite other people's work.</li>
+          </ul>
+          <div class="callout warn"><p><strong>Never start work on an outdated copy.</strong> Code that changes on GitHub while you edit an old copy leads to conflicts and lost work. Sync first, every time.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 7. RUN LOCALLY ============ -->
+      <section class="step" id="run">
+        <div class="section-head">
+          <div class="section-num">7</div>
+          <div>
+            <h2>Run the Portal Locally</h2>
+            <div class="section-desc">Launch the app so you can test as you work</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>With the project reopened and synced, start the local server from the <span class="inline-code">public/</span> folder. <strong>Leave this terminal running for the whole session</strong> — you'll reload it to see your changes.</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — inside the project folder</span><button class="copy-btn" data-copy="cd public
+npx serve .">Copy</button></div>
+            <pre><code><span class="cmd">cd</span> public
 <span class="cmd">npx serve</span> .
 <span class="out"># Portal opens at http://localhost:3000 (or similar)</span></code></pre>
           </div>
           <div class="callout info"><p><strong>Test logins:</strong> <span class="inline-code">admin@magnitax.com</span> / <span class="inline-code">Password123!</span> (CPA Admin) or <span class="inline-code">jane@example.com</span> / <span class="inline-code">Password123!</span> (Client). Any 6-digit code passes the 2FA gate in this prototype.</p></div>
+          <div class="callout danger"><p><strong>If the server won't start</strong>, do not create a new project or re-clone. The code is fine — check that you're in the right folder and that the terminal is inside the reopened project.</p></div>
         </div>
       </section>
 
-      <!-- ============ 5. FIREBASE ============ -->
+      <!-- ============ 8. FIREBASE ============ -->
       <section class="step" id="firebase">
         <div class="section-head">
-          <div class="section-num">5</div>
+          <div class="section-num">8</div>
           <div>
             <h2>Firebase CLI &amp; Login</h2>
             <div class="section-desc">Connect your machine to the live project</div>
@@ -675,10 +849,10 @@ npx -y firebase-tools@latest use taxagentai062026">Copy</button></div>
         </div>
       </section>
 
-      <!-- ============ 6. CODEBASE ============ -->
+      <!-- ============ 9. CODEBASE ============ -->
       <section class="step" id="codebase">
         <div class="section-head">
-          <div class="section-num">6</div>
+          <div class="section-num">9</div>
           <div>
             <h2>Codebase Map</h2>
             <div class="section-desc">Where things live and what each file does</div>
@@ -736,10 +910,10 @@ npx -y firebase-tools@latest use taxagentai062026">Copy</button></div>
         </div>
       </section>
 
-      <!-- ============ 7. WORKFLOW ============ -->
+      <!-- ============ 10. WORKFLOW ============ -->
       <section class="step" id="workflow">
         <div class="section-head">
-          <div class="section-num">7</div>
+          <div class="section-num">10</div>
           <div>
             <h2>Your Daily Workflow</h2>
             <div class="section-desc">Branch → commit → pull request → merge</div>
@@ -774,10 +948,85 @@ git push origin feature/<initials>-<short-description>">Copy</button></div>
         </div>
       </section>
 
-      <!-- ============ 8. DEPLOY ============ -->
+      <!-- ============ 11. AGENT ============ -->
+      <section class="step" id="agent">
+        <div class="section-head">
+          <div class="section-num">11</div>
+          <div>
+            <h2>Working With the Antigravity Agent</h2>
+            <div class="section-desc">Rules for letting the built-in agent help you</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>Antigravity includes an AI agent you can ask to write or edit code. These rules apply to <strong>you</strong> and to <strong>the agent</strong>, so the agent never causes the same mistakes as re-cloning:</p>
+          <ul>
+            <li><strong>Work inside the reopened project.</strong> Tell the agent to work on the files in <em>this</em> project — the one you reopened. Never let it create a new project, a fresh folder, or a second copy.</li>
+            <li><strong>Local Mode only.</strong> Keep the project in Local Mode so agent edits land on your real files. Avoid Cloud/Agent Mode for this repo unless the admin says otherwise.</li>
+            <li><strong>Smallest change possible.</strong> Ask for focused edits, not rewrites. Don't let the agent rebuild working code.</li>
+            <li><strong>Inspect before committing.</strong> Review the diff (<span class="inline-code">git diff</span>) after the agent edits, before you commit and push.</li>
+            <li><strong>No destructive commands.</strong> The agent must never run anything that deletes, resets, or recreates the repo (<span class="inline-code">git reset --hard</span>, <span class="inline-code">rm -rf</span>, re-cloning, etc.).</li>
+            <li><strong>Agent work still follows Section 10.</strong> Its edits go on a feature branch and through a pull request like yours.</li>
+          </ul>
+          <div class="callout danger"><p><strong>One project, one folder, one truth.</strong> If the agent proposes “creating a new Magnitax project,” that is wrong. Stop it. The project already exists — we're editing the reopened copy.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 12. STOPPING ============ -->
+      <section class="step" id="stop">
+        <div class="section-head">
+          <div class="section-num">12</div>
+          <div>
+            <h2>Stopping Work for the Day</h2>
+            <div class="section-desc">What to leave behind so tomorrow is painless</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>When you're done, leave things in a state you (or another developer) can pick up easily. Nothing here requires re-cloning or rebuilding:</p>
+          <ul>
+            <li><strong>Commit and push your branch</strong>, or leave a clear message about what's in progress. Don't leave big chunks of uncommitted work.</li>
+            <li><strong>Note where you left off</strong> — in the PR description or a message to the admin — so the next session starts exactly where you stopped.</li>
+            <li><strong>You can close the terminal.</strong> Closing the local server doesn't delete anything. Tomorrow you just reopen the project and run <span class="inline-code">cd public; npx serve .</span> again.</li>
+            <li><strong>You can close Antigravity.</strong> Your project is saved on your machine and appears on Antigravity's home screen. Reopening brings it back exactly as you left it.</li>
+          </ul>
+          <div class="callout success"><p><strong>Quick start tomorrow:</strong> Open Antigravity → click your project → it opens in Local Mode → Terminal → <span class="inline-code">git pull origin main</span> → <span class="inline-code">cd public; npx serve .</span>. Ten seconds, no re-clone, no setup.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 13. INSPECT ============ -->
+      <section class="step" id="inspect">
+        <div class="section-head">
+          <div class="section-num">13</div>
+          <div>
+            <h2>If Something Looks Different</h2>
+            <div class="section-desc">Files missing, code changed, or things feel off</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>If you reopen the project and something looks different from how you left it — missing files, unexpected changes, an error at startup — <strong>inspect before you act</strong>. Don't delete, reset, or re-clone.</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — investigate first</span><button class="copy-btn" data-copy="git status
+git log --oneline -10
+git diff">Copy</button></div>
+            <pre><code><span class="cmd">git status</span>
+<span class="cmt"># Which files changed and where are you?</span>
+<span class="cmd">git log --oneline -10</span>
+<span class="cmt"># Recent commit history — did someone merge new work?</span>
+<span class="cmd">git diff</span>
+<span class="cmt"># What exactly changed in your working files</span></code></pre>
+          </div>
+          <ul>
+            <li><strong>See new commits from others?</strong> That's just new work that was merged. Pull it and continue.</li>
+            <li><strong>See changes you didn't make?</strong> Compare against <span class="inline-code">main</span> and talk to the admin. Do not overwrite them.</li>
+            <li><strong>Missing a file you know existed?</strong> Check <span class="inline-code">git status</span> first — it may have been renamed or moved. Never recreate from memory or from a fresh clone.</li>
+          </ul>
+          <div class="callout danger"><p><strong>The golden rule:</strong> when unsure, <em>inspect first</em> and <em>ask the admin</em>. Never solve confusion by re-cloning, resetting, or deleting — that's how work gets lost.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 14. DEPLOY ============ -->
       <section class="step" id="deploy">
         <div class="section-head">
-          <div class="section-num">8</div>
+          <div class="section-num">14</div>
           <div>
             <h2>Deploying to Production</h2>
             <div class="section-desc">Shipping merged work to the live site</div>
@@ -793,14 +1042,14 @@ npx -y firebase-tools@latest deploy --only hosting --project taxagentai062026">C
 <span class="cmd">git pull</span> origin main
 <span class="cmd">npx -y firebase-tools@latest deploy --only hosting --project</span> taxagentai062026</code></pre>
           </div>
-          <div class="callout danger"><p><strong>Production is instant.</strong> A bad deploy is visible to real tax clients immediately. Always test locally (Section 4) first. If something goes wrong, the admin can roll back from Firebase Console → Hosting → Release history.</p></div>
+          <div class="callout danger"><p><strong>Production is instant.</strong> A bad deploy is visible to real tax clients immediately. Always test locally (Section 7) first. If something goes wrong, the admin can roll back from Firebase Console → Hosting → Release history.</p></div>
         </div>
       </section>
 
-      <!-- ============ 9. RULES ============ -->
+      <!-- ============ 15. RULES ============ -->
       <section class="step" id="rules">
         <div class="section-head">
-          <div class="section-num">9</div>
+          <div class="section-num">15</div>
           <div>
             <h2>Rules &amp; Security</h2>
             <div class="section-desc">Non-negotiable, applies to every developer</div>
@@ -811,6 +1060,7 @@ npx -y firebase-tools@latest deploy --only hosting --project taxagentai062026">C
             <li><strong>No secrets in code.</strong> Never commit API keys, service-account JSON, or passwords. Firebase SDK config keys are public by design; private keys are not.</li>
             <li><strong>No client data in logs or chats.</strong> Don't paste real W-2s, 1099s, PII, or screenshots of client records anywhere outside the app.</li>
             <li><strong>Never push to <span class="inline-code">main</span>.</strong> Work in branches; merge via pull requests.</li>
+            <li><strong>Never re-clone or reset the repo.</strong> Reopen your existing project; inspect before acting; never run destructive git commands.</li>
             <li><strong>Test locally before opening a PR.</strong> The portal must boot and core flows (login, 2FA, documents) must work.</li>
             <li><strong>Match the design system.</strong> Use the Emerald CSS variables (<span class="inline-code">--accent</span>, <span class="inline-code">--bg-primary</span>, etc.) — don't hardcode ad-hoc colors.</li>
             <li><strong>Keep <span class="inline-code">.firebase/</span> and <span class="inline-code">.env</span> out of git.</strong> They are ignored for a reason.</li>
@@ -818,10 +1068,10 @@ npx -y firebase-tools@latest deploy --only hosting --project taxagentai062026">C
         </div>
       </section>
 
-      <!-- ============ 10. TROUBLESHOOTING ============ -->
+      <!-- ============ 16. TROUBLESHOOTING ============ -->
       <section class="step" id="troubleshooting">
         <div class="section-head">
-          <div class="section-num">10</div>
+          <div class="section-num">16</div>
           <div>
             <h2>Troubleshooting &amp; FAQ</h2>
             <div class="section-desc">Common problems you'll hit</div>
@@ -833,6 +1083,36 @@ npx -y firebase-tools@latest deploy --only hosting --project taxagentai062026">C
               <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
             </thead>
             <tbody>
+              <tr>
+                <td>Project not on Antigravity home screen</td>
+                <td>It was never added, or you're looking at the wrong machine</td>
+                <td>Add the existing folder via “Add to Antigravity” — do not create a new project or re-clone</td>
+              </tr>
+              <tr>
+                <td>Forgetting where the project lives</td>
+                <td>You didn't note the path from day one</td>
+                <td>Find the folder in Finder/File Explorer and add it to Antigravity's home screen</td>
+              </tr>
+              <tr>
+                <td>Accidentally created a second copy</td>
+                <td>Re-ran <span class="inline-code">git clone</span> or let an agent “create a new project”</td>
+                <td>Delete the extra copy, keep the folder you've been working in. Verify with <span class="inline-code">git status</span></td>
+              </tr>
+              <tr>
+                <td>Local server won't start</td>
+                <td>Wrong folder, or terminal isn't inside the reopened project</td>
+                <td>Reopen the project, open Terminal inside it, run <span class="inline-code">cd public; npx serve .</span></td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">git pull</span> fails / conflicts</td>
+                <td>Local changes overlap with merged work</td>
+                <td>Stop. Do not force. Inspect <span class="inline-code">git status</span> and tell the admin</td>
+              </tr>
+              <tr>
+                <td>Changes don't appear when testing</td>
+                <td>The local server was restarted from the wrong folder</td>
+                <td>Confirm you're serving from <span class="inline-code">public/</span> inside the reopened project; hard-refresh the browser</td>
+              </tr>
               <tr>
                 <td><span class="inline-code">git push</span> rejected (403)</td>
                 <td>Invitation not accepted, or wrong GitHub account</td>
@@ -865,13 +1145,40 @@ npx -y firebase-tools@latest deploy --only hosting --project taxagentai062026">C
               </tr>
             </tbody>
           </table>
+          <div class="callout warn"><p><strong>When in doubt, inspect first.</strong> Most scary symptoms are just new merged work or a wrong folder — never a reason to re-clone or reset.</p></div>
         </div>
       </section>
 
-      <!-- ============ 11. CHECKLIST ============ -->
+      <!-- ============ 17. SOURCE OF TRUTH ============ -->
+      <section class="step" id="source-of-truth">
+        <div class="section-head">
+          <div class="section-num">17</div>
+          <div>
+            <h2>Source of Truth</h2>
+            <div class="section-desc">Where the real, current version of everything lives</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>Understand the layers so you always know which copy is authoritative:</p>
+          <div class="flow">
+            <div class="node"><span class="dot red"></span><span><b>GitHub (remote)</b></span><span class="note">The one true source of the codebase</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot"></span><span><b>Your local folder</b> (your one clone)</span><span class="note">Your working copy, synced via pull/push</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot blue"></span><span><b>Antigravity project</b> (Local Mode)</span><span class="note">Points at your local folder — reopens it, never re-creates it</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot gold"></span><span><b>Local server</b> (<span class="inline-code">npx serve</span>)</span><span class="note">Serves <span class="inline-code">public/</span> so you can test</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot red"></span><span><b>Live site</b> (Firebase Hosting)</span><span class="note">taxagentai062026.web.app — updated by deploy</span></div>
+          </div>
+          <p>When these disagree, <strong>GitHub <span class="inline-code">main</span> is the truth</strong>. Your local folder must be synced to it (<span class="inline-code">git pull</span> before work, <span class="inline-code">git push</span> via PR after). The live site is whatever was last deployed. If a copy feels wrong, don't trust it and don't delete it — sync from GitHub, then inspect, then ask if unsure.</p>
+        </div>
+      </section>
+
+      <!-- ============ 18. CHECKLIST ============ -->
       <section class="step" id="checklist">
         <div class="section-head">
-          <div class="section-num">11</div>
+          <div class="section-num">18</div>
           <div>
             <h2>First-Day Checklist</h2>
             <div class="section-desc">Run through this before writing any code</div>
@@ -879,13 +1186,14 @@ npx -y firebase-tools@latest deploy --only hosting --project taxagentai062026">C
         </div>
         <div class="card">
           <ul class="checklist">
-            <li><span class="box">✓</span><span><strong>Environment.</strong> Node.js 18+, npm, Git installed; identity configured.</span></li>
+            <li><span class="box">✓</span><span><strong>Environment.</strong> Node.js 18+, npm, Git, and Antigravity installed; identity configured.</span></li>
             <li><span class="box">✓</span><span><strong>GitHub.</strong> Collaborator invitation accepted with <strong>Write</strong> access.</span></li>
             <li><span class="box">✓</span><span><strong>Firebase.</strong> Added as <strong>Editor</strong>; CLI logged in and pointed at <span class="inline-code">taxagentai062026</span>.</span></li>
-            <li><span class="box">✓</span><span><strong>Repo.</strong> Cloned and serving locally from <span class="inline-code">public/</span>.</span></li>
+            <li><span class="box">✓</span><span><strong>Repo.</strong> Cloned <strong>once</strong> and added to Antigravity (Local Mode). Noted the folder path.</span></li>
+            <li><span class="box">✓</span><span><strong>Reopen test.</strong> Closed and reopened Antigravity, reopened the project, ran <span class="inline-code">git pull</span> and <span class="inline-code">npx serve</span>.</span></li>
             <li><span class="box">✓</span><span><strong>Logins.</strong> Verified portal logins work (admin and client test credentials).</span></li>
             <li><span class="box">✓</span><span><strong>Workflow.</strong> Created a practice feature branch, PR, and reviewed the process with the admin.</span></li>
-            <li><span class="box">✓</span><span><strong>Rules.</strong> Read Section 9 (Rules &amp; Security) and agree to follow it.</span></li>
+            <li><span class="box">✓</span><span><strong>Rules.</strong> Read Section 15 (Rules &amp; Security) and the never-re-clone rule, and agree to follow them.</span></li>
           </ul>
         </div>
       </section>

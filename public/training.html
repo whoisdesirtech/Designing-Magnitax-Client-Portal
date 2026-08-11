@@ -597,6 +597,7 @@ npx serve .">Copy</button></div>
 <span class="out"># Opens the portal at http://localhost:3000 (or similar)</span></code></pre>
           </div>
           <div class="callout warn"><p><strong>Important:</strong> the deployable app lives in the <span class="inline-code">public/</span> folder. The developer must edit files inside <span class="inline-code">public/</span> — the portal's entry point is <span class="inline-code">index.html</span>, with <span class="inline-code">app.js</span> (application logic) and <span class="inline-code">style.css</span> (design system).</p></div>
+          <div class="callout danger"><p><strong>Rule #1 — clone ONCE, reopen always.</strong> The developer clones the repository on day one, adds the folder to Antigravity (Local Mode), and from then on <em>reopens that same project every session</em> — never re-clones, never creates a second copy. Re-cloning causes duplicated folders, editing the wrong copy, lost work, and conflicting pull requests. Tell them this explicitly when you onboard them.</p></div>
         </div>
       </section>
 
@@ -827,7 +828,8 @@ npx -y firebase-tools@latest deploy --only hosting --project taxagentai062026">C
             <li><span class="box">✓</span><span><strong>Environment.</strong> Node.js 18+, npm, and Git installed; git identity configured.</span></li>
             <li><span class="box">✓</span><span><strong>GitHub.</strong> Collaborator added with <strong>Write</strong> access; invitation accepted.</span></li>
             <li><span class="box">✓</span><span><strong>Firebase.</strong> Developer added as <strong>Editor</strong> in the Firebase project; logged in via CLI.</span></li>
-            <li><span class="box">✓</span><span><strong>Repo.</strong> Cloned and serving locally from <span class="inline-code">public/</span>.</span></li>
+            <li><span class="box">✓</span><span><strong>Repo.</strong> Cloned once and serving locally from <span class="inline-code">public/</span>; added to Antigravity in Local Mode.</span></li>
+            <li><span class="box">✓</span><span><strong>Reopen rule.</strong> Developer understands they reopen the existing project each session and never re-clone.</span></li>
             <li><span class="box">✓</span><span><strong>Rules.</strong> Reviewed branch/PR workflow, deploy policy, and security rules above.</span></li>
             <li><span class="box">✓</span><span><strong>Access log.</strong> Recorded the grant (date, developer, roles) in the operations log for the audit trail.</span></li>
           </ul>
