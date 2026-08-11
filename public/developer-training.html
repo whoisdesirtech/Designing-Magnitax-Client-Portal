@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnitax Portal | Developer Onboarding — Getting Started Guide</title>
+  <meta name="description" content="Magnitax Consulting LLC developer onboarding: everything a developer needs to set up, work on, and safely deploy the Magnitax Secure Client Portal.">
+  <style>
+    :root {
+      --bg-primary: #090d16;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1f2937;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-glow: rgba(16, 185, 129, 0.25);
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --border-color: #1f2937;
+      --border-accent: rgba(16, 185, 129, 0.3);
+      --gold-accent: #f59e0b;
+      --danger: #ef4444;
+      --info: #60a5fa;
+      --code-bg: #0b101c;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    /* ============ TOP NAV ============ */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 28px;
+      background: rgba(11, 13, 20, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      color: #04120c;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .nav-brand-text { font-weight: 700; font-size: 16px; letter-spacing: 0.01em; }
+    .nav-brand-text span { color: var(--accent); }
+    .nav-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #60a5fa;
+      background: rgba(96, 165, 250, 0.12);
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ============ LAYOUT ============ */
+    .layout {
+      display: flex;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 28px 80px;
+      gap: 32px;
+    }
+
+    .sidebar {
+      flex: 0 0 240px;
+      position: sticky;
+      top: 84px;
+      align-self: flex-start;
+      max-height: calc(100vh - 110px);
+      overflow-y: auto;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .sidebar ul { list-style: none; }
+
+    .sidebar li { margin-bottom: 2px; }
+
+    .sidebar a {
+      display: block;
+      padding: 7px 12px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.08);
+      border-left-color: var(--accent);
+    }
+
+    .content { flex: 1 1 auto; min-width: 0; }
+
+    /* ============ HERO ============ */
+    .hero {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.12), rgba(9, 13, 22, 0) 60%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 28px 30px;
+      margin-bottom: 34px;
+    }
+
+    .hero .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #60a5fa;
+      margin-bottom: 8px;
+    }
+
+    .hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+
+    .hero p { color: var(--text-secondary); max-width: 720px; }
+
+    .hero .meta {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .hero .meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+    /* ============ SECTIONS ============ */
+    section.step { margin-bottom: 40px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .section-num {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--border-accent);
+    }
+
+    .section-head h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+
+    .section-head .section-desc {
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      margin-top: 2px;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+    }
+
+    .card + .card { margin-top: 14px; }
+
+    h3.card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary);
+    }
+
+    .card p { color: var(--text-secondary); margin-bottom: 10px; }
+
+    .card ul, .card ol { color: var(--text-secondary); padding-left: 20px; margin-bottom: 10px; }
+    .card li { margin-bottom: 6px; }
+    .card strong { color: var(--text-primary); }
+
+    /* ============ CODE BLOCKS ============ */
+    .code-block {
+      position: relative;
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+
+    .code-block .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .copy-btn {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--border-accent);
+      color: var(--accent);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover { background: rgba(16, 185, 129, 0.25); }
+
+    .copy-btn.copied { color: var(--gold-accent); border-color: rgba(245, 158, 11, 0.4); }
+
+    .code-block pre {
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #d1e8dd;
+      white-space: pre;
+    }
+
+    .code-block code { font-family: inherit; }
+
+    .cmt { color: var(--text-muted); }
+    .cmd { color: #7dd3fc; }
+    .out { color: var(--text-secondary); }
+
+    /* ============ CALLOUTS ============ */
+    .callout {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13.5px;
+      border: 1px solid;
+    }
+
+    .callout p { margin: 0; }
+
+    .callout.warn {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: #fcd34d;
+    }
+
+    .callout.danger {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+
+    .callout.info {
+      background: rgba(96, 165, 250, 0.08);
+      border-color: rgba(96, 165, 250, 0.35);
+      color: #93c5fd;
+    }
+
+    .callout.success {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+    }
+
+    /* ============ TABLES ============ */
+    .table-wrap { overflow-x: auto; margin: 12px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.02);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+
+    tbody td:first-child { color: var(--text-primary); font-weight: 500; white-space: nowrap; }
+
+    tbody tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    /* ============ INLINE ============ */
+    .inline-code {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--border-accent);
+      color: #6ee7b7;
+      font-family: "SF Mono", Consolas, monospace;
+      font-size: 0.9em;
+      padding: 1px 7px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pill.green { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+    .pill.gold { background: rgba(245, 158, 11, 0.15); color: #fcd34d; }
+    .pill.blue { background: rgba(96, 165, 250, 0.15); color: #93c5fd; }
+    .pill.red { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+
+    /* ============ CHECKLIST ============ */
+    .checklist { list-style: none; padding-left: 0 !important; }
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist .box {
+      flex: 0 0 18px;
+      height: 18px;
+      margin-top: 2px;
+      border: 2px solid var(--border-accent);
+      border-radius: 5px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ============ FOOTER ============ */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 22px 28px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12.5px;
+    }
+
+    footer strong { color: var(--text-secondary); }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; padding: 20px 16px 60px; }
+      .sidebar { position: static; flex: 1 1 auto; max-height: none; }
+      .sidebar ul { display: flex; flex-wrap: wrap; gap: 6px; }
+      .sidebar li { margin: 0; }
+      .sidebar a { border-left: none; border-bottom: 2px solid transparent; padding: 6px 10px; }
+      .sidebar a:hover, .sidebar a.active { border-left: none; border-bottom-color: var(--accent); }
+      .nav-links { display: none; }
+      .hero h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-brand" href="#top">
+      <div class="nav-logo">M</div>
+      <div class="nav-brand-text">Magni<span>tax</span> Portal</div>
+      <span class="nav-tag">Developer Onboarding</span>
+    </a>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#setup">Setup</a>
+      <a href="#codebase">Codebase</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#deploy">Deploy</a>
+      <a href="#rules">Rules</a>
+    </div>
+  </nav>
+
+  <div class="layout" id="top">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-title">On This Page</div>
+      <ul>
+        <li><a href="#overview">1. Welcome &amp; Orientation</a></li>
+        <li><a href="#access">2. What You Get (Access)</a></li>
+        <li><a href="#setup">3. Environment Setup</a></li>
+        <li><a href="#clone">4. Clone &amp; Run Locally</a></li>
+        <li><a href="#firebase">5. Firebase CLI &amp; Login</a></li>
+        <li><a href="#codebase">6. Codebase Map</a></li>
+        <li><a href="#workflow">7. Your Daily Workflow</a></li>
+        <li><a href="#deploy">8. Deploying to Production</a></li>
+        <li><a href="#rules">9. Rules &amp; Security</a></li>
+        <li><a href="#troubleshooting">10. Troubleshooting &amp; FAQ</a></li>
+        <li><a href="#checklist">11. First-Day Checklist</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+
+      <div class="hero">
+        <div class="eyebrow">Welcome aboard · Developer Onboarding</div>
+        <h1>Developing the Magnitax Secure Client Portal</h1>
+        <p>This guide gets you set up and productive on the Magnitax Portal — a single-page web app for tax clients and CPA admins, built with vanilla HTML/CSS/JS on Firebase Hosting, Firestore, Storage, and Auth. Read it once, and you'll be able to run the project, make changes safely, and ship.</p>
+        <div class="meta">
+          <span>Repo: Designing-Magnitax-Client-Portal</span>
+          <span>Live: taxagentai062026.web.app</span>
+          <span>Audience: Developers</span>
+          <span>Version 1.0</span>
+        </div>
+      </div>
+
+      <div class="callout info" style="margin-bottom: 34px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <p style="margin: 0;"><strong>For admins:</strong> this guide pairs with the admin training that covers granting GitHub and Firebase access.</p>
+        <a href="training.html" style="flex-shrink: 0; color: var(--accent); font-weight: 700; text-decoration: none; border: 1px solid var(--border-accent); padding: 8px 16px; border-radius: 8px; background: rgba(16,185,129,0.1);">Open Admin Training →</a>
+      </div>
+
+      <!-- ============ 1. OVERVIEW ============ -->
+      <section class="step" id="overview">
+        <div class="section-head">
+          <div class="section-num">1</div>
+          <div>
+            <h2>Welcome &amp; Orientation</h2>
+            <div class="section-desc">What this project is and how it's built</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>The Magnitax Portal is a <strong>zero-framework single-page application</strong>:</p>
+          <table>
+            <thead>
+              <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Frontend</td>
+                <td>Vanilla HTML5, CSS3, ES6+ JS</td>
+                <td>No build step — open the page, it just runs</td>
+              </tr>
+              <tr>
+                <td>Design system</td>
+                <td>CSS variables + glassmorphism</td>
+                <td>Magnitax Emerald theme (<span class="inline-code">#10b981</span> / <span class="inline-code">#059669</span>)</td>
+              </tr>
+              <tr>
+                <td>Auth</td>
+                <td>Firebase Auth (email/password)</td>
+                <td>Client vs CPA Admin roles</td>
+              </tr>
+              <tr>
+                <td>Data</td>
+                <td>Cloud Firestore</td>
+                <td>Users, intakes, documents, leads, audit logs</td>
+              </tr>
+              <tr>
+                <td>Files</td>
+                <td>Firebase Storage</td>
+                <td>Private W-2 / 1099 / Form 1040 PDFs</td>
+              </tr>
+              <tr>
+                <td>Hosting</td>
+                <td>Firebase Hosting</td>
+                <td>Global CDN at <span class="inline-code">taxagentai062026.web.app</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout info"><p><strong>Important:</strong> there is no framework and no build step. What you edit is what deploys. Be careful and test locally before pushing.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 2. ACCESS ============ -->
+      <section class="step" id="access">
+        <div class="section-head">
+          <div class="section-num">2</div>
+          <div>
+            <h2>What You Get (Access)</h2>
+            <div class="section-desc">Your credentials and permissions for this project</div>
+          </div>
+        </div>
+        <div class="card">
+          <table>
+            <thead>
+              <tr><th>System</th><th>You Receive</th><th>You Do NOT Get</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GitHub</td>
+                <td><span class="pill gold">Write</span> on the repository (push branches, open PRs)</td>
+                <td>Direct push to <span class="inline-code">main</span> — merges happen through pull requests</td>
+              </tr>
+              <tr>
+                <td>Firebase project</td>
+                <td><span class="pill blue">Editor</span> role (read/write Firestore &amp; Storage)</td>
+                <td><span class="pill red">Owner</span> — billing and IAM stay with the Magnitax admin</td>
+              </tr>
+              <tr>
+                <td>Hosting</td>
+                <td>Deploy rights via the Firebase CLI (if authorized for your task)</td>
+                <td>Production deploys without a reviewed, merged pull request</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout warn"><p>If an admin granted you access per the <strong>Admin Training — Adding Developers</strong> guide, everything here is in scope. If anything is missing (clone fails, no Firebase access), tell the admin — don't try to work around permissions.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 3. SETUP ============ -->
+      <section class="step" id="setup">
+        <div class="section-head">
+          <div class="section-num">3</div>
+          <div>
+            <h2>Environment Setup</h2>
+            <div class="section-desc">Confirm your machine is ready</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Prerequisites</h3>
+          <ul>
+            <li><strong>Node.js v18 or newer</strong> and <strong>npm</strong>.</li>
+            <li><strong>Git</strong>, with your identity configured.</li>
+            <li>A <strong>Google account</strong> added to the Firebase project by an admin.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Verify Your Environment</h3>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal</span><button class="copy-btn" data-copy="node -v
+npm -v
+git --version
+git config user.name
+git config user.email">Copy</button></div>
+            <pre><code><span class="cmd">node -v</span>
+<span class="cmd">npm -v</span>
+<span class="cmd">git --version</span>
+<span class="cmd">git config user.name</span>
+<span class="cmd">git config user.email</span></code></pre>
+          </div>
+          <div class="callout warn"><p><strong>Commit identity is required.</strong> GitHub rejects commits with no <span class="inline-code">user.name</span> / <span class="inline-code">user.email</span>. Set it once:</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal</span><button class="copy-btn" data-copy="git config --global user.name \"Your Name\"
+git config --global user.email you@example.com">Copy</button></div>
+            <pre><code><span class="cmd">git config --global user.name</span> "Your Name"
+<span class="cmd">git config --global user.email</span> you@example.com</code></pre>
+          </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 4. CLONE ============ -->
+      <section class="step" id="clone">
+        <div class="section-head">
+          <div class="section-num">4</div>
+          <div>
+            <h2>Clone &amp; Run Locally</h2>
+            <div class="section-desc">Get the code and launch the portal on your machine</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>The repo is <span class="inline-code">github.com/whoisdesirtech/Designing-Magnitax-Client-Portal</span>. The deployable app lives in the <span class="inline-code">public/</span> folder.</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal</span><button class="copy-btn" data-copy="git clone https://github.com/whoisdesirtech/Designing-Magnitax-Client-Portal.git
+cd Designing-Magnitax-Client-Portal/public
+npx serve .">Copy</button></div>
+            <pre><code><span class="cmd">git clone</span> https://github.com/whoisdesirtech/Designing-Magnitax-Client-Portal.git
+<span class="cmd">cd</span> Designing-Magnitax-Client-Portal/public
+<span class="cmd">npx serve</span> .
+<span class="out"># Portal opens at http://localhost:3000 (or similar)</span></code></pre>
+          </div>
+          <div class="callout info"><p><strong>Test logins:</strong> <span class="inline-code">admin@magnitax.com</span> / <span class="inline-code">Password123!</span> (CPA Admin) or <span class="inline-code">jane@example.com</span> / <span class="inline-code">Password123!</span> (Client). Any 6-digit code passes the 2FA gate in this prototype.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 5. FIREBASE ============ -->
+      <section class="step" id="firebase">
+        <div class="section-head">
+          <div class="section-num">5</div>
+          <div>
+            <h2>Firebase CLI &amp; Login</h2>
+            <div class="section-desc">Connect your machine to the live project</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>Install the CLI (no global install needed) and sign in with the Google account your admin added to the project:</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal</span><button class="copy-btn" data-copy="npx -y firebase-tools@latest login
+npx -y firebase-tools@latest use taxagentai062026">Copy</button></div>
+            <pre><code><span class="cmd">npx -y firebase-tools@latest login</span>
+<span class="cmt"># A browser opens — sign in with the Google account added to the project</span>
+<span class="cmd">npx -y firebase-tools@latest use</span> taxagentai062026
+<span class="out"># Now using project taxagentai062026</span></code></pre>
+          </div>
+          <div class="callout warn"><p><strong>Keep your CLI session private.</strong> Don't share machines or tokens. If you get <span class="inline-code">Command requires authentication</span>, re-run <span class="inline-code">firebase login</span>.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 6. CODEBASE ============ -->
+      <section class="step" id="codebase">
+        <div class="section-head">
+          <div class="section-num">6</div>
+          <div>
+            <h2>Codebase Map</h2>
+            <div class="section-desc">Where things live and what each file does</div>
+          </div>
+        </div>
+        <div class="card">
+          <table>
+            <thead>
+              <tr><th>File</th><th>Role</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="inline-code">public/index.html</span></td>
+                <td>Portal entry point — login, 2FA gate, sidebar, all SPA page sections, modals</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">public/app.js</span></td>
+                <td>All application logic — auth state, navigation, Firestore reads/writes, admin modules</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">public/style.css</span></td>
+                <td>Master design system — Emerald theme variables, page routing, admin styles</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">public/landing.html</span></td>
+                <td>Marketing &amp; client onboarding page</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">public/flyer.html</span></td>
+                <td>Print &amp; digital marketing flyer</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">public/pitch_deck.html</span></td>
+                <td>Reveal.js investor pitch deck</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">public/training.html</span></td>
+                <td>Admin training — adding developers (admin-only)</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">public/developer-training.html</span></td>
+                <td>This guide — developer onboarding</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">firebase.json</span></td>
+                <td>Hosting config + clean-URL rewrites</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">.firebaserc</span></td>
+                <td>Maps default project to <span class="inline-code">taxagentai062026</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout info"><p><strong>SPA routing tip:</strong> pages inside the portal are shown/hidden via CSS, keyed on <span class="inline-code">main[data-page="..."]</span> in <span class="inline-code">style.css</span>. New admin pages need a matching section in <span class="inline-code">index.html</span>, a routing rule, and a title case in <span class="inline-code">navigatePage()</span> in <span class="inline-code">app.js</span>.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 7. WORKFLOW ============ -->
+      <section class="step" id="workflow">
+        <div class="section-head">
+          <div class="section-num">7</div>
+          <div>
+            <h2>Your Daily Workflow</h2>
+            <div class="section-desc">Branch → commit → pull request → merge</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>Never commit directly to <span class="inline-code">main</span>. Every change goes through a feature branch and a reviewed pull request:</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — feature branch workflow</span><button class="copy-btn" data-copy="git checkout main
+git pull origin main
+git checkout -b feature/<initials>-<short-description>
+git add .
+git commit -m \"feat: describe the change\"
+git push origin feature/<initials>-<short-description>">Copy</button></div>
+            <pre><code><span class="cmd">git checkout</span> main
+<span class="cmd">git pull</span> origin main
+<span class="cmd">git checkout -b</span> feature/jf-fix-login-error
+<span class="cmt"># ... edit files under public/ ...</span>
+<span class="cmd">git add</span> .
+<span class="cmd">git commit -m</span> "feat: describe the change"
+<span class="cmd">git push origin</span> feature/jf-fix-login-error</code></pre>
+          </div>
+          <p>Then open a <strong>Pull Request</strong> from your branch into <span class="inline-code">main</span> on GitHub. An admin reviews and merges it. Keep PRs small and focused, and describe what you changed and why.</p>
+          <h3 class="card-title">Commit Message Style</h3>
+          <ul>
+            <li><span class="inline-code">feat:</span> new feature or page</li>
+            <li><span class="inline-code">fix:</span> bug fix</li>
+            <li><span class="inline-code">style:</span> styling / theme alignment</li>
+            <li><span class="inline-code">chore:</span> housekeeping (gitignore, config)</li>
+            <li><span class="inline-code">docs:</span> documentation / training</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ 8. DEPLOY ============ -->
+      <section class="step" id="deploy">
+        <div class="section-head">
+          <div class="section-num">8</div>
+          <div>
+            <h2>Deploying to Production</h2>
+            <div class="section-desc">Shipping merged work to the live site</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>Deploys run from a clean <span class="inline-code">main</span> after your PR is merged. Only deploy work that has been reviewed.</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — deploy to Firebase Hosting</span><button class="copy-btn" data-copy="git checkout main
+git pull origin main
+npx -y firebase-tools@latest deploy --only hosting --project taxagentai062026">Copy</button></div>
+            <pre><code><span class="cmd">git checkout</span> main
+<span class="cmd">git pull</span> origin main
+<span class="cmd">npx -y firebase-tools@latest deploy --only hosting --project</span> taxagentai062026</code></pre>
+          </div>
+          <div class="callout danger"><p><strong>Production is instant.</strong> A bad deploy is visible to real tax clients immediately. Always test locally (Section 4) first. If something goes wrong, the admin can roll back from Firebase Console → Hosting → Release history.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 9. RULES ============ -->
+      <section class="step" id="rules">
+        <div class="section-head">
+          <div class="section-num">9</div>
+          <div>
+            <h2>Rules &amp; Security</h2>
+            <div class="section-desc">Non-negotiable, applies to every developer</div>
+          </div>
+        </div>
+        <div class="card">
+          <ul>
+            <li><strong>No secrets in code.</strong> Never commit API keys, service-account JSON, or passwords. Firebase SDK config keys are public by design; private keys are not.</li>
+            <li><strong>No client data in logs or chats.</strong> Don't paste real W-2s, 1099s, PII, or screenshots of client records anywhere outside the app.</li>
+            <li><strong>Never push to <span class="inline-code">main</span>.</strong> Work in branches; merge via pull requests.</li>
+            <li><strong>Test locally before opening a PR.</strong> The portal must boot and core flows (login, 2FA, documents) must work.</li>
+            <li><strong>Match the design system.</strong> Use the Emerald CSS variables (<span class="inline-code">--accent</span>, <span class="inline-code">--bg-primary</span>, etc.) — don't hardcode ad-hoc colors.</li>
+            <li><strong>Keep <span class="inline-code">.firebase/</span> and <span class="inline-code">.env</span> out of git.</strong> They are ignored for a reason.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ 10. TROUBLESHOOTING ============ -->
+      <section class="step" id="troubleshooting">
+        <div class="section-head">
+          <div class="section-num">10</div>
+          <div>
+            <h2>Troubleshooting &amp; FAQ</h2>
+            <div class="section-desc">Common problems you'll hit</div>
+          </div>
+        </div>
+        <div class="card">
+          <table>
+            <thead>
+              <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="inline-code">git push</span> rejected (403)</td>
+                <td>Invitation not accepted, or wrong GitHub account</td>
+                <td>Accept the invitation; ask the admin to re-send to your correct account</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">Command requires authentication</span></td>
+                <td>Firebase CLI not logged in (or logged into the wrong account)</td>
+                <td>Run <span class="inline-code">npx -y firebase-tools@latest login</span> with the account added to the project</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">No Firebase project 'taxagentai062026'</span></td>
+                <td>Your account isn't a member of the project</td>
+                <td>Ask the admin to add you with the <span class="pill blue">Editor</span> role, then re-run <span class="inline-code">firebase login</span></td>
+              </tr>
+              <tr>
+                <td>Login loop / wrong project</td>
+                <td>Selected a different project with <span class="inline-code">firebase use</span></td>
+                <td>Run <span class="inline-code">npx -y firebase-tools@latest use taxagentai062026</span></td>
+              </tr>
+              <tr>
+                <td>Changes don't appear after deploy</td>
+                <td>Browser cache, or edits made outside <span class="inline-code">public/</span></td>
+                <td>Hard-refresh; confirm the files are under <span class="inline-code">public/</span> and committed</td>
+              </tr>
+              <tr>
+                <td>Can't read Firestore documents</td>
+                <td>You're <span class="pill gold">Viewer</span> (read-only) instead of <span class="pill blue">Editor</span></td>
+                <td>Ask the admin to upgrade your role</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ 11. CHECKLIST ============ -->
+      <section class="step" id="checklist">
+        <div class="section-head">
+          <div class="section-num">11</div>
+          <div>
+            <h2>First-Day Checklist</h2>
+            <div class="section-desc">Run through this before writing any code</div>
+          </div>
+        </div>
+        <div class="card">
+          <ul class="checklist">
+            <li><span class="box">✓</span><span><strong>Environment.</strong> Node.js 18+, npm, Git installed; identity configured.</span></li>
+            <li><span class="box">✓</span><span><strong>GitHub.</strong> Collaborator invitation accepted with <strong>Write</strong> access.</span></li>
+            <li><span class="box">✓</span><span><strong>Firebase.</strong> Added as <strong>Editor</strong>; CLI logged in and pointed at <span class="inline-code">taxagentai062026</span>.</span></li>
+            <li><span class="box">✓</span><span><strong>Repo.</strong> Cloned and serving locally from <span class="inline-code">public/</span>.</span></li>
+            <li><span class="box">✓</span><span><strong>Logins.</strong> Verified portal logins work (admin and client test credentials).</span></li>
+            <li><span class="box">✓</span><span><strong>Workflow.</strong> Created a practice feature branch, PR, and reviewed the process with the admin.</span></li>
+            <li><span class="box">✓</span><span><strong>Rules.</strong> Read Section 9 (Rules &amp; Security) and agree to follow it.</span></li>
+          </ul>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <strong>Magnitax Consulting LLC</strong> · Developer Onboarding Guide · <span id="year"></span> · Tax data is confidential — handle with care.
+  </footer>
+
+  <script>
+    (function () {
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      var copyBtns = document.querySelectorAll('.copy-btn');
+      copyBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var text = btn.getAttribute('data-copy');
+          function done() {
+            btn.textContent = 'Copied';
+            btn.classList.add('copied');
+            setTimeout(function () {
+              btn.textContent = 'Copy';
+              btn.classList.remove('copied');
+            }, 1600);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            done();
+          }
+        });
+      });
+
+      var links = document.querySelectorAll('.sidebar a');
+      links.forEach(function (a) {
+        a.addEventListener('click', function () {
+          links.forEach(function (x) { x.classList.remove('active'); });
+          a.classList.add('active');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

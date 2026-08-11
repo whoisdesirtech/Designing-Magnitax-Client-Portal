@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnitax Portal | Admin Training — Adding Developers to the Project</title>
+  <meta name="description" content="Magnitax Consulting LLC internal training: how to safely onboard developers to the Magnitax Secure Client Portal project.">
+  <style>
+    :root {
+      --bg-primary: #090d16;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1f2937;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-glow: rgba(16, 185, 129, 0.25);
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --border-color: #1f2937;
+      --border-accent: rgba(16, 185, 129, 0.3);
+      --gold-accent: #f59e0b;
+      --danger: #ef4444;
+      --info: #60a5fa;
+      --code-bg: #0b101c;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    /* ============ TOP NAV ============ */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 28px;
+      background: rgba(11, 13, 20, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      color: #04120c;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .nav-brand-text { font-weight: 700; font-size: 16px; letter-spacing: 0.01em; }
+    .nav-brand-text span { color: var(--accent); }
+    .nav-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold-accent);
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ============ LAYOUT ============ */
+    .layout {
+      display: flex;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 28px 80px;
+      gap: 32px;
+    }
+
+    .sidebar {
+      flex: 0 0 240px;
+      position: sticky;
+      top: 84px;
+      align-self: flex-start;
+      max-height: calc(100vh - 110px);
+      overflow-y: auto;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .sidebar ul { list-style: none; }
+
+    .sidebar li { margin-bottom: 2px; }
+
+    .sidebar a {
+      display: block;
+      padding: 7px 12px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.08);
+      border-left-color: var(--accent);
+    }
+
+    .content { flex: 1 1 auto; min-width: 0; }
+
+    /* ============ HERO ============ */
+    .hero {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(9, 13, 22, 0) 60%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 28px 30px;
+      margin-bottom: 34px;
+    }
+
+    .hero .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+
+    .hero p { color: var(--text-secondary); max-width: 720px; }
+
+    .hero .meta {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .hero .meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+    /* ============ SECTIONS ============ */
+    section.step { margin-bottom: 40px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .section-num {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--border-accent);
+    }
+
+    .section-head h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+
+    .section-head .section-desc {
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      margin-top: 2px;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+    }
+
+    .card + .card { margin-top: 14px; }
+
+    h3.card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary);
+    }
+
+    .card p { color: var(--text-secondary); margin-bottom: 10px; }
+
+    .card ul, .card ol { color: var(--text-secondary); padding-left: 20px; margin-bottom: 10px; }
+    .card li { margin-bottom: 6px; }
+    .card strong { color: var(--text-primary); }
+
+    /* ============ CODE BLOCKS ============ */
+    .code-block {
+      position: relative;
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+
+    .code-block .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .copy-btn {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--border-accent);
+      color: var(--accent);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover { background: rgba(16, 185, 129, 0.25); }
+
+    .copy-btn.copied { color: var(--gold-accent); border-color: rgba(245, 158, 11, 0.4); }
+
+    .code-block pre {
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #d1e8dd;
+      white-space: pre;
+    }
+
+    .code-block code { font-family: inherit; }
+
+    .cmt { color: var(--text-muted); }
+    .cmd { color: #7dd3fc; }
+    .out { color: var(--text-secondary); }
+
+    /* ============ CALLOUTS ============ */
+    .callout {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13.5px;
+      border: 1px solid;
+    }
+
+    .callout p { margin: 0; }
+
+    .callout.warn {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: #fcd34d;
+    }
+
+    .callout.danger {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+
+    .callout.info {
+      background: rgba(96, 165, 250, 0.08);
+      border-color: rgba(96, 165, 250, 0.35);
+      color: #93c5fd;
+    }
+
+    .callout.success {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+    }
+
+    /* ============ TABLES ============ */
+    .table-wrap { overflow-x: auto; margin: 12px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.02);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+
+    tbody td:first-child { color: var(--text-primary); font-weight: 500; white-space: nowrap; }
+
+    tbody tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    /* ============ KEY TERM / INLINE ============ */
+    .inline-code {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--border-accent);
+      color: #6ee7b7;
+      font-family: "SF Mono", Consolas, monospace;
+      font-size: 0.9em;
+      padding: 1px 7px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pill.green { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+    .pill.gold { background: rgba(245, 158, 11, 0.15); color: #fcd34d; }
+    .pill.blue { background: rgba(96, 165, 250, 0.15); color: #93c5fd; }
+    .pill.red { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+
+    /* ============ CHECKLIST ============ */
+    .checklist { list-style: none; padding-left: 0 !important; }
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist .box {
+      flex: 0 0 18px;
+      height: 18px;
+      margin-top: 2px;
+      border: 2px solid var(--border-accent);
+      border-radius: 5px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ============ FOOTER ============ */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 22px 28px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12.5px;
+    }
+
+    footer strong { color: var(--text-secondary); }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; padding: 20px 16px 60px; }
+      .sidebar { position: static; flex: 1 1 auto; max-height: none; }
+      .sidebar ul { display: flex; flex-wrap: wrap; gap: 6px; }
+      .sidebar li { margin: 0; }
+      .sidebar a { border-left: none; border-bottom: 2px solid transparent; padding: 6px 10px; }
+      .sidebar a:hover, .sidebar a.active { border-left: none; border-bottom-color: var(--accent); }
+      .nav-links { display: none; }
+      .hero h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-brand" href="#top">
+      <div class="nav-logo">M</div>
+      <div class="nav-brand-text">Magni<span>tax</span> Portal</div>
+      <span class="nav-tag">Admin Training</span>
+    </a>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#prerequisites">Prerequisites</a>
+      <a href="#grant-access">Grant Access</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#deploy">Deploy</a>
+      <a href="#security">Security</a>
+    </div>
+  </nav>
+
+  <div class="layout" id="top">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-title">On This Page</div>
+      <ul>
+        <li><a href="#overview">1. Overview &amp; Roles</a></li>
+        <li><a href="#prerequisites">2. Prerequisites</a></li>
+        <li><a href="#clone">3. Clone the Repository</a></li>
+        <li><a href="#firebase">4. Firebase CLI &amp; Login</a></li>
+        <li><a href="#grant-access">5. Granting Developer Access</a></li>
+        <li><a href="#workflow">6. Standard Dev Workflow</a></li>
+        <li><a href="#deploy">7. Deploying to Production</a></li>
+        <li><a href="#security">8. Security &amp; Compliance</a></li>
+        <li><a href="#troubleshooting">9. Troubleshooting</a></li>
+        <li><a href="#checklist">10. Onboarding Checklist</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+
+      <div class="hero">
+        <div class="eyebrow">Internal Operations · IT &amp; Developer Onboarding</div>
+        <h1>Adding Developers to the Magnitax Portal Project</h1>
+        <p>This training walks CPA Admin and Operations staff through the safe, repeatable process of adding a software developer to the Magnitax Secure Client Portal project — from repository and cloud access, to the daily workflow and production deploys.</p>
+        <div class="meta">
+          <span>Scope: Git + Firebase</span>
+          <span>Owner: Magnitax Consulting LLC</span>
+          <span>Audience: Admin only</span>
+          <span>Version 1.0</span>
+        </div>
+      </div>
+
+      <div class="callout info" style="margin-bottom: 34px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <p style="margin: 0;"><strong>Onboarding a developer?</strong> Hand them the developer-facing guide after you've granted their access.</p>
+        <a href="developer-training.html" style="flex-shrink: 0; color: var(--accent); font-weight: 700; text-decoration: none; border: 1px solid var(--border-accent); padding: 8px 16px; border-radius: 8px; background: rgba(16,185,129,0.1);">Open Developer Onboarding →</a>
+      </div>
+
+      <div class="callout success" style="margin-bottom: 34px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <p style="margin: 0;"><strong>Securing the repository?</strong> Review the branch-protection and pull-request rules that keep production locked down.</p>
+        <a href="github-training.html" style="flex-shrink: 0; color: var(--accent); font-weight: 700; text-decoration: none; border: 1px solid var(--border-accent); padding: 8px 16px; border-radius: 8px; background: rgba(16,185,129,0.1);">Open GitHub Workflow Training →</a>
+      </div>
+
+      <!-- ============ 1. OVERVIEW ============ -->
+      <section class="step" id="overview">
+        <div class="section-head">
+          <div class="section-num">1</div>
+          <div>
+            <h2>Overview &amp; Roles</h2>
+            <div class="section-desc">What the project is and who is allowed to touch it</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>The Magnitax Portal is a single-page web application hosted on <strong>Firebase Hosting</strong>. It stores code on <strong>GitHub</strong> and uses <strong>Firebase Authentication, Firestore, and Storage</strong> for its live backend. Adding a developer means granting them access in two places:</p>
+          <table>
+            <thead>
+              <tr><th>System</th><th>What the Developer Gets</th><th>Access Level</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GitHub</td>
+                <td>Clone, read, push to branches, and open pull requests on the repository</td>
+                <td><span class="pill gold">Write</span></td>
+              </tr>
+              <tr>
+                <td>Firebase Console</td>
+                <td>View the hosting project, read/write Firestore &amp; Storage for their assigned work</td>
+                <td><span class="pill blue">Editor</span></td>
+              </tr>
+              <tr>
+                <td>Firebase Hosting</td>
+                <td>Deploy to preview/site URLs from their machine via the CLI</td>
+                <td><span class="pill gold">Editor + Deploy</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout warn"><p><strong>Principle:</strong> least privilege. Developers get only the roles needed for their task. Production owner and IAM management stay with the admin who completes this training.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 2. PREREQUISITES ============ -->
+      <section class="step" id="prerequisites">
+        <div class="section-head">
+          <div class="section-num">2</div>
+          <div>
+            <h2>Prerequisites</h2>
+            <div class="section-desc">Confirm the developer has everything before granting access</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Accounts</h3>
+          <ul>
+            <li>A <strong>GitHub account</strong> (their email must match what they will commit with).</li>
+            <li>A <strong>Google account</strong> that can join the Firebase project.</li>
+            <li><strong>Node.js v18 or newer</strong> and <strong>npm</strong> installed (verify with <span class="inline-code">node -v</span>).</li>
+            <li><strong>Git</strong> installed and configured (verify with <span class="inline-code">git --version</span>).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Verification Commands</h3>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — check the developer's environment</span><button class="copy-btn" data-copy="node -v
+npm -v
+git --version
+git config user.name
+git config user.email">Copy</button></div>
+            <pre><code><span class="cmt"># Run as the developer, on their machine</span>
+<span class="cmd">node -v</span>
+<span class="cmd">npm -v</span>
+<span class="cmd">git --version</span>
+<span class="cmd">git config user.name</span>
+<span class="cmd">git config user.email</span></code></pre>
+          </div>
+          <div class="callout info"><p><strong>Note:</strong> commit identity must be set before the first push, or GitHub will reject the developer's commits.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 3. CLONE ============ -->
+      <section class="step" id="clone">
+        <div class="section-head">
+          <div class="section-num">3</div>
+          <div>
+            <h2>Clone the Repository</h2>
+            <div class="section-desc">Get the code onto the developer's machine</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>The repository lives at <span class="inline-code">github.com/whoisdesirtech/Designing-Magnitax-Client-Portal</span>. The developer clones it and serves it locally:</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal</span><button class="copy-btn" data-copy="git clone https://github.com/whoisdesirtech/Designing-Magnitax-Client-Portal.git
+cd Designing-Magnitax-Client-Portal/public
+npx serve .">Copy</button></div>
+            <pre><code><span class="cmd">git clone</span> https://github.com/whoisdesirtech/Designing-Magnitax-Client-Portal.git
+<span class="cmd">cd</span> Designing-Magnitax-Client-Portal/public
+<span class="cmd">npx serve</span> .
+<span class="out"># Opens the portal at http://localhost:3000 (or similar)</span></code></pre>
+          </div>
+          <div class="callout warn"><p><strong>Important:</strong> the deployable app lives in the <span class="inline-code">public/</span> folder. The developer must edit files inside <span class="inline-code">public/</span> — the portal's entry point is <span class="inline-code">index.html</span>, with <span class="inline-code">app.js</span> (application logic) and <span class="inline-code">style.css</span> (design system).</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 4. FIREBASE ============ -->
+      <section class="step" id="firebase">
+        <div class="section-head">
+          <div class="section-num">4</div>
+          <div>
+            <h2>Firebase CLI &amp; Login</h2>
+            <div class="section-desc">Connect the developer's machine to the Firebase project</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>The project targets Firebase hosting site <span class="inline-code">taxagentai062026</span> (defined in <span class="inline-code">.firebaserc</span>). The developer installs the CLI, logs in, and selects the project:</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal</span><button class="copy-btn" data-copy="npx -y firebase-tools@latest login
+npx -y firebase-tools@latest use taxagentai062026">Copy</button></div>
+            <pre><code><span class="cmd">npx -y firebase-tools@latest login</span>
+<span class="cmt"># Opens a browser; the developer signs in with their Google account</span>
+<span class="cmd">npx -y firebase-tools@latest use</span> taxagentai062026
+<span class="out"># Now using project taxagentai062026</span></code></pre>
+          </div>
+          <div class="callout danger"><p><strong>Never</strong> run <span class="inline-code">firebase login --reauth</span> or logout on a shared machine. Each developer keeps their own CLI session.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 5. GRANT ACCESS ============ -->
+      <section class="step" id="grant-access">
+        <div class="section-head">
+          <div class="section-num">5</div>
+          <div>
+            <h2>Granting Developer Access</h2>
+            <div class="section-desc">The actual add-a-developer procedure</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Step 5.1 — GitHub Repository Access</h3>
+          <ol>
+            <li>Open <strong>github.com/whoisdesirtech/Designing-Magnitax-Client-Portal</strong>.</li>
+            <li>Click <strong>Settings → Collaborators and teams</strong>.</li>
+            <li>Click <strong>Add people</strong> (or <strong>Add teams</strong> for groups).</li>
+            <li>Enter the developer's GitHub username/email.</li>
+            <li>Choose role <span class="pill gold">Write</span> — allows pushing branches and opening pull requests, but <em>not</em> pushing straight to <span class="inline-code">main</span>.</li>
+            <li>Send the invitation; the developer must accept it from their email or GitHub notifications.</li>
+          </ol>
+          <div class="callout warn"><p><strong>Rule:</strong> developers push to feature branches and merge through Pull Requests. Direct pushes to <span class="inline-code">main</span> are reserved for admins.</p></div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Step 5.2 — Firebase Project Access</h3>
+          <ol>
+            <li>Open <strong>console.firebase.google.com</strong> and select project <span class="inline-code">taxagentai062026</span>.</li>
+            <li>Go to <strong>Project settings → Users and permissions</strong> (or the <strong>IAM</strong> page).</li>
+            <li>Click <strong>Add member</strong> and enter the developer's <strong>Google account email</strong>.</li>
+            <li>Assign the <strong>Editor</strong> role for their assigned work.</li>
+            <li>Optional: grant <span class="inline-code">Firebase Hosting Admin</span> so they can deploy hosting sites.</li>
+          </ol>
+          <table>
+            <thead>
+              <tr><th>IAM Role</th><th>Can Do</th><th>Recommended For</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Viewer</td>
+                <td>Read project resources</td>
+                <td>Contract review / read-only auditing</td>
+              </tr>
+              <tr>
+                <td>Editor</td>
+                <td>Read &amp; write Firestore, Storage, functions</td>
+                <td>Active feature developers</td>
+              </tr>
+              <tr>
+                <td>Owner</td>
+                <td>Everything, including billing &amp; IAM</td>
+                <td>Admins only — never granted in this training</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout danger"><p><strong>Never</strong> grant <span class="pill red">Owner</span>. Owner rights include billing and permission management and must stay with the Magnitax admin.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 6. WORKFLOW ============ -->
+      <section class="step" id="workflow">
+        <div class="section-head">
+          <div class="section-num">6</div>
+          <div>
+            <h2>Standard Dev Workflow</h2>
+            <div class="section-desc">Branch → commit → pull request → merge</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>Every change follows the same flow so production stays stable:</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — feature branch workflow</span><button class="copy-btn" data-copy="git pull origin main
+git checkout -b feature/<initials>-<short-description>
+git add .
+git commit -m "feat: describe the change"
+git push origin feature/<initials>-<short-description>">Copy</button></div>
+            <pre><code><span class="cmd">git pull</span> origin main
+<span class="cmd">git checkout -b</span> feature/jf-fix-login-error
+<span class="cmt"># ... make edits in public/ ...</span>
+<span class="cmd">git add</span> .
+<span class="cmd">git commit -m</span> "feat: describe the change"
+<span class="cmd">git push origin</span> feature/jf-fix-login-error</code></pre>
+          </div>
+          <p>Then the developer opens a <strong>Pull Request</strong> on GitHub from the feature branch into <span class="inline-code">main</span>. An admin reviews the diff, verifies it locally, and merges.</p>
+          <div class="callout success"><p><strong>Why it matters:</strong> every merge keeps a clean history, and the review step catches security mistakes before they reach real client data.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 7. DEPLOY ============ -->
+      <section class="step" id="deploy">
+        <div class="section-head">
+          <div class="section-num">7</div>
+          <div>
+            <h2>Deploying to Production</h2>
+            <div class="section-desc">Publish merged changes to the live site</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>Deploys are run from a clean copy of <span class="inline-code">main</span>. Only admins or approved developers with <strong>Hosting Admin</strong> deploy.</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — deploy to Firebase Hosting</span><button class="copy-btn" data-copy="git checkout main
+git pull origin main
+npx -y firebase-tools@latest deploy --only hosting --project taxagentai062026">Copy</button></div>
+            <pre><code><span class="cmd">git checkout</span> main
+<span class="cmd">git pull</span> origin main
+<span class="cmd">npx -y firebase-tools@latest deploy --only hosting --project</span> taxagentai062026</code></pre>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Site</th><th>URL</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Client &amp; Admin Portal</td><td>https://taxagentai062026.web.app</td></tr>
+              <tr><td>Landing Page</td><td>https://taxagentai062026.web.app/landing.html</td></tr>
+              <tr><td>Training (this page)</td><td>https://taxagentai062026.web.app/training.html</td></tr>
+            </tbody>
+          </table>
+          <div class="callout warn"><p><strong>Deploy only after a merged, reviewed PR.</strong> Firebase Hosting releases are near-instant, so a bad deploy is visible to clients immediately.</p></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Rollback</h3>
+          <p>If a deploy misbehaves, roll back to the previous release in the Firebase Console under <strong>Hosting → Release history</strong> — click the previous release and choose <strong>Rollback</strong>.</p>
+        </div>
+      </section>
+
+      <!-- ============ 8. SECURITY ============ -->
+      <section class="step" id="security">
+        <div class="section-head">
+          <div class="section-num">8</div>
+          <div>
+            <h2>Security &amp; Compliance</h2>
+            <div class="section-desc">Non-negotiables for anyone touching the portal</div>
+          </div>
+        </div>
+        <div class="card">
+          <ul>
+            <li><strong>No secrets in code.</strong> Never commit API keys, service-account JSON, or passwords. Firebase SDK config keys are public by design; private keys are not.</li>
+            <li><strong>Environment files.</strong> Secrets belong in <span class="inline-code">.env</span> or Firebase environment variables — and <span class="inline-code">.env</span> files must stay in <span class="inline-code">.gitignore</span>.</li>
+            <li><strong>Client data stays in Firestore/Storage.</strong> Do not log, copy, or paste real client documents or PII into chat, tickets, or screenshots.</li>
+            <li><strong>Least privilege.</strong> Revoke access when a developer's contract or engagement ends (GitHub collaborator + Firebase IAM member).</li>
+            <li><strong>Audit trail.</strong> Admin sessions, logins, document previews and downloads are already logged in the portal. Deploys are visible in Firebase release history.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ 9. TROUBLESHOOTING ============ -->
+      <section class="step" id="troubleshooting">
+        <div class="section-head">
+          <div class="section-num">9</div>
+          <div>
+            <h2>Troubleshooting</h2>
+            <div class="section-desc">Common issues when onboarding a developer</div>
+          </div>
+        </div>
+        <div class="card">
+          <table>
+            <thead>
+              <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="inline-code">git push</span> rejected (403)</td>
+                <td>Invitation not accepted, or the developer used the wrong account</td>
+                <td>Re-send the GitHub invitation; verify the account email</td>
+              </tr>
+              <tr>
+                <td><span class="inline-code">Command requires authentication</span> on deploy</td>
+                <td>Firebase CLI session missing or wrong account</td>
+                <td>Run <span class="inline-code">npx -y firebase-tools@latest login</span> with the account added in Step 5.2</td>
+              </tr>
+              <tr>
+                <td>Wrong project in <span class="inline-code">firebase use</span></td>
+                <td>Developer selected another project</td>
+                <td>Run <span class="inline-code">npx -y firebase-tools@latest use taxagentai062026</span></td>
+              </tr>
+              <tr>
+                <td>Changes not showing after deploy</td>
+                <td>Browser cache, or edits made outside <span class="inline-code">public/</span></td>
+                <td>Hard-refresh; confirm files are under <span class="inline-code">public/</span> and committed</td>
+              </tr>
+              <tr>
+                <td>No access to Firestore data</td>
+                <td>Developer is Viewer (read-only) or not a project member</td>
+                <td>Add the developer as <span class="pill blue">Editor</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ 10. CHECKLIST ============ -->
+      <section class="step" id="checklist">
+        <div class="section-head">
+          <div class="section-num">10</div>
+          <div>
+            <h2>Onboarding Checklist</h2>
+            <div class="section-desc">Verify every item before a developer begins work</div>
+          </div>
+        </div>
+        <div class="card">
+          <ul class="checklist">
+            <li><span class="box">✓</span><span><strong>Accounts.</strong> Developer has a GitHub account and a Google account.</span></li>
+            <li><span class="box">✓</span><span><strong>Environment.</strong> Node.js 18+, npm, and Git installed; git identity configured.</span></li>
+            <li><span class="box">✓</span><span><strong>GitHub.</strong> Collaborator added with <strong>Write</strong> access; invitation accepted.</span></li>
+            <li><span class="box">✓</span><span><strong>Firebase.</strong> Developer added as <strong>Editor</strong> in the Firebase project; logged in via CLI.</span></li>
+            <li><span class="box">✓</span><span><strong>Repo.</strong> Cloned and serving locally from <span class="inline-code">public/</span>.</span></li>
+            <li><span class="box">✓</span><span><strong>Rules.</strong> Reviewed branch/PR workflow, deploy policy, and security rules above.</span></li>
+            <li><span class="box">✓</span><span><strong>Access log.</strong> Recorded the grant (date, developer, roles) in the operations log for the audit trail.</span></li>
+          </ul>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <strong>Magnitax Consulting LLC</strong> · Internal Admin Training — Adding Developers to the Project · <span id="year"></span> · Tax data is confidential — handle with care.
+  </footer>
+
+  <script>
+    (function () {
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      var copyBtns = document.querySelectorAll('.copy-btn');
+      copyBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var text = btn.getAttribute('data-copy');
+          function done() {
+            btn.textContent = 'Copied';
+            btn.classList.add('copied');
+            setTimeout(function () {
+              btn.textContent = 'Copy';
+              btn.classList.remove('copied');
+            }, 1600);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            done();
+          }
+        });
+      });
+
+      var links = document.querySelectorAll('.sidebar a');
+      links.forEach(function (a) {
+        a.addEventListener('click', function () {
+          links.forEach(function (x) { x.classList.remove('active'); });
+          a.classList.add('active');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
