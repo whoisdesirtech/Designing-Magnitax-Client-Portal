@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnitax Portal | Admin Training — GitHub Branch Protection &amp; Workflow</title>
+  <meta name="description" content="Magnitax Consulting LLC internal training: how to protect the main branch and run a safe pull-request workflow for the Magnitax Secure Client Portal.">
+  <style>
+    :root {
+      --bg-primary: #090d16;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1f2937;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-glow: rgba(16, 185, 129, 0.25);
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --border-color: #1f2937;
+      --border-accent: rgba(16, 185, 129, 0.3);
+      --gold-accent: #f59e0b;
+      --danger: #ef4444;
+      --info: #60a5fa;
+      --code-bg: #0b101c;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    /* ============ TOP NAV ============ */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 28px;
+      background: rgba(11, 13, 20, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      color: #04120c;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .nav-brand-text { font-weight: 700; font-size: 16px; letter-spacing: 0.01em; }
+    .nav-brand-text span { color: var(--accent); }
+    .nav-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold-accent);
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ============ LAYOUT ============ */
+    .layout {
+      display: flex;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 28px 80px;
+      gap: 32px;
+    }
+
+    .sidebar {
+      flex: 0 0 240px;
+      position: sticky;
+      top: 84px;
+      align-self: flex-start;
+      max-height: calc(100vh - 110px);
+      overflow-y: auto;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .sidebar ul { list-style: none; }
+
+    .sidebar li { margin-bottom: 2px; }
+
+    .sidebar a {
+      display: block;
+      padding: 7px 12px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.08);
+      border-left-color: var(--accent);
+    }
+
+    .content { flex: 1 1 auto; min-width: 0; }
+
+    /* ============ HERO ============ */
+    .hero {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(9, 13, 22, 0) 60%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 28px 30px;
+      margin-bottom: 34px;
+    }
+
+    .hero .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+
+    .hero p { color: var(--text-secondary); max-width: 720px; }
+
+    .hero .meta {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .hero .meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+    /* ============ SECTIONS ============ */
+    section.step { margin-bottom: 40px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .section-num {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--accent);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--border-accent);
+    }
+
+    .section-head h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+
+    .section-head .section-desc {
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      margin-top: 2px;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+    }
+
+    .card + .card { margin-top: 14px; }
+
+    h3.card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary);
+    }
+
+    .card p { color: var(--text-secondary); margin-bottom: 10px; }
+
+    .card ul, .card ol { color: var(--text-secondary); padding-left: 20px; margin-bottom: 10px; }
+    .card li { margin-bottom: 6px; }
+    .card strong { color: var(--text-primary); }
+
+    /* ============ CODE BLOCKS ============ */
+    .code-block {
+      position: relative;
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+
+    .code-block .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .copy-btn {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--border-accent);
+      color: var(--accent);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover { background: rgba(16, 185, 129, 0.25); }
+
+    .copy-btn.copied { color: var(--gold-accent); border-color: rgba(245, 158, 11, 0.4); }
+
+    .code-block pre {
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #d1e8dd;
+      white-space: pre;
+    }
+
+    .code-block code { font-family: inherit; }
+
+    .cmt { color: var(--text-muted); }
+    .cmd { color: #7dd3fc; }
+    .out { color: var(--text-secondary); }
+
+    /* ============ CALLOUTS ============ */
+    .callout {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13.5px;
+      border: 1px solid;
+    }
+
+    .callout p { margin: 0; }
+
+    .callout.warn {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: #fcd34d;
+    }
+
+    .callout.danger {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+
+    .callout.info {
+      background: rgba(96, 165, 250, 0.08);
+      border-color: rgba(96, 165, 250, 0.35);
+      color: #93c5fd;
+    }
+
+    .callout.success {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+    }
+
+    /* ============ TABLES ============ */
+    .table-wrap { overflow-x: auto; margin: 12px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.02);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+
+    tbody td:first-child { color: var(--text-primary); font-weight: 500; white-space: nowrap; }
+
+    tbody tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    /* ============ KEY TERM / INLINE ============ */
+    .inline-code {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--border-accent);
+      color: #6ee7b7;
+      font-family: "SF Mono", Consolas, monospace;
+      font-size: 0.9em;
+      padding: 1px 7px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pill.green { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+    .pill.gold { background: rgba(245, 158, 11, 0.15); color: #fcd34d; }
+    .pill.blue { background: rgba(96, 165, 250, 0.15); color: #93c5fd; }
+    .pill.red { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+
+    /* ============ CHECKLIST ============ */
+    .checklist { list-style: none; padding-left: 0 !important; }
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist .box {
+      flex: 0 0 18px;
+      height: 18px;
+      margin-top: 2px;
+      border: 2px solid var(--border-accent);
+      border-radius: 5px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ============ FLOW DIAGRAM ============ */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      margin: 14px 0;
+      font-size: 13px;
+    }
+
+    .flow .node {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+
+    .flow .node .dot {
+      flex: 0 0 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .flow .node .dot.gold { background: var(--gold-accent); box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+    .flow .node .dot.blue { background: var(--info); box-shadow: 0 0 8px rgba(96, 165, 250, 0.4); }
+    .flow .node .dot.red { background: var(--danger); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+
+    .flow .node b { color: var(--text-primary); }
+    .flow .node .note { color: var(--text-muted); font-size: 12px; margin-left: auto; }
+
+    .flow .connector {
+      width: 2px;
+      height: 18px;
+      background: linear-gradient(to bottom, var(--border-accent), var(--border-color));
+      margin-left: 24px;
+    }
+
+    /* ============ FOOTER ============ */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 22px 28px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12.5px;
+    }
+
+    footer strong { color: var(--text-secondary); }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; padding: 20px 16px 60px; }
+      .sidebar { position: static; flex: 1 1 auto; max-height: none; }
+      .sidebar ul { display: flex; flex-wrap: wrap; gap: 6px; }
+      .sidebar li { margin: 0; }
+      .sidebar a { border-left: none; border-bottom: 2px solid transparent; padding: 6px 10px; }
+      .sidebar a:hover, .sidebar a.active { border-left: none; border-bottom-color: var(--accent); }
+      .nav-links { display: none; }
+      .hero h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a class="nav-brand" href="#top">
+      <div class="nav-logo">M</div>
+      <div class="nav-brand-text">Magni<span>tax</span> Portal</div>
+      <span class="nav-tag">Admin Training</span>
+    </a>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#protect-main">Protect Main</a>
+      <a href="#dev-process">Dev Process</a>
+      <a href="#environments">Environments</a>
+      <a href="#key-rule">Key Rule</a>
+    </div>
+  </nav>
+
+  <div class="layout" id="top">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-title">On This Page</div>
+      <ul>
+        <li><a href="#overview">1. Overview: Protected Branches</a></li>
+        <li><a href="#workflow">2. Recommended Workflow</a></li>
+        <li><a href="#protect-main">3. Protect main</a></li>
+        <li><a href="#dev-process">4. Developer's Normal Process</a></li>
+        <li><a href="#environments">5. Separate Prod from Dev</a></li>
+        <li><a href="#key-rule">6. The Key Rule</a></li>
+        <li><a href="#checklist">7. Setup Checklist</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+
+      <div class="hero">
+        <div class="eyebrow">Internal Operations · Git &amp; GitHub Governance</div>
+        <h1>GitHub Branch Protection &amp; Workflow</h1>
+        <p>This training walks CPA Admin and Operations staff through the exact GitHub setup for the Magnitax Portal repository: a <strong>protected main branch</strong>, feature branches, and a pull-request review process so production can only be changed through your controlled review.</p>
+        <div class="meta">
+          <span>Scope: GitHub Repository</span>
+          <span>Owner: Magnitax Consulting LLC</span>
+          <span>Audience: Admin only</span>
+          <span>Version 1.0</span>
+        </div>
+      </div>
+
+      <div class="callout info" style="margin-bottom: 34px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <p style="margin: 0;"><strong>Hand this guide to a developer?</strong> The developer-facing workflow guide lives here.</p>
+        <a href="developer-training.html" style="flex-shrink: 0; color: var(--accent); font-weight: 700; text-decoration: none; border: 1px solid var(--border-accent); padding: 8px 16px; border-radius: 8px; background: rgba(16,185,129,0.1);">Open Developer Onboarding →</a>
+      </div>
+
+      <div class="callout success" style="margin-bottom: 34px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <p style="margin: 0;"><strong>Granting a developer access?</strong> See the full admin onboarding guide for GitHub + Firebase access.</p>
+        <a href="training.html" style="flex-shrink: 0; color: var(--accent); font-weight: 700; text-decoration: none; border: 1px solid var(--border-accent); padding: 8px 16px; border-radius: 8px; background: rgba(16,185,129,0.1);">Open Admin Onboarding →</a>
+      </div>
+
+      <!-- ============ 1. OVERVIEW ============ -->
+      <section class="step" id="overview">
+        <div class="section-head">
+          <div class="section-num">1</div>
+          <div>
+            <h2>Overview: Protected Branches</h2>
+            <div class="section-desc">Why the main branch must be locked down</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>For the Magnitax portal, the repository uses a <strong>protected <span class="inline-code">main</span> branch</strong> + <strong>feature branches</strong> + <strong>pull requests</strong>. This is the single most effective way to keep the live portal stable: nobody — including you — can push broken code straight to production by accident.</p>
+          <div class="callout success"><p><strong>Goal:</strong> give developers permission to <em>build</em>, but make <span class="inline-code">main</span> something they can only change through your controlled review process.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 2. RECOMMENDED WORKFLOW ============ -->
+      <section class="step" id="workflow">
+        <div class="section-head">
+          <div class="section-num">2</div>
+          <div>
+            <h2>Recommended Workflow</h2>
+            <div class="section-desc">The branch flow every change must follow</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>Every change moves through the same funnel. Nothing touches <span class="inline-code">main</span> except a merged, reviewed pull request:</p>
+          <div class="flow">
+            <div class="node"><span class="dot blue"></span><b>Developer</b><span class="note">starts a feature branch</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot"></span><b>feature/magnitax-portal</b><span class="note">build · test · commit</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot gold"></span><b>Pull Request</b><span class="note">review + checks</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot red"></span><b>protected main</b><span class="note">merge gate: approvals + checks</span></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot gold"></span><b>Production</b><span class="note">live portal (Firebase Hosting)</span></div>
+          </div>
+          <div class="callout info"><p><strong>Rule of thumb:</strong> if a commit didn't go through a pull request, it doesn't belong in production.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 3. PROTECT MAIN ============ -->
+      <section class="step" id="protect-main">
+        <div class="section-head">
+          <div class="section-num">3</div>
+          <div>
+            <h2>Protect main</h2>
+            <div class="section-desc">Turn on branch protection in GitHub</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Step 3.1 — Open Branch Protection</h3>
+          <ol>
+            <li>Open the <strong>Magnitax portal repository</strong> on GitHub.</li>
+            <li>Go to <strong>Settings → Branches</strong>.</li>
+            <li>Create a <strong>branch protection rule</strong> for <span class="inline-code">main</span>.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Step 3.2 — Turn On These Rules</h3>
+          <ul class="checklist">
+            <li><span class="box">✓</span><span><strong>Require a pull request before merging</strong> — no direct pushes.</span></li>
+            <li><span class="box">✓</span><span><strong>Require approvals</strong> — ideally <strong>1 or more</strong> reviewer approvals.</span></li>
+            <li><span class="box">✓</span><span><strong>Require status checks to pass before merging</strong>.</span></li>
+            <li><span class="box">✓</span><span><strong>Require branches to be up to date before merging</strong>.</span></li>
+            <li><span class="box">✓</span><span><strong>Block force pushes</strong> — history stays intact.</span></li>
+            <li><span class="box">✓</span><span><strong>Restrict who can push to matching branches</strong> if appropriate.</span></li>
+          </ul>
+          <div class="callout warn"><p><strong>Do not</strong> allow the developer to bypass these rules unless absolutely necessary. The review gate is the whole point.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 4. DEVELOPER'S NORMAL PROCESS ============ -->
+      <section class="step" id="dev-process">
+        <div class="section-head">
+          <div class="section-num">4</div>
+          <div>
+            <h2>Developer's Normal Process</h2>
+            <div class="section-desc">What the developer does every day</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>The developer should <strong>never build directly on <span class="inline-code">main</span></strong>. Instead:</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — start a feature branch</span><button class="copy-btn" data-copy="git checkout main
+git pull origin main
+
+git checkout -b feature/magnitax-portal">Copy</button></div>
+            <pre><code><span class="cmd">git checkout</span> main
+<span class="cmd">git pull</span> origin main
+
+<span class="cmd">git checkout -b</span> feature/magnitax-portal</code></pre>
+          </div>
+          <p>They make their changes and commit:</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal — commit &amp; push the feature</span><button class="copy-btn" data-copy="git add .
+git commit -m "Build Magnitax portal dashboard"
+git push -u origin feature/magnitax-portal">Copy</button></div>
+            <pre><code><span class="cmd">git add</span> .
+<span class="cmd">git commit -m</span> "Build Magnitax portal dashboard"
+<span class="cmd">git push -u origin</span> feature/magnitax-portal</code></pre>
+          </div>
+          <p>Then they open a <strong>Pull Request → <span class="inline-code">main</span></strong>. You review the changes before they can enter <span class="inline-code">main</span>.</p>
+          <div class="callout warn"><p><strong>Remember:</strong> the developer creates the branch, writes the code, and opens the PR. <em>You</em> approve and merge it after review.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 5. SEPARATE PROD FROM DEV ============ -->
+      <section class="step" id="environments">
+        <div class="section-head">
+          <div class="section-num">5</div>
+          <div>
+            <h2>Even Better: Separate Production from Development</h2>
+            <div class="section-desc">Multiple safety layers as the portal grows</div>
+          </div>
+        </div>
+        <div class="card">
+          <p>For a client-facing Magnitax portal, the target branch layout is:</p>
+          <table>
+            <thead>
+              <tr><th>Branch</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="inline-code">main</span></td><td><span class="pill gold">Production</span></td></tr>
+              <tr><td><span class="inline-code">develop</span></td><td>Development / integration</td></tr>
+              <tr><td><span class="inline-code">feature/*</span></td><td>Individual developer work</td></tr>
+            </tbody>
+          </table>
+          <p>And ideally, changes flow through every layer before reaching customers:</p>
+          <div class="flow">
+            <div class="node"><span class="dot"></span><b>feature/*</b></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot"></span><b>develop</b></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot blue"></span><b>staging</b></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot gold"></span><b>main</b></div>
+            <div class="connector"></div>
+            <div class="node"><span class="dot red"></span><b>production</b></div>
+          </div>
+          <div class="callout success"><p><strong>Why:</strong> this gives you multiple safety layers instead of relying on the developer not to make a mistake.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 6. THE KEY RULE ============ -->
+      <section class="step" id="key-rule">
+        <div class="section-head">
+          <div class="section-num">6</div>
+          <div>
+            <h2>The Key Rule</h2>
+            <div class="section-desc">The one thing to remember</div>
+          </div>
+        </div>
+        <div class="card">
+          <p style="font-size: 16px; line-height: 1.7;"><strong>Give the developer permission to build, but make <span class="inline-code">main</span> something they can only modify through your controlled review process.</strong></p>
+          <div class="callout danger"><p>Without this, a single developer can overwrite the live portal, leak client data, or take the site down — and you won't have a review checkpoint to catch it.</p></div>
+        </div>
+      </section>
+
+      <!-- ============ 7. CHECKLIST ============ -->
+      <section class="step" id="checklist">
+        <div class="section-head">
+          <div class="section-num">7</div>
+          <div>
+            <h2>Setup Checklist</h2>
+            <div class="section-desc">Verify every item before a developer starts</div>
+          </div>
+        </div>
+        <div class="card">
+          <ul class="checklist">
+            <li><span class="box">✓</span><span><strong>Branch protection rule</strong> exists for <span class="inline-code">main</span>.</span></li>
+            <li><span class="box">✓</span><span><strong>PR required</strong> before merging into <span class="inline-code">main</span>.</span></li>
+            <li><span class="box">✓</span><span><strong>Approvals</strong> required — 1+ reviewer.</span></li>
+            <li><span class="box">✓</span><span><strong>Status checks</strong> required and up to date.</span></li>
+            <li><span class="box">✓</span><span><strong>Force pushes blocked</strong> on <span class="inline-code">main</span>.</span></li>
+            <li><span class="box">✓</span><span><strong>Push restricted</strong> to matching branches (admins/approved roles).</span></li>
+            <li><span class="box">✓</span><span><strong>Developer added</strong> with <strong>Write</strong> access only — not bypass privileges.</span></li>
+            <li><span class="box">✓</span><span><strong>Handed the developer</strong> the developer-facing workflow guide.</span></li>
+            <li><span class="box">✓</span><span><strong>Recorded the grant</strong> (date, developer, roles) in the operations log for the audit trail.</span></li>
+          </ul>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <strong>Magnitax Consulting LLC</strong> · Internal Admin Training — GitHub Branch Protection &amp; Workflow · <span id="year"></span> · Tax data is confidential — handle with care.
+  </footer>
+
+  <script>
+    (function () {
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      var copyBtns = document.querySelectorAll('.copy-btn');
+      copyBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var text = btn.getAttribute('data-copy');
+          function done() {
+            btn.textContent = 'Copied';
+            btn.classList.add('copied');
+            setTimeout(function () {
+              btn.textContent = 'Copy';
+              btn.classList.remove('copied');
+            }, 1600);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            done();
+          }
+        });
+      });
+
+      var links = document.querySelectorAll('.sidebar a');
+      links.forEach(function (a) {
+        a.addEventListener('click', function () {
+          links.forEach(function (x) { x.classList.remove('active'); });
+          a.classList.add('active');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,4 +1,7 @@
 {
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": {
     "site": "taxagentai062026",
     "public": "public",
@@ -16,7 +19,13 @@
       { "source": "/flyer", "destination": "/flyer.html" },
       { "source": "/flyer.html", "destination": "/flyer.html" },
       { "source": "/pitch_deck", "destination": "/pitch_deck.html" },
-      { "source": "/pitch_deck.html", "destination": "/pitch_deck.html" }
+      { "source": "/pitch_deck.html", "destination": "/pitch_deck.html" },
+      { "source": "/training", "destination": "/training.html" },
+      { "source": "/training.html", "destination": "/training.html" },
+      { "source": "/developer-training", "destination": "/developer-training.html" },
+      { "source": "/developer-training.html", "destination": "/developer-training.html" },
+      { "source": "/github-training", "destination": "/github-training.html" },
+      { "source": "/github-training.html", "destination": "/github-training.html" }
     ]
   }
 }

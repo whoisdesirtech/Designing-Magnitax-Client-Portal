@@ -28,7 +28,7 @@ const ADMIN_USER = {
 
 let activeUserRole = "client"; // 'client' or 'admin'
 
-const DOCUMENTS_DB = [
+let DOCUMENTS_DB = [
   {
     id: "doc_w2_2025_001",
     fileName: "2025_W2_JD_Designs_LLC.pdf",
@@ -1563,6 +1563,9 @@ navigatePage = function(pageName) {
     loadAdminLeads();
   }
   if (pageName === 'admin-vault') displayTitle = "Client Vault Uploader";
+  if (pageName === 'admin-training') displayTitle = "Developer Training";
+  if (pageName === 'admin-developer-training') displayTitle = "Developer Onboarding";
+  if (pageName === 'admin-github-training') displayTitle = "GitHub Workflow";
 
   headerPageTitle.textContent = displayTitle;
 };
