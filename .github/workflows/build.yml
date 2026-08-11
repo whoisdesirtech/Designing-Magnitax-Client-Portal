@@ -1,0 +1,41 @@
+name: GitHub Actions
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate firebase.json
+        run: node -e "JSON.parse(require('fs').readFileSync('firebase.json','utf8')); console.log('firebase.json OK')"
+
+      - name: Validate app.js syntax
+        run: node --check public/app.js
+
+      - name: Check required portal files
+        run: |
+          for f in public/index.html public/app.js public/style.css public/training.html public/developer-training.html public/github-training.html firestore.rules; do
+            test -f "$f" && echo "found $f" || { echo "MISSING $f"; exit 1; }
+          done
+
+      - name: Smoke test pages
+        run: |
+          npx --yes serve@14 public >/dev/null 2>&1 &
+          SERVER_PID=$!
+          sleep 3
+          for p in index.html training.html developer-training.html github-training.html; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000/$p")
+            echo "$p -> $code"
+            [ "$code" = "200" ] || exit 1
+          done
+          kill $SERVER_PID
