@@ -10,7 +10,19 @@ Version numbers are recorded in [`VERSION`](./VERSION). Releases are tagged
 
 ## [Unreleased]
 
-Nothing yet.
+### Changed
+
+- **Hardened Firestore security rules** — replaced the permissive `allow read, write: if request.auth != null` catch-all with role- and path-scoped rules. Clients can now only read their own `documents`; only admins write `documents`; only admins read/update `intakes` (SSN/DOB live there); only admins read/update/delete `leads` (public marketing forms may still create); admins are identified by `users/{uid}.role == 'admin'`.
+- **Added Storage security rules** — new `storage.rules` enforcing that clients can only read `documents/{clientUid}/...` in their own folder and only admins can write, registered in `firebase.json`.
+
+### Added
+
+- `storage.rules` registered in `firebase.json`.
+
+### Fixed
+
+- Any authenticated user could read/write every Firestore document (SSN/DOB, intake, leads, documents). Now path-scoped.
+- Firestore Storage bucket had no versioned rules in the repo. Now tracked and deployable.
 
 ## [1.0.0] - 2026-08-12
 

@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/(default)/documents/users/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // documents/{clientUid}/... — clients read only their own folder; only admins write.
+    match /documents/{clientUid}/{allPaths=**} {
+      allow read: if isAdmin()
+        || (request.auth != null && request.auth.uid == clientUid);
+      allow write: if isAdmin();
+    }
+  }
+}

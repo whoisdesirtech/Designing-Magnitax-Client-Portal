@@ -1,8 +1,41 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // users/{uid} — clients manage their own profile; admins manage everyone.
+    // NOTE: self-write remains allowed (including role) so the current app's
+    // auto-provisioning keeps working. Role escalation is closed in Phase 1
+    // task 3 (invite/activation + server-side role enforcement).
+    match /users/{userId} {
+      allow read: if isAdmin() || request.auth != null && request.auth.uid == userId;
+      allow create, update: if isAdmin() || request.auth != null && request.auth.uid == userId;
+      allow delete: if isAdmin();
+    }
+
+    // documents — clients read only their own; only admins write.
+    match /documents/{docId} {
+      allow read: if isAdmin()
+        || (request.auth != null && resource.data.clientUid == request.auth.uid);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // intakes — any authenticated user may submit; only admins read/update/delete.
+    // Blocks clients from reading other clients' intakes (SSN/DOB live here).
+    match /intakes/{intakeId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // leads — public marketing forms (coffee.html) write; only admins read/update/delete.
+    match /leads/{leadId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
     }
   }
 }
