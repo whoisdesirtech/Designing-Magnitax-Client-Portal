@@ -26,7 +26,7 @@ const ADMIN_USER = {
   twoFactorActive: true
 };
 
-let activeUserRole = "client"; // 'client' or 'admin'
+let activeUserRole = "client"; // 'client' or 'admin' — read from users/{uid}.role, never toggled in UI
 
 let DOCUMENTS_DB = [
   {
@@ -261,7 +261,9 @@ function navigatePage(pageName) {
 let currentFirebaseUser = null;
 let currentUserProfile = null; // { role, firstName, lastName, email }
 
-// Real login: Firebase Auth email/password with automatic registration fallback
+// Real login: Firebase Auth email/password only.
+// No auto-registration — unknown accounts cannot create themselves; they must be
+// invited/provisioned (see users/{uid} role model).
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('login-email').value.trim();
@@ -278,28 +280,8 @@ loginForm.addEventListener('submit', async (e) => {
     loginError.style.display = 'none';
   } catch (err) {
     console.warn('Sign-in failed with code:', err.code, err.message);
-
-    // If account not found or invalid credential, try auto-registering so login always succeeds
-    if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
-      try {
-        submitBtn.textContent = 'Creating Session…';
-        await auth.createUserWithEmailAndPassword(email, pass);
-        loginError.style.display = 'none';
-        showToast('✓ Account registered & session created!');
-        return;
-      } catch (createErr) {
-        console.error('Registration fallback error:', createErr);
-        if (createErr.code === 'auth/email-already-in-use') {
-          loginErrorText.textContent = 'Password mismatch for this account. Please verify your password or use Password123!.';
-        } else {
-          loginErrorText.textContent = `Authentication error: ${createErr.message || createErr.code}`;
-        }
-        loginError.style.display = 'flex';
-      }
-    } else {
-      loginErrorText.textContent = `Authentication error (${err.code}): ${err.message}`;
-      loginError.style.display = 'flex';
-    }
+    loginErrorText.textContent = `Authentication error: ${err.message || err.code}`;
+    loginError.style.display = 'flex';
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Authenticate Session';
@@ -333,31 +315,26 @@ auth.onAuthStateChanged(async (user) => {
         currentUserProfile = userDoc.data();
         activeUserRole = currentUserProfile.role || 'client';
       } else {
-        // No Firestore profile yet — auto-create based on email
-        const isAdmin = user.email.toLowerCase().includes('admin') || user.email.toLowerCase().includes('kaelen') || user.email.toLowerCase().includes('cpa');
-        const defaultFirstName = isAdmin ? 'Marcus' : (user.displayName ? user.displayName.split(' ')[0] : 'Jane');
-        const defaultLastName  = isAdmin ? 'Kaelen' : (user.displayName ? (user.displayName.split(' ')[1] || '') : 'Doe');
-
+        // No Firestore profile yet — default to client. Never infer admin from email.
         currentUserProfile = {
-          role: isAdmin ? 'admin' : 'client',
-          firstName: defaultFirstName,
-          lastName: defaultLastName,
+          role: 'client',
+          firstName: user.displayName ? user.displayName.split(' ')[0] : 'Client',
+          lastName: user.displayName ? (user.displayName.split(' ')[1] || '') : '',
           email: user.email
         };
-        activeUserRole = currentUserProfile.role;
+        activeUserRole = 'client';
 
         // Automatically write document to Firestore `users/{uid}`
         await db.collection('users').doc(user.uid).set({
           ...currentUserProfile,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-        console.log(`Auto-created Firestore user document for ${user.email} (${user.uid}) as ${activeUserRole}`);
+        console.log(`Auto-created Firestore user document for ${user.email} (${user.uid}) as client`);
       }
     } catch (err) {
       console.warn('Could not read/create user profile in Firestore:', err);
-      const isAdmin = user.email.toLowerCase().includes('admin');
-      currentUserProfile = { role: isAdmin ? 'admin' : 'client', firstName: isAdmin ? 'Marcus' : 'Jane', lastName: isAdmin ? 'Kaelen' : 'Doe', email: user.email };
-      activeUserRole = currentUserProfile.role;
+      currentUserProfile = { role: 'client', firstName: 'Client', lastName: '', email: user.email };
+      activeUserRole = 'client';
     }
 
     // Update profile display
@@ -1503,47 +1480,27 @@ if (intakeDoneBtn) {
 
 function applyRoleUI() {
   const roleBadge = document.getElementById('role-header-badge');
-  const roleSwitchText = document.getElementById('role-switch-text');
   const profileName = document.getElementById('profile-user-fullname');
   const profileAvatar = document.getElementById('profile-avatar-letters');
 
   body.setAttribute('data-role', activeUserRole);
 
-  if (activeUserRole === 'admin') {
-    if (roleBadge) {
-      roleBadge.textContent = 'CPA ADMIN ROLE';
-      roleBadge.className = 'role-badge admin-role-badge';
-    }
-    if (roleSwitchText) roleSwitchText.textContent = 'Switch to Client Mode';
-    if (profileName) profileName.textContent = 'Marcus Kaelen, CPA';
-    if (profileAvatar) profileAvatar.textContent = 'MK';
-  } else {
-    if (roleBadge) {
-      roleBadge.textContent = 'CLIENT ROLE';
-      roleBadge.className = 'role-badge client-role-badge';
-    }
-    if (roleSwitchText) roleSwitchText.textContent = 'Switch to Admin Mode';
-    if (profileName) profileName.textContent = `${CLIENT_USER.firstName} ${CLIENT_USER.lastName}`;
-    if (profileAvatar) profileAvatar.textContent = `${CLIENT_USER.firstName[0]}${CLIENT_USER.lastName[0]}`;
+  // Profile display comes from the Firestore users/{uid} doc (the role model),
+  // not hardcoded demo users.
+  const profile = currentUserProfile || CLIENT_USER;
+  const firstName = profile.firstName || 'Client';
+  const lastName = profile.lastName || '';
+
+  if (roleBadge) {
+    roleBadge.textContent = activeUserRole === 'admin' ? 'CPA ADMIN ROLE' : 'CLIENT ROLE';
+    roleBadge.className = activeUserRole === 'admin' ? 'role-badge admin-role-badge' : 'role-badge client-role-badge';
   }
+  if (profileName) profileName.textContent = `${firstName} ${lastName}`.trim() || profile.email || 'Magnitax User';
+  if (profileAvatar) profileAvatar.textContent = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'M';
 }
 
-// Role Switcher Button Listener
-const roleSwitcherBtn = document.getElementById('role-switcher-btn');
-if (roleSwitcherBtn) {
-  roleSwitcherBtn.addEventListener('click', () => {
-    activeUserRole = activeUserRole === 'client' ? 'admin' : 'client';
-    applyRoleUI();
-    
-    if (activeUserRole === 'admin') {
-      showToast("Switched context to CPA Admin Console.");
-      navigatePage('admin-intakes');
-    } else {
-      showToast("Switched context to Client Portal View.");
-      navigatePage('dashboard');
-    }
-  });
-}
+// Role Switcher removed — role is read-only from users/{uid}.role.
+// (No manual client↔admin toggle; admin access requires an admin Firestore role.)
 
 // Extend navigatePage to support Admin screens
 const _prevNavPage = navigatePage;

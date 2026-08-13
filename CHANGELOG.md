@@ -12,6 +12,8 @@ Version numbers are recorded in [`VERSION`](./VERSION). Releases are tagged
 
 ### Changed
 
+- **Removed auto-registration and email-heuristic admin** — login now authenticates existing accounts only (`auth.signInWithEmailAndPassword`, no `createUserWithEmailAndPassword` fallback). Roles come exclusively from the Firestore `users/{uid}.role` document; the `admin`/`kaelen`/`cpa` email check is gone. New users without a profile default to `client` and get a client-role profile created.
+- **Removed the role switcher** — the client↔admin toggle button and its listener are deleted; the role badge is now read-only, and profile display reads from the Firestore profile instead of hardcoded demo users.
 - **Hardened Firestore security rules** — replaced the permissive `allow read, write: if request.auth != null` catch-all with role- and path-scoped rules. Clients can now only read their own `documents`; only admins write `documents`; only admins read/update `intakes` (SSN/DOB live there); only admins read/update/delete `leads` (public marketing forms may still create); admins are identified by `users/{uid}.role == 'admin'`.
 - **Added Storage security rules** — new `storage.rules` enforcing that clients can only read `documents/{clientUid}/...` in their own folder and only admins can write, registered in `firebase.json`.
 
