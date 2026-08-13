@@ -28,6 +28,11 @@ Version numbers are recorded in [`VERSION`](./VERSION). Releases are tagged
 - Any authenticated user could read/write every Firestore document (SSN/DOB, intake, leads, documents). Now path-scoped.
 - Firestore Storage bucket had no versioned rules in the repo. Now tracked and deployable.
 
+### Docs
+
+- **Session handoff** — new `SESSION_HANDOFF.md` capturing project state (branch, version, git status, recent work, open steps) so future sessions can resume quickly.
+- **Revised audit report** — rewrote `magnitax_portal_audit_report.md` from an "Existing Application Audit & MVP Gap Analysis" into a "Current Architecture & MVP Audit" reflecting the hardened security model, the Spark-compatible MVP path, cost constraints, and the open 2FA decision.
+
 ## [1.0.0] - 2026-08-12
 
 First versioned release. This release codifies the portal that is currently

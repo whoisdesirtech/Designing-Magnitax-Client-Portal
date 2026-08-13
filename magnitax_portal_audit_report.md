@@ -1,327 +1,258 @@
-# MagniTax Portal — Existing Application Audit & MVP Gap Analysis
+# Magnitax Portal — Current Architecture & MVP Audit
 
-> Full audit report, ready to paste into ChatGPT.
-> App: vanilla HTML/CSS/JS SPA on Firebase Hosting (taxagentai062026.web.app)
-> Repo: ~/Desktop/vibe-coding/Vibe Coding Mastery/magnitax-portal-prototype
-
-Audit complete. No code changes made. Here is the full report.
+> Current state of the Magnitax Secure Client Portal as of this audit.
+> Captures what exists, what is secured, what costs what, and the Spark-compatible MVP path agreed for development.
+> This audit is the baseline **before further architectural changes**.
 
 ---
 
-# PART 1 — INVENTORY OF WHAT EXISTS
+## 1. Current Environment
 
-## Architecture at a glance
-Vanilla **HTML/CSS/JS single-page app** on Firebase Hosting (`taxagentai062026.web.app`). No build step, no framework, no backend server, no Cloud Functions, no email service. All "backend" is direct client-side Firebase SDK calls.
-
-| Layer | Tech | Present? |
-|---|---|---|
-| Frontend | Vanilla HTML5/CSS3/ES6 (SPA, `data-view`/`data-page` routing) | ✅ |
-| Hosting | Firebase Hosting (site `taxagentai062026`) | ✅ |
-| Auth | Firebase Auth (email/password, compat SDK 10.8.0) | ✅ |
-| Database | Cloud Firestore | ✅ |
-| Storage | Firebase Storage | ✅ |
-| Backend server / Cloud Functions | — | ❌ none |
-| Email / SMS / notifications service | — | ❌ none |
-
-## Frontend inventory (`public/index.html`)
-
-**Views (routed by `body[data-view]` in app.js:221):**
-- `login` — email/password + quick-fill buttons + dead "Forgot Password?" link
-- `2fa` — 6-digit TOTP-style input gate
-- `app` — main shell (sidebar + header + page viewport)
-
-**Sub-pages (`main[data-page]`):**
-- `dashboard` — welcome banner, stat cards (doc count, deadline, 2FA status), audit-trail panel, "Your Tax Preparer" card, secure-message button (a `prompt()` stub)
-- `documents` — search, year filter, type tabs (All/W-2/1099/Summary), card gallery with Preview/Download
-- `intake` — 3-step wizard (Personal Info → Tax Profile → Documents) + confirmation step
-- `settings` — notification toggles, 2FA status card, GDPR export/erasure buttons
-- `admin-intakes` — Firestore intakes table w/ status filter + inspector modal (shows SSN/DOB)
-- `admin-leads` — leads pipeline table w/ "Convert to Client"
-- `admin-vault` — upload form (client select, year, type, title, payer, file)
-- `admin-training` / `admin-developer-training` — iframes to `training.html`/`developer-training.html`
-
-**Components/modals:** doc card gallery, filter bar, preview modal, admin intake detail modal, notification dropdown, role switcher, sidebar, stat cards, toast alerts, intake stepper, drag-drop zones.
-
-## Backend inventory
-There is **no server**. Firestore is the "API". Client-side logic in `public/app.js`:
-
-| Concern | Implementation | Location |
-|---|---|---|
-| Login | `auth.signInWithEmailAndPassword` + **auto-registration fallback** | app.js:265-307 |
-| Session | `auth.onAuthStateChanged` | app.js:325-400 |
-| Role detection | Firestore `users/{uid}` → fallback: email heuristic (`admin`/`kaelen`/`cpa` ⇒ admin) | app.js:330-361 |
-| Role switch | client-side toggle of `activeUserRole` (no check) | app.js:1534-1546 |
-| Upload | `storage.ref(path).put(file)`, 25 MB client check | app.js:2013-2103 |
-| Download | cached `downloadURL` from Firestore, else `storage.getDownloadURL()` | app.js:1024-1068 |
-| Intake persist | `db.collection('intakes').doc(refNum).set(payload)` (SSN in plaintext) | app.js:1434 |
-| Leads persist | `coffee.html` → `leads` collection | coffee.html:405-441 |
-| Admin status update | `db.collection('intakes').doc(ref).update({status})` | app.js:1755 |
-| Lead→client | creates `users/{uid}` + updates lead | app.js:1903-1954 |
-| Audit logging | in-memory `AUDIT_LOGS` array only — **not persisted** | app.js:145, 469-505 |
-| Notifications | in-memory `NOTIFICATIONS` array only | app.js:152-156, 515-573 |
-
-## Database (Cloud Firestore)
-Collections and fields (from code + `product_brief.md`):
-
-- **`users`** (docId = Firebase uid): `{email, role: 'client'|'admin', firstName, lastName, createdAt}`. No license status, no preparer/adviser/CPA distinction, no invitation/activation fields.
-- **`documents`** (docId = autoId): `{clientUid, fileName, type: 'w2'|'1099'|'summary'|'other', taxYear, storagePath, downloadURL, fileSize, payer, uploadedBy, uploadedAt, status: 'ready'}`. **Only status value that exists is `ready`** — no draft/published lifecycle.
-- **`intakes`** (docId = `MTX-YYYY-NNNNNN`): `{referenceNumber, status: 'pending_review'|'in_progress'|'completed', personalInfo{firstName,lastName,email,phone,ssn,dob,address,company,spouse}, taxProfile{...}, documents{uploadedFiles:[{name,size,type}]}, submittedAtIso, assignedPreparer}`. SSN stored as plaintext string.
-- **`leads`** (autoId): lead-magnet form data + `status: 'new'|'contacted'|'proposal_sent'|'converted'`.
-
-**Firestore security rules** (`firestore.rules`) — the critical finding:
-
-```
-match /{document=**} { allow read, write: if request.auth != null; }
-```
-
-Every authenticated user can read/write **every** collection and document. No ownership scoping, no role checks, no per-collection rules.
-
-## Storage (Firebase Storage)
-- Path pattern: `documents/{clientUid}/{taxYear}/{type}/{timestamp}_{fileName}` (app.js:2046)
-- **No `storage.rules` file exists in the repo** (managed in Firebase Console, unversioned, contents UNKNOWN).
-- Download URLs come from `getDownloadURL()` (app.js:2065, 1038). These are **permanent** URLs carrying a download token — they do not expire and require no auth to fetch.
-- The permanent `downloadURL` is also **persisted inside each `documents` doc**, which any authenticated user can read under current rules.
-- File validation: client-side only — `<input accept>` list + 25 MB size check (app.js:2037). No server/PDF validation, no MIME check on upload.
-
-## Authentication
-- **Provider:** Firebase Auth, email/password.
-- **Login:** `signInWithEmailAndPassword`; **any unrecognized email+password auto-creates an account** (app.js:283-289) — there is no invitation/allow-list gate.
-- **2FA:** **Simulated.** Any 6 digits are accepted (app.js:436-453); comment admits real 2FA requires Blaze/phone auth. On page reload it is skipped entirely (app.js:389-392).
-- **Password reset:** link exists in HTML (`#forgot-password-trigger`) but **has no handler**.
-- **Email verification:** none. **Invitation/activation:** none. **Sessions:** Firebase-managed; no JWT/cookie handling in app code.
-
-## Security
-- **RBAC:** 2 roles (`client`/`admin`), enforced **only in the UI** (menu visibility via `data-role`, app.js:1504-1528). Nothing server-side.
-- **Authorization middleware:** none (no server).
-- **Rate limiting:** none.
-- **Encryption:** TLS at Firebase edge; Firebase at-rest default. No app-level field encryption (SSN plaintext).
-- **Secure cookies / CSRF:** N/A (Firebase SDK model), but no protection on admin actions either.
-- **Audit logging:** in-memory only, cleared on refresh.
-- **Access controls:** client document query filters by `clientUid` **client-side only** (app.js:592-595); rules do not enforce it.
+- **Repo:** `magnitax-portal-prototype`
+- **Current branch:** `feature/harden-security-rules`
+- **Hosting:** `taxagentai062026.web.app`
+- **Firebase plan:** Spark
+- **Billing:** No billing account
 
 ---
 
-# PART 2 — EXISTING USER TYPES vs. TARGET MODEL
+## 2. Completed Work
 
-The app has exactly **two** roles: `client` and `admin`. Everything else is conceptual.
+The following work is complete and **unmerged** (all on the current branch, tracked under `[Unreleased]` in `CHANGELOG.md`):
 
-| User Type | Exists? | Database Role | License Status | Current Permissions | Missing |
-|---|---|---|---|---|---|
-| Newsletter Free | ❌ | — | — | — | Entire user segment; newsletter model |
-| Newsletter Paid | ❌ | — | — | — | Entire user segment; payments |
-| Client Free | ❌ | `client` (only 1 client type) | n/a | Own-doc UI filter (unenforced), intake, settings, mock 2FA | Tier distinction, invite/activation |
-| Client Paid | ❌ | `client` | n/a | same as above | Tier distinction, payments, published docs |
-| Tax Preparer Free/Unlicensed | ❌ | — | — | — | Preparer role; license flag; client assignment |
-| Tax Preparer Paid/Licensed | ❌ | — | — | — | Preparer role; license flag; assignment |
-| Advisor Free/Unlicensed | ❌ | — | — | — | Whole role |
-| Advisor Paid/Licensed | ❌ | — | — | — | Whole role |
-| CPA Free/Unlicensed | ❌ | `admin` (subsumes all staff) | none | Everything: all intakes (incl. SSNs), all docs, uploads, leads | Real staff model |
-| CPA Paid/Licensed | ❌ | `admin` | none | same as above | License flag |
-| Admin | ⚠️ Partial | `admin` | none | All data; no separation from CPA | True super-admin separation |
+### `2371772` — Hardened security rules
 
-**How the current app maps to the target:** `admin` is being overloaded as "any staff member + super admin". To support the MVP you need at minimum a **tax-preparer** actor distinct from clients and from super-admin. The recommendation is: keep `admin` as-is for today's single preparer; model `role` values as `client` / `preparer` / `admin` and add `licenseStatus` + `assignedClients` (or a `clientPreparers` join collection). Do **not** build the 11-type matrix now — that's the post-MVP business model, not MVP #1. (Follows your instruction: don't create new roles unless necessary.)
+- Replaced the permissive `allow read, write: if request.auth != null` catch-all in Firestore with **role- and path-scoped rules** (`firestore.rules`).
+- Clients can now only read **their own** `documents`.
+- Only admins write `documents`.
+- Only admins read/update `intakes` (SSN/DOB live there).
+- Only admins read/update/delete `leads`; public marketing forms may still create.
+- Added `storage.rules` (private bucket): clients read only within their own `documents/{clientUid}/...` folder; only admins write.
+- Registered `storage.rules` and `functions` in `firebase.json`.
 
----
+### `22d5e5e` — Removed auto-register and email-heuristic admin
 
-# PART 3 — MVP REQUIREMENT MATRIX
+- Login now authenticates **existing accounts only** (`auth.signInWithEmailAndPassword`, no `createUserWithEmailAndPassword` fallback).
+- Roles come **exclusively** from the Firestore `users/{uid}.role` document.
+- Removed the `admin`/`kaelen`/`cpa` email-heuristic admin check and the client↔admin **role switcher**.
+- New users without a profile default to `client` and get a client-role profile created.
 
-| # | MVP Requirement | Already Exists | Partially Exists | Missing | Location in Code | Recommended Change |
-|---|---|---|---|---|---|---|
-| 1 | Tax Preparer login | ✅ | | | app.js:265-307; index.html:40 | Keep; remove auto-registration fallback; real email verification |
-| 2 | Tax Preparer dashboard | ⚠️ | | | `admin-intakes`, `admin-leads`, `admin-vault` pages | Consolidate into a preparer home w/ client list + docs |
-| 3 | Client list | ⚠️ | | | app.js:1965-1994 (dropdown only), intakes table | Real client list page from `users`/`clients` collection |
-| 4 | Add Client | ⚠️ | | | app.js:1903-1954 (convert lead→client) | Dedicated "Add Client" form |
-| 5 | Client profile | ⚠️ | | | `users/{uid}` doc, intake `personalInfo` | Consolidate into a `clients` record |
-| 6 | Client invitation | ❌ | | | none | Email link via Cloud Function |
-| 7 | Client account activation | ❌ | | | none | Tokenized activation page |
-| 8 | Password creation | ⚠️ | | | auto-register path only (app.js:286) | Real set-password during activation |
-| 9 | 2FA | ⚠️ | | | app.js:436-453 (any 6 digits) | Real TOTP (via Identity Platform or a function issuing TOTP secret) |
-| 10 | Client dashboard | ✅ | | | index.html:330; app.js:385-410 | Reuse as-is |
-| 11 | Client documents | ✅ | | | app.js:585-698 | Reuse; fix rules |
-| 12 | Upload document | ✅ | | | app.js:2013-2103 | Reuse; add server validation |
-| 13 | Tax year selection | ✅ | | | index.html:1058-1064 | Reuse |
-| 14 | Document type selection | ✅ | | | index.html:1067-1074 | Reuse |
-| 15 | PDF validation | ⚠️ | | | `<input accept>` + 25MB only (app.js:2037) | Server-side MIME/magic-byte + size check |
-| 16 | Draft document status | ❌ | | | status hardcoded `'ready'` (app.js:2079) | Add `status: draft/published`, filter client query |
-| 17 | Document preview | ⚠️ | | | app.js:715-1007 renders a **mock** IRS form, not the real file | Replace with real PDF preview of the stored blob |
-| 18 | Replace document | ❌ | | | none | Re-upload overwrite + versioning |
-| 19 | Publish to client | ❌ | | | upload publishes immediately | Draft→publish action + status gate |
-| 20 | Client notification | ⚠️ | | | in-memory `NOTIFICATIONS` only | Firestore `notifications` doc + email |
-| 21 | Published/Available status | ❌ | | | none | `status` field on document |
-| 22 | Secure download | ⚠️ | | | app.js:1024-1068 (permanent URL) | Signed/expiring URLs via function, rules-gated |
-| 23 | Client ownership authorization | ❌ | | | rules are open; clientUid filter is client-side | Enforce `clientUid == uid` in Firestore rules |
-| 24 | Preparer→Client authorization | ❌ | | | no assignment model | `assignedClients`/join collection + rules |
-| 25 | Audit logging | ⚠️ | | | in-memory only (app.js:145,469) | Persist to `auditLogs` via rules/function |
+### `0d1a61b` — Cloud Functions scaffold
+
+- Added `functions/` (Node 20, firebase-functions v6):
+  - `auditDocumentCreated` — Firestore trigger writes a trusted server-side `auditLogs` entry when a document is published.
+  - `auditIntakeCreated` — Firestore trigger records intake submissions (SSN/DOB are **not** copied into the audit log).
+  - `auditDocumentUploaded` — Storage finalize trigger records uploads under `documents/{clientUid}/...`.
+  - `sendNotificationEmail` — callable **stub** for task 8 (Resend), returns `not-configured` so the client can detect it cleanly.
+- Replaces the in-memory `AUDIT_LOGS` array with a server-written `auditLogs` trail.
+- **Not deployed** (deployment requires Blaze — see §4 and §8).
 
 ---
 
-# PART 4 — WORKFLOW TRACES
+## 3. Current Security Model
 
-### A. User logs in
-```
-Login form (index.html:40, app.js:265)
-  ↓ auth.signInWithEmailAndPassword — on failure: createUserWithEmailAndPassword (auto-register)
-  ↓ onAuthStateChanged (app.js:325) → reads users/{uid}
-  ↓ Role detection: users/{uid}.role, fallback email-heuristic (app.js:337)
-  ↓ applyRoleUI() → data-role=admin|client (app.js:1504)
-  ↓ 2FA gate — accepts any 6 digits (app.js:436) → enterApp()
-  ↓ navigatePage('dashboard') (app.js:229)
-```
-Actual functions: `loginForm submit handler` (265), `auth.onAuthStateChanged` (325), `enterApp` (403), `applyRoleUI` (1504).
+### In place
 
-### B. A client is created
-There is **no "Add Client" flow**. The closest paths:
-```
-Lead (coffee.html → leads) ─→ convertLeadToClient (app.js:1903)
-  ↓ creates users/{uid} with role='client', marks lead converted
-  ↓ loadAdminClientDropdown (app.js:1965) reloads client <select>
-  ✗ NO invitation, NO email, NO activation, NO password for the client
-```
-Or anyone can register themselves at login (app.js:286). The intake wizard is **client-initiated**, not preparer-initiated.
+- **Firestore role/path-scoped rules** — deny-all default; reads/writes scoped to ownership and role.
+- **Client own-document access** — a client may read `documents/{docId}` only when `resource.data.clientUid == request.auth.uid`.
+- **Admin document/intake/lead access** — admins (identified by `users/{uid}.role == 'admin'`) may write `documents`, and read/update/delete `intakes` and `leads`.
+- **Server-only `auditLogs`** — clients cannot write `auditLogs` (`allow write: if false`); writes are server-side only (Admin SDK bypasses rules); admins may read.
+- **Private Storage bucket** — clients read only inside their own `documents/{clientUid}/...` folder; admins write.
+- **Existing-user authentication** — login authenticates existing accounts only; no public auto-registration.
+- **Roles sourced from `users/{uid}.role`** — no email heuristics, no client-side role switching.
 
-### C. A document is uploaded
-```
-Admin vault form (index.html:1049; app.js:2013)
-  ↓ client-side: size ≤25MB (app.js:2037), file existence
-  ↓ storage.ref(`documents/{clientUid}/{year}/{type}/{ts}_{name}`).put(file) (app.js:2046-2048)
-  ↓ on complete: getDownloadURL() (permanent token URL)
-  ↓ db.collection('documents').add({... , status:'ready'}) (app.js:2068)
-  ↓ loadClientDocuments() refreshes the admin's own list
-  ✗ No draft state — document is immediately visible/ready
-  ✗ No PDF validation beyond accept-list
-  ✗ No notification to client
-```
+### Remaining role-escalation issue
 
-### D. A document is downloaded
-```
-Client doc card → triggerDocDownload (app.js:1024)
-  ↓ uses doc.downloadURL (persisted) OR storage.getDownloadURL()
-  ↓ <a href=url target=_blank download> — browser fetches directly
-  ↓ Audit log entry appended to in-memory AUDIT_LOGS (not persisted)
-```
-**Security verdict for this flow: NOT SECURE.** The URL is a permanent, unauthenticated Firebase download-token URL; it is stored in a Firestore record any authenticated user can read; there is no server check of ownership; download events are never persisted.
+`firestore.rules:14` — the current `users/{userId}` rule allows a user to `update` their own document (`request.auth.uid == userId`), and the update is not constrained.
+
+> Incoming self-write must not be allowed to change the user's existing role.
+
+A client must not be able to set `users/{uid}.role = 'admin'` on their own profile. The rule must deny role changes on self-write (e.g., `request.resource.data.role == resource.data.role` for non-admin self-updates). See §7 task 1.
 
 ---
 
-# PART 5 — SECURITY AUDIT
+## 4. Firebase Cost/Capability Findings
 
-> Method note: this is a **static code audit**. The rules file (`firestore.rules`) and code make each outcome deterministic without needing a live exploit, and I did not modify or probe the production Firebase project. Several checks (permanent-URL expiry, live token validity) are flagged UNKNOWN because `storage.rules` is not in the repo and I have no Console access.
+### Spark-Compatible
 
-| Question | Verdict | Why |
-|---|---|---|
-| Client access another client's document? | **FAIL** | `firestore.rules:5` allows any authenticated read of all docs. The `where('clientUid','==',uid)` filter is client-side only (app.js:592). A user can query without the filter or read a doc by ID. |
-| Manipulate URL/doc ID to access another doc? | **FAIL** | Auto-ID doc reads are unguarded; permanent `downloadURL` is readable and directly fetchable. |
-| Documents publicly accessible? | **FAIL (effectively)** | `getDownloadURL()` yields a permanent unauthenticated URL (app.js:2065) persisted in Firestore readable by any auth'd user. Bucket rules themselves UNKNOWN (no `storage.rules` in repo). |
-| Download URLs permanent? | **PARTIAL** | They are Firebase download-token URLs — permanent until the token is manually revoked. README calls them "pre-signed"; they are not expiring. |
-| Server verify ownership? | **FAIL** | No server exists; all checks are client-side; rules do not verify ownership. |
-| Preparer access only to assigned clients? | **NOT IMPLEMENTED** | No assignment model. Every `admin` sees every intake (incl. SSNs, app.js:1584) and every document (app.js:596). |
-| Draft doc accessible by client? | **NOT IMPLEMENTED** | No draft concept; all docs written `status:'ready'` (app.js:2079) and shown to clients. |
-| Download logged? | **FAIL** | Log entry only appended to in-memory `AUDIT_LOGS` (app.js:1056); lost on refresh; never persisted. |
-| Publication logged? | **NOT IMPLEMENTED** | No publication event exists. |
+- Firestore
+- Storage
+- Hosting
+- Email/password Authentication
+- Local Firebase emulators
 
-Additional critical findings (not in your list but material):
-1. **Self-service privilege escalation:** any visitor can type an email containing "admin", "kaelen", or "cpa" and auto-register with `role='admin'` (app.js:283-289, 337).
-2. **Client can open the admin console:** the role switcher toggles `activeUserRole` with zero authorization (app.js:1534-1546), exposing SSNs, DOB, all intakes, all documents.
-3. **Open Firestore writes:** rules allow any authenticated user to write any doc — including overwriting `users/{uid}` (set own role to `admin`) or mutating other users' docs.
-4. **2FA bypass:** any 6 digits pass (app.js:439), and reload skips 2FA entirely (app.js:389-392).
-5. **SSN stored in plaintext** in `intakes` (app.js:1388) and rendered in the admin modal (app.js:1695).
-6. **Intake "document upload" stores only metadata** `{name,size,type}` — files are never actually uploaded (app.js:1414-1418).
-7. **Document preview does not show the real file** — it renders a hardcoded mock IRS form with `details` fields (app.js:756-993).
+### Requires Blaze
+
+- **Cloud Functions deployment.** The Firebase CLI refuses to deploy functions on Spark (billing required to enable `cloudbuild.googleapis.com`). This is the only strict blocker found.
+
+### Identity Platform
+
+- **Real TOTP 2FA requires Firebase Authentication with Identity Platform.** TOTP MFA (`multiFactor()` / `TotpMultiFactorGenerator`) only exists in upgraded projects.
+- The audit found Identity Platform **can be enabled on Spark** — it does not inherently require Blaze.
+- The stated Spark limitation: **3,000 DAU/day** (daily active users) for Tier 1 providers (email/password included).
+- On Blaze the free tier is 50,000 MAU, then pay-per-MAU. **No billing upgrade is being made** as part of this audit.
 
 ---
 
-# PART 6 — NO CODE CHANGES MADE
-Confirmed. This was read-only analysis.
+## 5. MVP Architecture Decision
+
+**For now: KEEP FIREBASE ON SPARK.**
+
+- **Do not deploy Cloud Functions.**
+- Use the **Firebase Local Emulator Suite** for Functions development.
+- Implement the MVP **without requiring deployed Cloud Functions**.
 
 ---
 
-# PART 7 — FINAL REPORT
+## 6. MVP Workflow
 
-## 1. Executive Summary
-**What already exists (and is genuinely reusable):** a polished, branded SPA (client dashboard, document gallery with search/filter, multi-step intake wizard, admin intakes queue, admin upload→Storage→Firestore pipeline, leads pipeline with one-click client creation), real Firebase Auth email/password, real Firestore + Storage wiring, and a live Hosting deployment.
-
-**What is missing for MVP #1 (the 10-step flow):** invitation/activation (none), real 2FA (simulated), draft→publish lifecycle (none; everything is instantly `ready`), client notification (in-memory only, no email), secure ownership (Firestore rules are wide open), preparer→client assignment (none), secure downloads (permanent unauthenticated URLs), and persistent audit logging (in-memory only).
-
-**How close to MVP:** Functionally about **40–50%** of the screen real-estate exists (dashboards, lists, upload UI, document UI). Operationally the workflow is **0% secure** and the publish/notify/activation chain does not exist — the current app is a polished **demo prototype**, not yet a production MVP. The gap is less about building new screens than about building the secure backend logic (rules, functions, email, status lifecycle) that everything currently lacks.
-
-## 2. MVP Readiness Score: **35 / 100**
-- **UI/frontend infrastructure (reusable):** ~40% present.
-- **Auth:** partial (login exists) but activation, invite, real 2FA, verification missing → effectively blocks the flow.
-- **Backend security:** 0% — open rules, no server, no ownership enforcement; must be built from scratch.
-- **Workflow state machine (draft→review→publish→notify):** 0% — the single most important missing layer.
-- Each of the 10 MVP steps must be able to complete **securely**; today only a few complete at all, and those insecurely.
-
-## 3. Critical Blockers
-1. **Firestore rules are open** — clients can read/write every document, every user, every intake. Blocks security + makes ownership unenforceable. (Blocking for steps 5, 22, 23, 24.)
-2. **No invitation/activation flow** — Tax Preparer cannot create/invite a client; no activation token, no email. (Blocking for steps 1–8.)
-3. **No document status lifecycle** — no draft/published; client sees everything the moment it's uploaded. (Blocking for steps 16, 19, 21.)
-4. **Permanent, unauthenticated download URLs** persisted in readable Firestore — cannot ship 1040 downloads securely as-is. (Blocking for step 22.)
-5. **No real 2FA** — simulated only; blocked on Firebase plan/function work. (Blocking for step 9.)
-6. **No email/notification service** — no invite, no activation, no publish notification. (Blocking for steps 6, 7, 20.)
-7. **No persistence for audit logs** — compliance/auditability absent. (Blocking for step 25.)
-8. **Auto-registration + email-heuristic role assignment** — anyone can become admin. (Blocking for steps 1–2, 24.)
-
-## 4. Recommended Implementation Order (smallest sequence, maximize reuse)
 ```
-Task 1  Harden firestore.rules: read/write scoped to ownership + roles (users, documents, intakes, leads, auditLogs). Deny-all default.
-Task 2  Add storage.rules file; keep bucket private; restrict writes to preparer/admin paths.
-Task 3  Add Cloud Functions (Node): sendInvite, activateAccount, setPassword, generateDownloadUrl (short expiry), recordAudit, notifyClient. Add email via a provider.
-Task 4  Add client invitation UI (preparer) → writes pending invite + sends email link.
-Task 5  Add activation page: token validation → create Firebase user → set password → enable 2FA (TOTP).
-Task 6  Add document status lifecycle: draft | published on documents; hide non-published from client query; add "Publish" action + email/notification.
-Task 7  Replace download logic with expiring signed URL from the function; remove persisted downloadURL.
-Task 8  Persist audit log writes (function or rules-audited) for login, 2FA, upload, publish, download.
-Task 9  Add preparer→client assignment (assignedClients array on users/{preparerUid} or clientPreparers); scope admin queries by it.
-Task 10 Remove auto-registration + email-heuristic admin; enforce role from Firestore/claims only. Client sees own docs only; prepare list page.
-Task 11 Reuse existing UI: prep dashboard links to existing admin-vault uploader; client dashboard/document gallery reused as-is once rules land.
-```
-Reuse-first rule: **Tasks 1–3 are new backend; Tasks 4–11 are thin UI/glue over the existing components.**
-
-## 5. Files Likely to Modify
-- **Frontend:** `public/index.html` (add invite/activation views, publish buttons, status badges), `public/app.js` (call new functions, status filters, remove auto-register), `public/style.css` (new states), possibly `public/activate.html` (separate activation page).
-- **Backend:** new `functions/index.js` + `functions/package.json` (Cloud Functions: invite, activate, sign, publish, audit, notify), `firebase.json` (add `"functions"`).
-- **Database:** `firestore.rules` (ownership/role scoping), new collections: `invites`, `auditLogs`, `notifications`; extend `documents` with `status`, `version`, `publishedAt`.
-- **Authentication:** Firebase project config (enable TOTP/Identity Platform), remove auto-registration path, activation flow, `sendPasswordResetEmail` wiring for the dead "Forgot Password?" link.
-- **Storage:** new `storage.rules` (private bucket, preparer-only write), path layout stays `documents/{clientUid}/{year}/{type}/…`.
-- **Email/Notifications:** new provider integration (in Cloud Function) for invite/activation/publish emails; Firestore `notifications` docs for in-app bell.
-- **Security:** Cloud Function signing (expiring URLs), audit log writes, rate limiting (or App Check + Firebase Security Rules).
-
-## 6. Files That Should NOT Be Modified (reuse as-is)
-- `public/app.js` **document gallery + filters** (585-698) — once rules enforce ownership, this works.
-- `public/app.js` **upload pipeline** (2013-2103) — Storage→Firestore flow is sound; only add server validation/status.
-- `public/index.html` **client dashboard** (330-429), **intake wizard** (578-915), **admin intakes table** (920-972), **upload form** (1039-1115).
-- `public/style.css` — the whole Emerald design system.
-- `public/coffee.html` leads writer, `public/landing.html`, `flyer.html`, `pitch_deck.html`, `training.html`, `developer-training.html` — marketing/docs, out of MVP scope.
-
-## 7. Architecture Diagram
-**Current architecture (as-built):**
-```
-Browser (index.html/app.js — all logic & security client-side)
-  ├── Firebase Auth ──────────────► email/password, onAuthStateChanged, mock 2FA
-  ├── Firestore (rules = OPEN) ────► users, intakes (plaintext SSN), documents (persisted downloadURL), leads
-  ├── Firebase Storage (no rules in repo) ──► documents/{clientUid}/{year}/{type}/…
-  └── Firebase Hosting ───────────► taxagentai062026.web.app
-        ▲ NO server / NO Cloud Functions / NO email / NO persistent audit
+CPA / Lead Tax Preparer
+  ↓
+ProConnect
+  ↓
+Download actual completed 1040 PDF
+  ↓
+Magnitax Portal
+  ↓
+Assigned Client
+  ↓
+Upload 1040
+  ↓
+Draft
+  ↓
+Preview
+  ↓
+Publish
+  ↓
+Client Notification
+  ↓
+Client Login
+  ↓
+View 1040
+  ↓
+Secure Download
 ```
 
-**Proposed MVP workflow on the existing architecture:**
+**Magnitax does NOT prepare or generate the 1040.**
+
+The source document is the **actual PDF downloaded from ProConnect**.
+
+---
+
+## 7. Spark-Compatible MVP Tasks
+
+The remaining MVP work is organized around:
+
+1. **Close role escalation hole** — Firestore rule denying role changes on self-write.
+2. **Client invitation** — Tax Preparer invites a client.
+3. **Client activation** — invited client activates their account.
+4. **Existing-user authentication** — activate/login existing accounts (no public auto-registration).
+5. **2FA decision** — choose Option A or Option B (see §10).
+6. **Actual 1040 upload** — Tax Preparer uploads the actual ProConnect 1040 PDF.
+7. **Draft/publish workflow** — document status lifecycle (`draft` → `published`).
+8. **Client notification** — client is notified/instructed when a document is published.
+9. **Secure download** — client securely downloads the actual 1040.
+10. **Audit logging** — persistent audit trail for login, upload, publish, download.
+11. **End-to-end testing** — full MVP flow verified against §11.
+
+All tasks must be implementable on Spark (no deployed Cloud Functions).
+
+---
+
+## 8. Cloud Functions
+
+**Status: DEFERRED**
+
+**Reason:** Deployment requires Blaze.
+
+- The existing `functions/` scaffold **may remain** in the repository for development/testing with the **Local Emulator Suite**.
+- **Do not delete it.**
+- It will not be deployed while the project stays on Spark.
+
+---
+
+## 9. Email
+
+**Current limitation:** The **Resend API key should not be exposed client-side.** Sending via Resend from the browser is not acceptable.
+
+**For the Spark MVP**, the currently proposed alternatives from the audit are:
+
+- **Hosted form API** — a form-backend service triggered from the client.
+- **EmailJS / Web3Forms** — hosted email forwarding services usable without a backend.
+- **Manual activation-link delivery** — the Tax Preparer delivers the activation link to the client directly.
+
+**Do not implement a paid backend without approval** (see §12).
+
+---
+
+## 10. 2FA
+
+Two explicit options are presented:
+
+- **Option A:** Enable Firebase Authentication with Identity Platform **while remaining on Spark** and implement real TOTP.
+  - Accepts the Spark limit of **3,000 DAU/day**.
+  - No billing upgrade required.
+- **Option B:** Keep the current 2FA **UI gate** for the prototype and defer real TOTP until production hardening.
+
+**This decision will not be made silently.** It is flagged as an open decision (MVP task 5) and requires explicit approval.
+
+---
+
+## 11. Definition of MVP
+
+The MVP is successful when **one test client** can complete:
+
 ```
-Preparer (admin-vault page) ─────────────────────► add client → invite (fn) → email link
-Client opens link ──► activation (fn) ──► set password ──► real 2FA (TOTP)
-Preparer uploads 1040 (reuse admin-vault) ──► Storage ──► documents{draft} + audit
-Preparer reviews ──► Publish (fn) ──► status=published ──► notify (fn) → email + in-app bell
-Client logs in (2FA) ──► dashboard (reuse) ──► query documents where clientUid==uid AND status==published (rules-enforced)
-Client downloads ──► function issues short-lived signed URL ──► 1040 delivered ──► audit log persisted
+Tax Preparer creates/invites client
+  → Client activates account
+  → Client logs in
+  → Tax Preparer uploads actual ProConnect 1040 PDF
+  → Document is Draft
+  → Tax Preparer previews
+  → Tax Preparer publishes
+  → Client receives notification/instructions
+  → Client logs in
+  → Client views actual 1040
+  → Client securely downloads actual 1040
 ```
 
-## 8. Questions / Unknowns (not guessed)
-1. **`storage.rules`** — not in the repo; current bucket access is UNKNOWN. Must be pulled from the Firebase Console.
-2. **Live data** — whether the production Firestore already holds real client PII/SSNs, and whether those intakes/leads records must be migrated.
-3. **Firebase plan** — code comments say real 2FA requires the Blaze plan; need confirmation of billing tier to know which features (TOTP via Identity Platform, Cloud Functions) are usable.
-4. **Email provider** — none exists; Gmail SMTP vs. Resend/SendGrid/Postmark is a product decision.
-5. **Preparer model** — is there a single preparer (Marcus) or multiple? Determines whether `assignedClients` lives on the user doc or a join collection.
-6. **"Form 1040" definition** — the app models `type: summary` for the 1040 summary; is the MVP's "2025 Form 1040" that summary, or the full 1040 PDF?
-7. **GitHub repo** — `origin` is `whoisdesirtech/Designing-Magnitax-Client-Portal`; the working tree is 1 commit ahead of `origin/main` with uncommitted changes (firebase.json, app.js, index.html, style.css + untracked firestore.rules, training.html). Confirm the target branch/repo for the MVP branch before work begins.
-8. **Admin test accounts** — `admin@magnitax.com` / `jane@example.com` are hardcoded with fixed passwords and exposed in the UI; are these safe to keep or must they be rotated?
+---
 
-No files were modified. When you're ready, we can turn Section 4 (implementation order) into a concrete plan.
+## 12. Cost Constraint
+
+**The project is pre-funded.**
+
+**Target infrastructure cost during MVP development: $0/month.**
+
+Do **not**:
+
+- upgrade Firebase to Blaze
+- deploy Cloud Functions
+- add paid APIs
+- add paid SaaS infrastructure
+
+**without explicit approval.**
+
+---
+
+## 13. Production Readiness
+
+Clearly distinguish:
+
+**PROTOTYPE / MVP DEVELOPMENT**
+
+from
+
+**PRODUCTION USE WITH REAL TAX DOCUMENTS**
+
+Do **not** represent the current Spark prototype as production-ready for real sensitive client tax documents until the security and authentication requirements have been validated.
+
+---
+
+## 14. Next Step
+
+After creating the audit document, **STOP**.
+
+- Do **not** modify application code yet.
+- Wait for approval of the implementation path.
