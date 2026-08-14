@@ -2080,6 +2080,135 @@ function getDocDownloadURL(doc) {
   return Promise.resolve(null);
 }
 
+// ==========================================================================
+// 15. CLIENT INVITATION MODULE (ADMIN)
+// ==========================================================================
+
+// Extend navigatePage so the Invite Client page loads its data + title.
+const _inviteNav = navigatePage;
+navigatePage = function(pageName) {
+  _inviteNav(pageName);
+  if (pageName === 'admin-invites') {
+    headerPageTitle.textContent = 'Invite Client';
+    loadInvites();
+  }
+};
+
+// Copy the generated activation link to clipboard
+document.getElementById('invite-copy-btn')?.addEventListener('click', async () => {
+  const input = document.getElementById('invite-link-value');
+  if (!input || !input.value) return;
+  try {
+    await navigator.clipboard.writeText(input.value);
+  } catch (err) {
+    input.select();
+    document.execCommand('copy');
+  }
+  showToast('Activation link copied to clipboard.');
+});
+
+// Create a pending invitation (admin only)
+document.getElementById('invite-client-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentFirebaseUser || activeUserRole !== 'admin') {
+    showToast('Error: Only the CPA Admin can invite clients.');
+    return;
+  }
+
+  const email     = document.getElementById('invite-email').value.trim().toLowerCase();
+  const firstName = document.getElementById('invite-first-name').value.trim();
+  const lastName  = document.getElementById('invite-last-name').value.trim();
+  const submitBtn = document.getElementById('invite-submit-btn');
+
+  // Reject invitations for emails that already have an account
+  const existing = await db.collection('users').where('email', '==', email).get().catch(() => null);
+  if (existing && !existing.empty) {
+    showToast('A user with this email already exists. They can log in directly.');
+    return;
+  }
+
+  const token = (crypto.randomUUID && crypto.randomUUID())
+    || ('inv_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12));
+  const expiresAt = firebase.firestore.Timestamp.fromDate(
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  );
+
+  submitBtn.disabled = true;
+  if (submitBtn.querySelector('span')) submitBtn.querySelector('span').textContent = 'Creating…';
+  try {
+    await db.collection('invites').doc(token).set({
+      email,
+      firstName,
+      lastName,
+      role: 'client',
+      status: 'pending',
+      invitedBy: currentFirebaseUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt
+    });
+
+    const link = `${window.location.origin}/activate.html?token=${token}`;
+    document.getElementById('invite-link-value').value = link;
+    document.getElementById('invite-result').style.display = 'block';
+    document.getElementById('invite-client-form').reset();
+    showToast(`Invitation created for ${email}.`);
+    loadInvites();
+  } catch (err) {
+    console.error('Invite failed:', err);
+    showToast(`Could not create invitation: ${err.message}`);
+  } finally {
+    submitBtn.disabled = false;
+    if (submitBtn.querySelector('span')) submitBtn.querySelector('span').textContent = 'Create Invitation';
+  }
+});
+
+// List pending / activated invitations (admin only)
+async function loadInvites() {
+  if (activeUserRole !== 'admin') return;
+  const container = document.getElementById('invite-list-container');
+  const emptyEl   = document.getElementById('invite-list-empty');
+  if (!container) return;
+  container.innerHTML = '';
+  try {
+    const snapshot = await db.collection('invites').orderBy('createdAt', 'desc').limit(50).get();
+    if (snapshot.empty) {
+      if (emptyEl) emptyEl.style.display = 'block';
+      return;
+    }
+    if (emptyEl) emptyEl.style.display = 'none';
+
+    snapshot.forEach(doc => {
+      const inv = doc.data();
+      const statusColor = inv.status === 'activated' ? '#10b981' : (inv.status === 'expired' ? '#ef4444' : '#f59e0b');
+      const expiresText = inv.expiresAt
+        ? `Expires ${new Date(inv.expiresAt.toDate ? inv.expiresAt.toDate() : inv.expiresAt).toLocaleDateString()}`
+        : '';
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border:1px solid var(--border-subtle); border-radius:10px; margin-bottom:8px; background:var(--bg-secondary);';
+      row.innerHTML = `
+        <div style="min-width:0;">
+          <div style="font-weight:600; font-size:14px; color:var(--text-primary);">${(inv.firstName || '') + ' ' + (inv.lastName || '')} <span style="font-weight:400; color:var(--text-muted);">${inv.email || ''}</span></div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${expiresText}</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.04em; font-weight:700; color:${statusColor};">${inv.status || 'pending'}</span>
+          ${inv.status === 'pending' ? `<button type="button" class="btn btn-secondary invite-copy-link-btn" style="padding:6px 12px; font-size:12px;" data-link="${window.location.origin}/activate.html?token=${doc.id}">Copy Link</button>` : ''}
+        </div>`;
+      container.appendChild(row);
+    });
+
+    container.querySelectorAll('.invite-copy-link-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(btn.dataset.link); } catch (err) { /* noop */ }
+        showToast('Activation link copied to clipboard.');
+      });
+    });
+  } catch (err) {
+    console.error('Could not load invites:', err);
+    if (emptyEl) { emptyEl.style.display = 'block'; emptyEl.textContent = 'Could not load invitations.'; }
+  }
+}
+
 // ── Initialize app on page load ───────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   // onAuthStateChanged fires automatically — no need to call setView('login') here

@@ -232,6 +232,15 @@
               <span>Client Vault Uploader</span>
             </a>
           </li>
+          <li class="menu-item" data-target="admin-invites">
+            <a href="#">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <span>Invite Client</span>
+              <span class="menu-badge-admin" style="background: rgba(245,158,11,0.15); color: #f59e0b;">New</span>
+            </a>
+          </li>
           <li class="menu-item" data-target="admin-training">
             <a href="#">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1114,6 +1123,63 @@
                 <span>Upload &amp; Publish to Client Vault</span>
               </button>
             </form>
+          </div>
+        </section>
+
+        <!-- ==========================================================================
+             PAGE 3G2: ADMIN INVITE CLIENT (CREATE PENDING INVITATION + ACTIVATION LINK)
+             ========================================================================== -->
+        <section class="page-container page-admin-invites">
+          <div class="intake-card" style="max-width: 720px;">
+            <div class="intake-card-header">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <div>
+                <h3>Invite a New Client</h3>
+                <p>Create a pending invitation with a one-time activation link. Deliver the link to your client manually (text, email, or in person) — they use it to activate their account and set their password.</p>
+              </div>
+            </div>
+
+            <form id="invite-client-form">
+              <div class="intake-form-grid">
+                <div class="form-group">
+                  <label class="form-label">Client Email Address</label>
+                  <input type="email" class="form-input" id="invite-email" placeholder="client@example.com" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">First Name</label>
+                  <input type="text" class="form-input" id="invite-first-name" placeholder="Jane" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" class="form-input" id="invite-last-name" placeholder="Doe" required>
+                </div>
+              </div>
+
+              <button type="submit" class="btn" id="invite-submit-btn" style="margin-top: 24px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span>Create Invitation</span>
+              </button>
+            </form>
+
+            <!-- Invitation result: activation link for manual delivery -->
+            <div id="invite-result" style="display:none; margin-top: 20px; padding: 16px; border: 1px solid rgba(16,185,129,0.25); background: rgba(16,185,129,0.06); border-radius: 12px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span style="font-weight:600; color:var(--text-primary);">Invitation created — send this activation link to your client:</span>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input type="text" class="form-input" id="invite-link-value" readonly style="font-size:12px;">
+                <button type="button" class="btn btn-secondary" id="invite-copy-btn" style="flex-shrink:0; padding:8px 14px; font-size:12px;">Copy Link</button>
+              </div>
+              <p style="font-size:12px; color:var(--text-muted); margin-top:10px;">The link expires in 7 days. Clients without a valid invite cannot self-register.</p>
+            </div>
+
+            <!-- Pending / sent invitations -->
+            <div style="margin-top: 28px;">
+              <h3 style="font-size:15px; margin-bottom: 12px;">Invitations</h3>
+              <div id="invite-list-empty" class="empty-gallery" style="padding: 24px 0; font-size: 13px;">No invitations yet.</div>
+              <div id="invite-list-container"></div>
+            </div>
           </div>
         </section>
 

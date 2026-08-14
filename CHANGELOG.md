@@ -15,18 +15,23 @@ Version numbers are recorded in [`VERSION`](./VERSION). Releases are tagged
 - **Cloud Functions scaffold** — new `functions/` (Node 20, firebase-functions v6): `auditDocumentCreated` and `auditIntakeCreated` Firestore triggers write a trusted server-side `auditLogs` trail (replacing the in-memory `AUDIT_LOGS` array); `auditDocumentUploaded` records Storage uploads under `documents/{clientUid}/...`; `sendNotificationEmail` is a callable stub for task 8 (Resend). Registered in `firebase.json`.
 - **`auditLogs` Firestore rule** — server-written only (Admin SDK bypasses rules), admins may read, client writes denied.
 - `storage.rules` registered in `firebase.json`.
+- **Client invitation module** — new admin "Invite Client" page (`admin-invites`): creates a pending `invites/{token}` record (7-day expiry) and shows a copyable activation link for manual delivery (text/email/in-person). Token IDs are UUIDs so they cannot be guessed.
+- **Client activation page** — new `public/activate.html`: validates the invite token by get (pending + unexpired), creates the account with a self-set password, writes the `client` profile, and marks the invite `activated`. Public self-registration remains impossible — a valid invite is required.
+- **`invites` Firestore rules** — get-by-token allowed (pre-auth activation), list/create/delete admin-only, and activation may only flip `status`/`activatedBy`/`activatedAt` to `activated`.
 
 ### Changed
 
 - **Removed auto-registration and email-heuristic admin** — login now authenticates existing accounts only (`auth.signInWithEmailAndPassword`, no `createUserWithEmailAndPassword` fallback). Roles come exclusively from the Firestore `users/{uid}.role` document; the `admin`/`kaelen`/`cpa` email check is gone. New users without a profile default to `client` and get a client-role profile created.
 - **Removed the role switcher** — the client↔admin toggle button and its listener are deleted; the role badge is now read-only, and profile display reads from the Firestore profile instead of hardcoded demo users.
 - **Hardened Firestore security rules** — replaced the permissive `allow read, write: if request.auth != null` catch-all with role- and path-scoped rules. Clients can now only read their own `documents`; only admins write `documents`; only admins read/update `intakes` (SSN/DOB live there); only admins read/update/delete `leads` (public marketing forms may still create); admins are identified by `users/{uid}.role == 'admin'`.
+- **Closed the self-service role escalation hole** — `users/{userId}` rules now deny role changes on self-write: a user may only create their own profile as `client`, and self-updates must keep the existing `role` value. Only admins can create/update profiles with any role.
 - **Added Storage security rules** — new `storage.rules` enforcing that clients can only read `documents/{clientUid}/...` in their own folder and only admins can write, registered in `firebase.json`.
 
 ### Fixed
 
 - Any authenticated user could read/write every Firestore document (SSN/DOB, intake, leads, documents). Now path-scoped.
 - Firestore Storage bucket had no versioned rules in the repo. Now tracked and deployable.
+- A user could self-escalate to `admin` by editing their own `users/{uid}` document (`role` was writable on self-update). Self-writes can no longer change `role`.
 
 ### Docs
 

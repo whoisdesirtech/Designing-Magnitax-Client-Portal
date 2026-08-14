@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activate Your Account | Magnitax Client Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-view="login">
+
+  <div class="auth-container" style="display:flex;">
+    <div class="auth-card" style="max-width:440px;">
+
+      <div class="auth-logo">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M12 8v8"/>
+            <path d="M9 11l3 3 3-3"/>
+          </svg>
+        </div>
+        <div class="logo-text">Magni<span>tax</span></div>
+      </div>
+
+      <!-- Loading -->
+      <div id="activate-loading" style="text-align:center; padding:40px 0;">
+        <p style="color:var(--text-muted); font-size:14px;">Verifying your invitation…</p>
+      </div>
+
+      <!-- Invalid / expired / used invite -->
+      <div id="activate-invalid" style="display:none; text-align:center; padding:20px 0;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <h2 class="auth-title" style="margin-top:16px;">Link Invalid or Expired</h2>
+        <p style="color:var(--text-muted); font-size:14px;">This activation link is not valid, has expired, or has already been used. Please contact your tax preparer for a new invitation.</p>
+      </div>
+
+      <!-- Activation form -->
+      <div id="activate-form-wrap" style="display:none;">
+        <h2 class="auth-title">Activate Your Account</h2>
+        <p class="auth-subtitle">Set a password to activate your secure client portal account.</p>
+
+        <div class="auth-error" id="activate-error">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="activate-error-text">Activation failed.</span>
+        </div>
+
+        <form id="activate-form">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" class="form-input" id="activate-first-name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" class="form-input" id="activate-last-name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-input" id="activate-email" readonly style="opacity:0.7;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Create Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" id="activate-password" class="form-input" placeholder="At least 8 characters" minlength="8" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" id="activate-password-confirm" class="form-input" placeholder="Re-enter password" minlength="8" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn" style="width:100%; margin-top:8px;">
+            <span>Activate Account</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Success -->
+      <div id="activate-success" style="display:none; text-align:center; padding:20px 0;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <h2 class="auth-title" style="margin-top:16px;">Account Activated!</h2>
+        <p style="color:var(--text-muted); font-size:14px;">Your secure portal account is ready. Sign in to view and download your tax documents.</p>
+        <a class="btn" href="index.html" style="width:100%; margin-top:20px; text-decoration:none; text-align:center;">Go to Sign In</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmd6E4ytLfG9XxCqWJpdDsYf4R8nPLE5k",
+      authDomain: "taxagentai062026.firebaseapp.com",
+      projectId: "taxagentai062026",
+      storageBucket: "taxagentai062026.firebasestorage.app",
+      messagingSenderId: "561347862205",
+      appId: "1:561347862205:web:051f37e5571d6a32fd61d4",
+      measurementId: "G-P0VWKE8V19"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const loading   = document.getElementById('activate-loading');
+    const invalid   = document.getElementById('activate-invalid');
+    const formWrap  = document.getElementById('activate-form-wrap');
+    const success   = document.getElementById('activate-success');
+    const errorEl   = document.getElementById('activate-error');
+    const errorText = document.getElementById('activate-error-text');
+
+    const token = new URLSearchParams(window.location.search).get('token');
+
+    function showError(msg) {
+      errorText.textContent = msg;
+      errorEl.style.display = 'flex';
+    }
+
+    function isValidInvite(inv) {
+      if (!inv) return false;
+      if (inv.status && inv.status !== 'pending') return false;
+      if (inv.expiresAt) {
+        const expires = inv.expiresAt.toDate ? inv.expiresAt.toDate() : new Date(inv.expiresAt);
+        if (expires.getTime() < Date.now()) return false;
+      }
+      return true;
+    }
+
+    async function init() {
+      if (!token) {
+        loading.style.display = 'none';
+        invalid.style.display = 'block';
+        return;
+      }
+      try {
+        const doc = await db.collection('invites').doc(token).get();
+        if (!doc.exists || !isValidInvite(doc.data())) {
+          loading.style.display = 'none';
+          invalid.style.display = 'block';
+          return;
+        }
+        const inv = doc.data();
+        document.getElementById('activate-email').value = inv.email || '';
+        document.getElementById('activate-first-name').value = inv.firstName || '';
+        document.getElementById('activate-last-name').value = inv.lastName || '';
+        loading.style.display = 'none';
+        formWrap.style.display = 'block';
+      } catch (err) {
+        console.error('Invite validation error:', err);
+        loading.style.display = 'none';
+        invalid.style.display = 'block';
+      }
+    }
+
+    document.getElementById('activate-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.style.display = 'none';
+
+      const email     = document.getElementById('activate-email').value.trim();
+      const firstName = document.getElementById('activate-first-name').value.trim();
+      const lastName  = document.getElementById('activate-last-name').value.trim();
+      const password  = document.getElementById('activate-password').value;
+      const confirm   = document.getElementById('activate-password-confirm').value;
+
+      if (password.length < 8) { showError('Password must be at least 8 characters.'); return; }
+      if (password !== confirm) { showError('Passwords do not match.'); return; }
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.querySelector('span').textContent = 'Activating…';
+
+      try {
+        // Create the account (this also signs the user in)
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+
+        // Write the client profile — rule requires role == 'client' on self-create
+        await db.collection('users').doc(cred.user.uid).set({
+          role: 'client',
+          firstName,
+          lastName,
+          email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Mark the invite as activated
+        await db.collection('invites').doc(token).update({
+          status: 'activated',
+          activatedBy: cred.user.uid,
+          activatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await auth.signOut();
+        formWrap.style.display = 'none';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Activation error:', err);
+        submitBtn.disabled = false;
+        submitBtn.querySelector('span').textContent = 'Activate Account';
+        if (err.code === 'auth/email-already-in-use') {
+          showError('An account already exists for this email. Please sign in instead.');
+        } else {
+          showError('Activation failed: ' + (err.message || err.code));
+        }
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>

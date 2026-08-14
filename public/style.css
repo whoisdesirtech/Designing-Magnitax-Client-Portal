@@ -2169,7 +2169,8 @@ input:checked + .slider:before {
 [data-page="admin-intakes"] .page-documents,
 [data-page="admin-intakes"] .page-settings,
 [data-page="admin-intakes"] .page-intake,
-[data-page="admin-intakes"] .page-admin-vault {
+[data-page="admin-intakes"] .page-admin-vault,
+[data-page="admin-intakes"] .page-admin-invites {
   display: none;
 }
 [data-page="admin-intakes"] .page-admin-intakes {
@@ -2181,7 +2182,8 @@ input:checked + .slider:before {
 [data-page="admin-vault"] .page-documents,
 [data-page="admin-vault"] .page-settings,
 [data-page="admin-vault"] .page-intake,
-[data-page="admin-vault"] .page-admin-intakes {
+[data-page="admin-vault"] .page-admin-intakes,
+[data-page="admin-vault"] .page-admin-invites {
   display: none;
 }
 [data-page="admin-vault"] .page-admin-vault {
@@ -2189,12 +2191,30 @@ input:checked + .slider:before {
 }
 .page-admin-vault { display: none; }
 
+[data-page="admin-invites"] .page-dashboard,
+[data-page="admin-invites"] .page-documents,
+[data-page="admin-invites"] .page-settings,
+[data-page="admin-invites"] .page-intake,
+[data-page="admin-invites"] .page-admin-intakes,
+[data-page="admin-invites"] .page-admin-vault,
+[data-page="admin-invites"] .page-admin-leads,
+[data-page="admin-invites"] .page-admin-training,
+[data-page="admin-invites"] .page-admin-developer-training,
+[data-page="admin-invites"] .page-admin-github-training {
+  display: none;
+}
+[data-page="admin-invites"] .page-admin-invites {
+  display: block;
+}
+.page-admin-invites { display: none; }
+
 [data-page="admin-leads"] .page-dashboard,
 [data-page="admin-leads"] .page-documents,
 [data-page="admin-leads"] .page-settings,
 [data-page="admin-leads"] .page-intake,
 [data-page="admin-leads"] .page-admin-intakes,
-[data-page="admin-leads"] .page-admin-vault {
+[data-page="admin-leads"] .page-admin-vault,
+[data-page="admin-leads"] .page-admin-invites {
   display: none;
 }
 [data-page="admin-leads"] .page-admin-leads {
@@ -2208,6 +2228,7 @@ input:checked + .slider:before {
 [data-page="admin-training"] .page-intake,
 [data-page="admin-training"] .page-admin-intakes,
 [data-page="admin-training"] .page-admin-vault,
+[data-page="admin-training"] .page-admin-invites,
 [data-page="admin-training"] .page-admin-github-training {
   display: none;
 }
@@ -2222,6 +2243,7 @@ input:checked + .slider:before {
 [data-page="admin-developer-training"] .page-intake,
 [data-page="admin-developer-training"] .page-admin-intakes,
 [data-page="admin-developer-training"] .page-admin-vault,
+[data-page="admin-developer-training"] .page-admin-invites,
 [data-page="admin-developer-training"] .page-admin-training,
 [data-page="admin-developer-training"] .page-admin-github-training {
   display: none;
@@ -2238,6 +2260,7 @@ input:checked + .slider:before {
 [data-page="admin-github-training"] .page-admin-intakes,
 [data-page="admin-github-training"] .page-admin-leads,
 [data-page="admin-github-training"] .page-admin-vault,
+[data-page="admin-github-training"] .page-admin-invites,
 [data-page="admin-github-training"] .page-admin-training,
 [data-page="admin-github-training"] .page-admin-developer-training {
   display: none;
