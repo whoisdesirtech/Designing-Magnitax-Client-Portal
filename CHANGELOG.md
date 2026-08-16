@@ -32,6 +32,7 @@ Version numbers are recorded in [`VERSION`](./VERSION). Releases are tagged
 - Any authenticated user could read/write every Firestore document (SSN/DOB, intake, leads, documents). Now path-scoped.
 - Firestore Storage bucket had no versioned rules in the repo. Now tracked and deployable.
 - A user could self-escalate to `admin` by editing their own `users/{uid}` document (`role` was writable on self-update). Self-writes can no longer change `role`.
+- `storage.rules` used an invalid `exists(...)` Firestore check — replaced with `firestore.exists(...)` so the admin role check compiles without warnings.
 
 ### Docs
 
