@@ -1,3 +1,21 @@
+# Firebase Authentication Policy
+
+Do not run:
+
+- `firebase login`
+- `firebase logout`
+- `firebase login:ci`
+
+Do not change the active Firebase CLI account.
+
+Do not attempt to re-authenticate Firebase automatically.
+
+Before running Firebase commands, use the project's configured authentication method.
+
+If Firebase authentication fails, stop and report the authentication error instead of changing accounts.
+
+Never switch Google/Firebase accounts without explicit user approval.
+
 # Contribution Workflow
 
 Never commit directly to `main`. Every change goes through a feature branch and a reviewed pull request.
