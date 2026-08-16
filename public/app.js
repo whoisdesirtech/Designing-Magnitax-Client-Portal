@@ -197,10 +197,15 @@ const profileAvatarLetters = document.getElementById('profile-avatar-letters');
 const profileUserFullname = document.getElementById('profile-user-fullname');
 
 // Security Buttons
-const reconfigure2faBtn = document.getElementById('reconfigure-2fa-btn');
+const mfaActionBtn = document.getElementById('mfa-action-btn');
 const gdprExportBtn = document.getElementById('gdpr-export-btn');
 const gdprDeleteBtn = document.getElementById('gdpr-delete-btn');
 const messagePreparerBtn = document.getElementById('message-preparer-btn');
+
+// Real TOTP MFA state (modular SDK exposed by index.html as window.__mfa)
+const __mfa = window.__mfa || null;
+let mfaResolver = null;      // pending MultiFactorResolver during sign-in
+let mfaPendingSecret = null; // pending TotpSecret during enrollment
 
 // State Variables
 let currentActivePage = 'dashboard';
@@ -280,6 +285,20 @@ loginForm.addEventListener('submit', async (e) => {
     loginError.style.display = 'none';
   } catch (err) {
     console.warn('Sign-in failed with code:', err.code, err.message);
+    // Real TOTP 2FA: the account has an enrolled factor, challenge the user.
+    if (err.code === 'auth/multi-factor-auth-required' && __mfa) {
+      try {
+        mfaResolver = __mfa.getMultiFactorResolver(__mfa.getAuth(), err);
+        mfaPendingSecret = null;
+        loginError.style.display = 'none';
+        setView('2fa');
+        setTimeout(() => { digitInputs[0] && digitInputs[0].focus(); }, 200);
+        showToast('Enter your authenticator code to complete sign-in.');
+        return;
+      } catch (mfaErr) {
+        console.error('Could not start MFA challenge:', mfaErr);
+      }
+    }
     loginErrorText.textContent = `Authentication error: ${err.message || err.code}`;
     loginError.style.display = 'flex';
   } finally {
@@ -357,12 +376,12 @@ auth.onAuthStateChanged(async (user) => {
       });
     }
 
-    // Show 2FA gate (UI only — real 2FA would require Firebase Phone Auth / Blaze plan)
-    // For now, show the 2FA screen as an intermediate confirmation step
-    if (document.body.getAttribute('data-view') === 'login') {
+    // Real TOTP 2FA gate: shown only when a multi-factor challenge is pending.
+    // Users without enrolled factors (and returning sessions) go straight in.
+    if (mfaResolver && document.body.getAttribute('data-view') === 'login') {
       setView('2fa');
       setTimeout(() => { digitInputs[0] && digitInputs[0].focus(); }, 200);
-      showToast('Credentials verified. Complete the security check to continue.');
+      showToast('Enter your authenticator code to complete sign-in.');
     } else if (document.body.getAttribute('data-view') !== 'app') {
       // Returning from a reload / already passed 2FA
       enterApp();
@@ -383,6 +402,7 @@ function enterApp() {
   if (activeUserRole === 'admin') {
     loadAdminClientDropdown();
   }
+  updateMfaUI();
   showToast(`Welcome back, ${currentUserProfile ? currentUserProfile.firstName : 'User'}. Session secured.`);
 }
 
@@ -409,23 +429,35 @@ function collectFull2faCode() {
   document.getElementById('full-2fa-code').value = code;
 }
 
-// 2FA gate — any 6 digits accepted (UI placeholder; real SMS 2FA needs Blaze plan)
-twoFactorForm.addEventListener('submit', (e) => {
+// 2FA gate — real TOTP verification (resolves the pending MFA challenge)
+twoFactorForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const code = document.getElementById('full-2fa-code').value;
-  if (code.length === 6) {
-    twoFactorError.style.display = 'none';
-    AUDIT_LOGS.unshift({
-      id: `log_2fa_${Date.now()}`,
-      action: '2FA_VERIFIED',
-      details: `Two-Factor passcode confirmed. ${activeUserRole === 'admin' ? 'CPA Admin' : 'Client'} session unlocked.`,
-      time: 'Just now'
-    });
-    enterApp();
-  } else {
+
+  if (!mfaResolver || !__mfa) {
     twoFactorError.style.display = 'flex';
     digitInputs.forEach(input => (input.value = ''));
     digitInputs[0] && digitInputs[0].focus();
+    return;
+  }
+
+  const submitBtn = twoFactorForm.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
+  try {
+    const hint = mfaResolver.hints.find(h => h.factorId === 'totp');
+    if (!hint) throw new Error('No TOTP factor enrolled for this account.');
+    const assertion = __mfa.TotpMultiFactorGenerator.assertionForSignIn(hint, code);
+    await mfaResolver.resolveSignIn(assertion);
+    // Sign-in completes → auth.onAuthStateChanged fires and enters the app.
+    mfaResolver = null;
+  } catch (err) {
+    console.error('2FA verification failed:', err);
+    twoFactorError.style.display = 'flex';
+    digitInputs.forEach(input => (input.value = ''));
+    digitInputs[0] && digitInputs[0].focus();
+  } finally {
+    submitBtn.disabled = false;
   }
 });
 
@@ -1124,10 +1156,118 @@ gdprDeleteBtn.addEventListener('click', () => {
   }
 });
 
-// 2FA Reconfiguration Trigger
-reconfigure2faBtn.addEventListener('click', () => {
-  alert("Simulating 2FA Reconfiguration:\nThis prompts the client to scan a new Google Authenticator QR Code and enter the resulting verification code to re-link their application token.");
-  showToast("2FA re-link wizard initialized.");
+// ── Real TOTP Multi-Factor Authentication (Identity Platform) ──────────────
+function getMfaUser() {
+  if (!__mfa) return null;
+  const user = __mfa.getAuth().currentUser;
+  return user ? __mfa.multiFactor(user) : null;
+}
+
+function enrolledTotpFactor() {
+  const mfaUser = getMfaUser();
+  if (!mfaUser) return null;
+  const factors = mfaUser.enrolledFactors || [];
+  return factors.find(f => f.factorId === 'totp') || factors[0] || null;
+}
+
+// Refresh the Settings 2FA card + dashboard stat based on real enrollment
+function updateMfaUI() {
+  const statusTitle = document.getElementById('mfa-status-title');
+  const statusDesc  = document.getElementById('mfa-status-desc');
+  const actionLabel = document.getElementById('mfa-action-btn-label');
+  const dashStat    = document.getElementById('dash-stat-2fa');
+  const enrollPanel = document.getElementById('mfa-enroll-panel');
+
+  if (!statusTitle) return;
+  const factor = enrolledTotpFactor();
+
+  if (factor) {
+    statusTitle.textContent = 'Two-Factor Authentication is Active';
+    statusDesc.textContent = `Authenticator TOTP is enabled (${factor.displayName || 'Authenticator'}). Sign-in now requires a 6-digit code.`;
+    actionLabel.textContent = 'Disable 2FA';
+    if (dashStat) dashStat.textContent = '2FA Secured';
+  } else {
+    statusTitle.textContent = 'Two-Factor Authentication is Off';
+    statusDesc.textContent = 'Enabling 2FA adds a 6-digit authenticator code to every sign-in. Recommended for all portal accounts.';
+    actionLabel.textContent = 'Enable 2FA';
+    if (dashStat) dashStat.textContent = '2FA Not Enabled';
+  }
+  if (enrollPanel) enrollPanel.style.display = 'none';
+}
+
+// Begin TOTP enrollment: generate secret + QR, show the panel
+async function startMfaEnrollment() {
+  if (!__mfa) { showToast('2FA is unavailable in this build.'); return; }
+  const user = __mfa.getAuth().currentUser;
+  if (!user) { showToast('You must be signed in to enable 2FA.'); return; }
+
+  try {
+    await user.reload();
+    const mfaUser = __mfa.multiFactor(user);
+    const session = await mfaUser.getSession();
+    mfaPendingSecret = await __mfa.TotpMultiFactorGenerator.generateSecret(session);
+
+    const uri = mfaPendingSecret.generateQrCodeUrl(user.email || 'user', 'Magnitax Portal');
+    document.getElementById('mfa-secret').value = mfaPendingSecret.secretKey;
+    document.getElementById('mfa-qr-img').src =
+      `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(uri)}`;
+    document.getElementById('mfa-code').value = '';
+    document.getElementById('mfa-enroll-panel').style.display = 'block';
+    document.getElementById('mfa-code').focus();
+  } catch (err) {
+    console.error('Enrollment setup failed:', err);
+    showToast(`Could not start 2FA setup: ${err.message}`);
+  }
+}
+
+// Confirm enrollment with the 6-digit code from the authenticator app
+async function confirmMfaEnrollment() {
+  if (!mfaPendingSecret) return;
+  const code = document.getElementById('mfa-code').value.trim();
+  if (!/^\d{6}$/.test(code)) { showToast('Enter the 6-digit code from your authenticator app.'); return; }
+
+  try {
+    const user = __mfa.getAuth().currentUser;
+    const assertion = __mfa.TotpMultiFactorGenerator.assertionForEnrollment(mfaPendingSecret, code);
+    await __mfa.multiFactor(user).enroll(assertion, 'TOTP Authenticator');
+    mfaPendingSecret = null;
+    document.getElementById('mfa-enroll-panel').style.display = 'none';
+    showToast('2FA enabled. Your authenticator app is now required at sign-in.');
+    updateMfaUI();
+  } catch (err) {
+    console.error('Enrollment failed:', err);
+    showToast(`Verification failed: ${err.message}`);
+  }
+}
+
+// Remove the enrolled TOTP factor
+async function disableMfa() {
+  const factor = enrolledTotpFactor();
+  if (!factor) return;
+  if (!confirm('Disable two-factor authentication? Your authenticator app will no longer be required at sign-in.')) return;
+  try {
+    await __mfa.multiFactor(__mfa.getAuth().currentUser).unenroll(factor.uid);
+    showToast('2FA disabled.');
+    updateMfaUI();
+  } catch (err) {
+    console.error('Unenroll failed:', err);
+    showToast(`Could not disable 2FA: ${err.message}`);
+  }
+}
+
+// MFA action button — Enable (start enrollment) or Disable (unenroll)
+mfaActionBtn.addEventListener('click', () => {
+  if (enrolledTotpFactor()) {
+    disableMfa();
+  } else {
+    startMfaEnrollment();
+  }
+});
+
+document.getElementById('mfa-enroll-confirm-btn').addEventListener('click', confirmMfaEnrollment);
+document.getElementById('mfa-enroll-cancel-btn').addEventListener('click', () => {
+  mfaPendingSecret = null;
+  document.getElementById('mfa-enroll-panel').style.display = 'none';
 });
 
 // Message Preparer Dialog

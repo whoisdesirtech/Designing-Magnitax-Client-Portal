@@ -111,7 +111,7 @@
       </div>
       
       <h2 class="auth-title">Two-Factor Authentication</h2>
-      <p class="auth-subtitle">For security, enter the 6-digit code sent to your registered authenticator or email.</p>
+      <p class="auth-subtitle">Enter the 6-digit code from your authenticator app to complete sign-in.</p>
       
       <!-- Simulated 2FA Error Alert -->
       <div class="auth-error" id="2fa-error">
@@ -383,7 +383,7 @@
                 </svg>
               </div>
               <div class="stat-info">
-                <span class="stat-value">2FA Secured</span>
+                <span class="stat-value" id="dash-stat-2fa">2FA Secured</span>
                 <span class="stat-label">Access Defense Status</span>
               </div>
             </div>
@@ -543,7 +543,7 @@
             <p class="settings-section-desc">Review your credentials, security settings, and regulatory compliance status.</p>
             
             <div class="settings-grid">
-              <!-- Security Column 1: Multi-Factor Authentication Status -->
+              <!-- Security Column 1: Multi-Factor Authentication Status (real TOTP) -->
               <div class="security-badge-card">
                 <div class="security-badge-icon">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -552,11 +552,41 @@
                   </svg>
                 </div>
                 <div class="security-badge-text">
-                  <h4>Two-Factor Authentication is Active</h4>
-                  <p>MFA is mandatory on your account. Authenticator logins are active for <strong>jane.doe@example.com</strong>.</p>
-                  <button class="btn btn-secondary" style="font-size: 12px; padding: 8px 12px; margin-top: 12px; width: auto;" id="reconfigure-2fa-btn">
-                    <span>Reconfigure 2FA App</span>
+                  <h4 id="mfa-status-title">Two-Factor Authentication</h4>
+                  <p id="mfa-status-desc">Checking enrollment status…</p>
+                  <button class="btn btn-secondary" style="font-size: 12px; padding: 8px 12px; margin-top: 12px; width: auto;" id="mfa-action-btn">
+                    <span id="mfa-action-btn-label">Enable 2FA</span>
                   </button>
+                </div>
+              </div>
+
+              <!-- TOTP Enrollment Panel (hidden until Enable 2FA is clicked) -->
+              <div class="security-badge-card" id="mfa-enroll-panel" style="display:none; grid-column: 1 / -1;">
+                <div class="security-badge-text" style="width: 100%;">
+                  <h4>Set Up Authenticator App</h4>
+                  <p>Scan the QR code with Google Authenticator (or any TOTP app), then enter the 6-digit code to enable 2FA.</p>
+                  <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-top: 16px;">
+                    <div style="text-align:center;">
+                      <img id="mfa-qr-img" alt="TOTP QR code" style="width: 180px; height: 180px; border-radius: 10px; background: #fff; padding: 8px;">
+                      <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Scan with your authenticator app</p>
+                    </div>
+                    <div style="flex: 1; min-width: 220px;">
+                      <label class="form-label">Or enter this code manually</label>
+                      <input type="text" class="form-input" id="mfa-secret" readonly style="font-family: monospace; font-size: 12px;">
+                      <div class="form-group" style="margin-top: 12px;">
+                        <label class="form-label">6-Digit Verification Code</label>
+                        <input type="text" class="form-input" id="mfa-code" maxlength="6" inputmode="numeric" placeholder="123456" style="letter-spacing: 4px;">
+                      </div>
+                      <div style="display: flex; gap: 8px; margin-top: 8px;">
+                        <button class="btn" style="font-size: 12px; padding: 8px 14px; width: auto;" id="mfa-enroll-confirm-btn">
+                          <span>Verify &amp; Enable</span>
+                        </button>
+                        <button class="btn btn-secondary" style="font-size: 12px; padding: 8px 14px; width: auto;" id="mfa-enroll-cancel-btn">
+                          <span>Cancel</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -1368,6 +1398,18 @@
     const auth = firebase.auth();
     const storage = firebase.storage();
     console.log("Firebase initialized — Auth, Firestore, and Storage ready:", firebaseApp.name);
+  </script>
+
+  <!-- Modular auth SDK for TOTP multi-factor auth (MFA is not in the compat SDK).
+       Shares the same app instance initialized above; app.js uses window.__mfa. -->
+  <script type="module">
+    import { getAuth, multiFactor, TotpMultiFactorGenerator, getMultiFactorResolver } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+    window.__mfa = {
+      getAuth: () => getAuth(firebase.app()),
+      multiFactor,
+      TotpMultiFactorGenerator,
+      getMultiFactorResolver
+    };
   </script>
 
   <script src="app.js"></script>
