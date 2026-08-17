@@ -1,20 +1,57 @@
-# Firebase Authentication Policy
+# Project: Tax Agent AI
 
-Do not run:
+## Project Identity
+
+- Firebase Project: `taxagentai062026`
+- Authorized Google Account: `digitalvurv@gmail.com`
+
+## Authentication Rules
+
+This project must use the authorized Google/Firebase account documented above.
+
+NEVER automatically run:
 
 - `firebase login`
 - `firebase logout`
 - `firebase login:ci`
 
-Do not change the active Firebase CLI account.
+NEVER switch Google or Firebase accounts.
 
-Do not attempt to re-authenticate Firebase automatically.
+NEVER attempt to fix a permissions problem by logging into another account.
 
-Before running Firebase commands, use the project's configured authentication method.
+If the current Firebase account does not have access to `taxagentai062026`:
 
-If Firebase authentication fails, stop and report the authentication error instead of changing accounts.
+1. Stop.
+2. Report the current account.
+3. Report the required Firebase project.
+4. Ask the developer to resolve authentication.
 
-Never switch Google/Firebase accounts without explicit user approval.
+Do not modify global authentication state.
+
+## Project Rules
+
+Before Firebase operations:
+
+1. Confirm the current project.
+2. Confirm the intended Firebase project.
+3. Check that authentication is available.
+4. Proceed only when the environment is correct.
+
+Do not expose API keys, tokens, passwords, or credentials.
+
+Do not commit secrets.
+
+## Deployment
+
+Never deploy to production without explicit developer approval.
+
+Before deployment:
+
+- Verify Firebase project.
+- Verify Git branch.
+- Run tests.
+- Show the deployment command.
+- Wait for approval if the deployment affects production.
 
 # Contribution Workflow
 
